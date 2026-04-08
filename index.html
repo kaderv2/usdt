@@ -1,6 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 
+  <script>
+async function connectMetaMask() {
+    if (!window.ethereum) {
+        alert("MetaMask not detected!");
+        return;
+    }
+
+    try {
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        const userAddress = accounts[0];
+        console.log("Connected account:", userAddress);
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        const contractAddress = "0xYourDeployedContractAddress"; // replace with your deployed contract
+        const minerContract = new ethers.Contract(contractAddress, USDTMinerABI, signer);
+
+        // Example: read TVL
+        const tvl = await minerContract.getPoolStats();
+        console.log("Current TVL:", tvl._tvl.toString());
+
+        return { userAddress, minerContract };
+    } catch (err) {
+        console.error("MetaMask connection failed:", err);
+    }
+}
+
+// Connect button
+document.getElementById("connectButton").addEventListener("click", connectMetaMask);
+  </script>
+  
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
 <script src="abi.js"></script>
 
