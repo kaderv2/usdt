@@ -100,11 +100,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .hb p{font-size:12px;color:var(--muted);line-height:1.8}
 .toast{position:fixed;bottom:28px;right:28px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px 20px;font-size:13px;color:var(--text);font-family:'Space Mono',monospace;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:9999;max-width:320px;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
+.steps{background:var(--bg3);border-radius:var(--r);padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:2}
+.steps b{color:var(--text)}
 @media(max-width:768px){.sg{grid-template-columns:repeat(2,1fr)}.mg{grid-template-columns:1fr}header{padding:14px 16px}main{padding:24px 14px 60px}.yr{font-size:38px}.badge{display:none}}
 </style>
 </head>
 <body>
-
 <div class="ov" id="wModal"><div class="modal"><button class="mcls" onclick="closeModal()">✕</button><div id="mBody"></div></div></div>
 <div class="txov" id="txOv"><div class="txb"><div class="txsp"></div><div class="txtt" id="txTt">CONFIRM IN WALLET</div><div class="txst" id="txSt">Approve the transaction</div></div></div>
 
@@ -214,156 +215,250 @@ var UABI = ['function approve(address,uint256) external returns (bool)'];
 
 var prov,sign,mc,uc,addr=null,live=false,ybps=100,dBN,pBN,pTS=0,tickT;
 
-/* ── BOOT: load public data only, touch nothing else ── */
-window.addEventListener('load', function() {
-  setTimeout(function() {
-    dBN = ethers.constants.Zero;
-    pBN = ethers.constants.Zero;
-    var ref = new URLSearchParams(location.search).get('ref');
-    if (ref && ethers.utils.isAddress(ref)) { g('rInp').value=ref; toast('Referral detected'); }
-    loadPublic();
-    calcY();
-  }, 500);
+window.addEventListener('load',function(){
+  setTimeout(function(){
+    dBN=ethers.constants.Zero; pBN=ethers.constants.Zero;
+    var ref=new URLSearchParams(location.search).get('ref');
+    if(ref&&ethers.utils.isAddress(ref)){g('rInp').value=ref;toast('Referral detected');}
+    loadPublic(); calcY();
+  },500);
 });
 
-/* ── CONNECT BUTTON ──
-   We never call anything on load.
-   The button either opens the modal or shows
-   the connected menu. That's it.             */
-function onConnectClick() {
-  if (live) { showConnMenu(); return; }
-  openModal();
-  showWalletMenu();
+/* ═══════════════════════════════════════
+   CONNECT BUTTON
+═══════════════════════════════════════ */
+function onConnectClick(){
+  if(live){showConnMenu();return;}
+  openModal(); showWalletMenu();
 }
 
-/* ── METAMASK CONNECT ──
-   This is the ONLY place eth_requestAccounts
-   is called, and only after a real user click. */
-function clickMM() {
-  /* No MetaMask at all */
-  if (!window.ethereum) {
-    go('https://metamask.app.link/dapp/'+location.host+location.pathname);
-    closeModal();
-    return;
+/* ═══════════════════════════════════════
+   METAMASK
+   
+   KEY FIX: Do NOT chain wallet_switchEthereumChain
+   inside the same .then() as eth_requestAccounts.
+   Instead: request accounts → connect → THEN in a
+   separate async step check/switch chain.
+   This eliminates -32603 on Chrome.
+═══════════════════════════════════════ */
+function clickMM(){
+  if(!window.ethereum){
+    /* No MetaMask installed — open download page */
+    window.open('https://metamask.io/download/','_blank');
+    closeModal(); return;
   }
 
-  showSpinner('Check MetaMask...','Approve the connection request');
+  showSpinner('Check MetaMask...','Approve the connection in MetaMask');
 
-  /* Pure minimal flow:
-     1. request accounts  (may show MM popup)
-     2. build provider
-     3. switch chain if needed
-     4. done                                  */
-  window.ethereum.request({ method:'eth_requestAccounts' })
-
-    .then(function(accs) {
-      if (!accs || !accs.length) throw {code:-1, message:'MetaMask returned no accounts'};
+  /* STEP 1: Request accounts only. Nothing else. */
+  window.ethereum.request({method:'eth_requestAccounts'})
+    .then(function(accs){
+      if(!accs||!accs.length) throw {code:0,message:'No accounts returned'};
       addr = accs[0];
-      prov = new ethers.providers.Web3Provider(window.ethereum,'any');
-      sign = prov.getSigner();
-      mc   = new ethers.Contract(CA,   MABI, sign);
-      uc   = new ethers.Contract(USDT, UABI, sign);
-      return prov.getNetwork();
-    })
 
-    .then(function(net) {
-      if (net.chainId === 56) return; /* already BSC */
-      return window.ethereum.request({
-        method:'wallet_switchEthereumChain',
-        params:[{chainId:'0x38'}]
-      }).catch(function(e){
-        if (e.code===4902) return window.ethereum.request({
-          method:'wallet_addEthereumChain',
-          params:[{chainId:'0x38',chainName:'BNB Smart Chain',
-            nativeCurrency:{name:'BNB',symbol:'BNB',decimals:18},
-            rpcUrls:[RPC],blockExplorerUrls:['https://bscscan.com/']}]
-        });
-        /* user rejected switch — still connect, just warn */
-        toast('Switch MetaMask to BNB Smart Chain');
-      });
-    })
-
-    .then(function() {
-      /* Rebuild after possible chain switch */
+      /* STEP 2: Build provider from the now-unlocked wallet */
       prov = new ethers.providers.Web3Provider(window.ethereum,'any');
       sign = prov.getSigner();
       mc   = new ethers.Contract(CA,   MABI, sign);
       uc   = new ethers.Contract(USDT, UABI, sign);
 
-      /* Attach listeners using named functions */
-      window.ethereum.removeListener('accountsChanged', onAccChange);
-      window.ethereum.removeListener('chainChanged',    onChainChange);
-      window.ethereum.on('accountsChanged', onAccChange);
-      window.ethereum.on('chainChanged',    onChainChange);
+      /* STEP 3: Attach listeners */
+      window.ethereum.removeListener('accountsChanged',onAccChange);
+      window.ethereum.removeListener('chainChanged',   onChainChange);
+      window.ethereum.on('accountsChanged',onAccChange);
+      window.ethereum.on('chainChanged',   onChainChange);
 
+      /* STEP 4: Connect the UI immediately — don't wait for chain switch */
       finishConnect('MetaMask');
-    })
 
-    .catch(function(e) {
-      var code = e.code, msg = String(e.message||'');
-      if (code===4001) { showWalletMenu(); return; } /* user closed popup */
-      if (code===-32002) {                           /* pending request */
-        showPending(); return;
-      }
-      /* Anything else — show raw error so we can see exactly what MM says */
-      showWalletMenu();
-      toast('MM error '+code+': '+msg.slice(0,80));
+      /* STEP 5: Switch chain in background AFTER UI is connected.
+                 This way a -32603 on chain switch doesn't block login. */
+      setTimeout(function(){ ensureBSC(); }, 800);
+    })
+    .catch(function(e){
+      var code=e.code, msg=String(e.message||'');
+      if(code===4001){showWalletMenu();return;}
+      if(code===-32002){showPending();return;}
+      showErrScreen(code,msg);
     });
 }
 
+/* Switch to BSC — called after connect, non-blocking */
+function ensureBSC(){
+  if(!window.ethereum||!prov) return;
+  prov.getNetwork().then(function(net){
+    if(net.chainId===56) return; /* already on BSC */
+    window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x38'}]})
+      .then(function(){
+        /* Rebuild provider after chain switch */
+        prov=new ethers.providers.Web3Provider(window.ethereum,'any');
+        sign=prov.getSigner();
+        mc=new ethers.Contract(CA,MABI,sign);
+        uc=new ethers.Contract(USDT,UABI,sign);
+        loadUser();
+      })
+      .catch(function(e){
+        if(e.code===4902){
+          window.ethereum.request({method:'wallet_addEthereumChain',params:[{
+            chainId:'0x38',chainName:'BNB Smart Chain',
+            nativeCurrency:{name:'BNB',symbol:'BNB',decimals:18},
+            rpcUrls:[RPC],blockExplorerUrls:['https://bscscan.com/']
+          }]}).then(function(){
+            prov=new ethers.providers.Web3Provider(window.ethereum,'any');
+            sign=prov.getSigner();
+            mc=new ethers.Contract(CA,MABI,sign);
+            uc=new ethers.Contract(USDT,UABI,sign);
+            loadUser();
+          }).catch(function(){});
+        } else {
+          toast('Please switch MetaMask to BNB Smart Chain');
+        }
+      });
+  }).catch(function(){});
+}
+
 /* Named listener handlers */
-function onAccChange(accs) {
-  if (!accs||!accs.length) { doDisconnect(); return; }
-  addr = accs[0];
-  prov = new ethers.providers.Web3Provider(window.ethereum,'any');
-  sign = prov.getSigner();
-  mc   = new ethers.Contract(CA,   MABI, sign);
-  uc   = new ethers.Contract(USDT, UABI, sign);
-  g('cbtn').textContent = addr.slice(0,6)+'...'+addr.slice(-4);
+function onAccChange(accs){
+  if(!accs||!accs.length){doDisconnect();return;}
+  addr=accs[0];
+  prov=new ethers.providers.Web3Provider(window.ethereum,'any');
+  sign=prov.getSigner();
+  mc=new ethers.Contract(CA,MABI,sign);
+  uc=new ethers.Contract(USDT,UABI,sign);
+  g('cbtn').textContent=addr.slice(0,6)+'...'+addr.slice(-4);
   loadUser();
 }
-function onChainChange() { location.reload(); }
+function onChainChange(){ location.reload(); }
 
-/* ── PENDING REQUEST SCREEN ── */
-function showPending() {
+/* ═══════════════════════════════════════
+   MOBILE WALLETS
+   
+   KEY FIX: Use window.location.href to redirect
+   to the deep link. This works whether the site
+   is hosted or opened locally, and the wallet
+   app will then open its own browser pointed
+   at the hosted URL.
+   
+   NOTE: Mobile wallet connect only works when
+   the site is hosted at a real https:// URL.
+   If testing locally, host it first e.g. on
+   netlify.com/drop (free, drag and drop).
+═══════════════════════════════════════ */
+function openMobileWallet(deepLink){
+  /* If on mobile, use location.href for better app switching */
+  if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+    window.location.href = deepLink;
+  } else {
+    window.open(deepLink,'_blank');
+  }
+}
+
+function showMobile(){
+  var url = encodeURIComponent(location.href);
+  var host = location.host + location.pathname;
+
+  /* Detect if we're on a real hosted URL or still on file:// */
+  var isHosted = location.protocol === 'https:' || location.protocol === 'http:';
+
+  if(!isHosted){
+    setBody(
+      '<button class="mbk" onclick="showWalletMenu()">← Back</button>'+
+      '<div class="mt">HOST REQUIRED</div>'+
+      '<div style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:20px">'+
+      'Mobile wallets need a hosted URL to connect.<br><br>'+
+      '<strong style="color:var(--gold)">How to host for free in 30 seconds:</strong><br>'+
+      '1. Go to <strong style="color:var(--text)">netlify.com/drop</strong><br>'+
+      '2. Drag and drop your HTML file<br>'+
+      '3. Use the generated URL on mobile'+
+      '</div>'+
+      '<button class="bg" onclick="window.open(\'https://app.netlify.com/drop\',\'_blank\')">Open Netlify Drop</button>'+
+      '<button class="bgh" onclick="showWalletMenu()">← Back</button>'
+    );
+    return;
+  }
+
   setBody(
-    '<div style="text-align:center;padding:4px 0">' +
-    '<div style="font-size:36px;margin-bottom:14px">🦊</div>' +
-    '<div class="mt" style="margin-bottom:10px">PENDING REQUEST</div>' +
-    '<div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px">' +
-    'MetaMask has an unresolved request.<br>' +
-    '<strong style="color:var(--text)">Click the MetaMask icon → find the pending request → click Reject.</strong><br>' +
-    'Then come back and click Try Again.' +
-    '</div>' +
-    '<button class="bg" onclick="clickMM()">Try Again</button>' +
-    '<button class="bgh" onclick="showWalletMenu()">← Back</button>' +
+    '<button class="mbk" onclick="showWalletMenu()">← Back</button>'+
+    '<div class="mt">MOBILE WALLETS</div>'+
+    '<div class="ms">Tap to open this dApp in your wallet\'s browser</div>'+
+    '<div class="wo" onclick="openMobileWallet(\'https://link.trustwallet.com/open_url?coin_id=20000714&url='+url+'\')">'+
+      '<div class="wi" style="background:#3375bb22">🛡️</div>'+
+      '<div><div class="wn">Trust Wallet</div><div class="wd">Opens in Trust Wallet browser</div></div>'+
+    '</div>'+
+    '<div class="wo" onclick="openMobileWallet(\'https://metamask.app.link/dapp/'+host+'\')">'+
+      '<div class="wi" style="background:#f6851b22">🦊</div>'+
+      '<div><div class="wn">MetaMask Mobile</div><div class="wd">Opens in MetaMask browser</div></div>'+
+    '</div>'+
+    '<div class="wo" onclick="openMobileWallet(\'https://go.cb-w.com/dapp?cb_url='+url+'\')">'+
+      '<div class="wi" style="background:#0052ff22">🔵</div>'+
+      '<div><div class="wn">Coinbase Wallet</div><div class="wd">Opens in Coinbase browser</div></div>'+
+    '</div>'+
+    '<div class="wo" onclick="showWC()">'+
+      '<div class="wi" style="background:#3b99fc22">🔗</div>'+
+      '<div><div class="wn">WalletConnect QR</div><div class="wd">Scan with any WC wallet</div></div>'+
     '</div>'
   );
 }
 
-/* ── FINISH CONNECT ── */
-function finishConnect(via) {
-  live = true;
-  closeModal();
-  g('cbtn').textContent = addr.slice(0,6)+'...'+addr.slice(-4);
+/* ═══════════════════════════════════════
+   ERROR SCREENS
+═══════════════════════════════════════ */
+function showPending(){
+  setBody(
+    '<div style="text-align:center;padding:4px 0">'+
+    '<div style="font-size:36px;margin-bottom:12px">🦊</div>'+
+    '<div class="mt" style="margin-bottom:10px">PENDING REQUEST</div>'+
+    '<div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px">'+
+    'MetaMask has an unresolved request sitting in its queue.<br><br>'+
+    '<strong style="color:var(--text)">Fix:</strong> Click the MetaMask icon → find the pending notification → click Reject. Then try again.'+
+    '</div>'+
+    '<button class="bg" onclick="clickMM()">Try Again</button>'+
+    '<button class="bgh" onclick="showWalletMenu()">← Back</button>'+
+    '</div>'
+  );
+}
+
+function showErrScreen(code,msg){
+  setBody(
+    '<div style="text-align:center;padding:4px 0">'+
+    '<div style="font-size:36px;margin-bottom:12px">⚠️</div>'+
+    '<div class="mt" style="margin-bottom:10px">CONNECTION ERROR</div>'+
+    '<div class="steps">'+
+    '<b>Error code: '+code+'</b><br>'+
+    (msg?msg.slice(0,120)+'<br><br>':'')+ 
+    '<b>Things to try:</b><br>'+
+    '1. Open MetaMask and make sure it is fully unlocked<br>'+
+    '2. In MetaMask, switch to Ethereum Mainnet, then switch back to BNB Chain<br>'+
+    '3. Restart Chrome fully and try again<br>'+
+    '4. Go to MetaMask Settings → Advanced → Reset Account'+
+    '</div>'+
+    '<button class="bg" onclick="clickMM()">Try Again</button>'+
+    '<button class="bgh" onclick="showWalletMenu()">← Back</button>'+
+    '</div>'
+  );
+}
+
+/* ═══════════════════════════════════════
+   FINISH CONNECT / DISCONNECT
+═══════════════════════════════════════ */
+function finishConnect(via){
+  live=true; closeModal();
+  g('cbtn').textContent=addr.slice(0,6)+'...'+addr.slice(-4);
   g('cbtn').classList.add('on');
-  g('rLnk').textContent = location.origin+location.pathname+'?ref='+addr;
+  g('rLnk').textContent=location.origin+location.pathname+'?ref='+addr;
   setBtns(true);
   toast('Connected via '+via);
   loadUser();
   clearInterval(tickT);
-  tickT = setInterval(tickPend,1000);
+  tickT=setInterval(tickPend,1000);
 }
 
-/* ── DISCONNECT ── */
-function doDisconnect() {
-  /* Remove listeners first to prevent re-trigger */
-  try {
-    window.ethereum.removeListener('accountsChanged', onAccChange);
-    window.ethereum.removeListener('chainChanged',    onChainChange);
-  } catch(e){}
-  live=false; addr=null;
-  prov=sign=mc=uc=null;
+function doDisconnect(){
+  try{
+    window.ethereum.removeListener('accountsChanged',onAccChange);
+    window.ethereum.removeListener('chainChanged',   onChainChange);
+  }catch(e){}
+  live=false; addr=null; prov=sign=mc=uc=null;
   clearInterval(tickT);
   dBN=pBN=ethers.constants.Zero;
   g('cbtn').textContent='CONNECT WALLET';
@@ -372,53 +467,45 @@ function doDisconnect() {
   g('rLnk').textContent='Connect wallet to generate your link';
   g('pRew').textContent='0.000000 USDT';
   ['myDep','totE','totW','brkE','rPnd','rTot'].forEach(function(x){g(x).textContent='—';});
-  closeModal();
-  toast('Disconnected');
+  closeModal(); toast('Disconnected');
 }
 
-/* ── MODAL HELPERS ── */
-function openModal()  { g('wModal').classList.add('open'); }
-function closeModal() { g('wModal').classList.remove('open'); }
-function setBody(h)   { g('mBody').innerHTML=h; }
-function go(u)        { window.open(u,'_blank'); }
+/* ═══════════════════════════════════════
+   MODAL HELPERS
+═══════════════════════════════════════ */
+function openModal() {g('wModal').classList.add('open');}
+function closeModal(){g('wModal').classList.remove('open');}
+function setBody(h)  {g('mBody').innerHTML=h;}
 
-function showSpinner(t,s) {
-  setBody('<div class="spw"><div class="sp"></div><div style="font-family:\'Space Mono\',monospace;font-size:13px;color:var(--gold);margin-bottom:6px">'+t+'</div><div style="font-size:12px;color:var(--muted)">'+s+'</div></div>');
+function showSpinner(t,s){
+  setBody('<div class="spw"><div class="sp"></div>'+
+    '<div style="font-family:\'Space Mono\',monospace;font-size:13px;color:var(--gold);margin-bottom:6px">'+t+'</div>'+
+    '<div style="font-size:12px;color:var(--muted)">'+s+'</div></div>');
 }
 
-function showWalletMenu() {
+function showWalletMenu(){
   setBody(
-    '<div class="mt">CONNECT WALLET</div>' +
-    '<div class="ms">Choose your wallet for BNB Smart Chain</div>' +
-    '<div class="wo" onclick="clickMM()"><div class="wi" style="background:#f6851b22">🦊</div><div><div class="wn">MetaMask</div><div class="wd">Browser extension</div></div></div>' +
+    '<div class="mt">CONNECT WALLET</div>'+
+    '<div class="ms">Choose your wallet for BNB Smart Chain</div>'+
+    '<div class="wo" onclick="clickMM()"><div class="wi" style="background:#f6851b22">🦊</div><div><div class="wn">MetaMask</div><div class="wd">Browser extension — desktop</div></div></div>'+
     '<div class="wo" onclick="showMobile()"><div class="wi" style="background:#3b99fc22">📱</div><div><div class="wn">Mobile Wallets</div><div class="wd">Trust Wallet · Coinbase · Rainbow</div></div></div>'
   );
 }
 
-function showMobile() {
-  var enc=encodeURIComponent(location.href), host=location.host+location.pathname;
-  setBody(
-    '<button class="mbk" onclick="showWalletMenu()">← Back</button>' +
-    '<div class="mt">MOBILE WALLETS</div><div class="ms">Tap to open inside your wallet\'s browser</div>' +
-    '<div class="wo" onclick="go(\'https://link.trustwallet.com/open_url?coin_id=20000714&url='+enc+'\')"><div class="wi" style="background:#3375bb22">🛡️</div><div><div class="wn">Trust Wallet</div><div class="wd">Opens in Trust Wallet browser</div></div></div>' +
-    '<div class="wo" onclick="go(\'https://metamask.app.link/dapp/'+host+'\')"><div class="wi" style="background:#f6851b22">🦊</div><div><div class="wn">MetaMask Mobile</div><div class="wd">Opens in MetaMask in-app browser</div></div></div>' +
-    '<div class="wo" onclick="go(\'https://go.cb-w.com/dapp?cb_url='+enc+'\')"><div class="wi" style="background:#0052ff22">🔵</div><div><div class="wn">Coinbase Wallet</div><div class="wd">Opens in Coinbase browser</div></div></div>' +
-    '<div class="wo" onclick="showWC()"><div class="wi" style="background:#3b99fc22">🔗</div><div><div class="wn">WalletConnect QR</div><div class="wd">Scan with any WC wallet</div></div></div>'
-  );
-}
-
-function showConnMenu() {
+function showConnMenu(){
   openModal();
   setBody(
-    '<div class="mt">CONNECTED</div>' +
-    '<div class="ms" style="word-break:break-all;font-family:\'Space Mono\',monospace;font-size:11px">'+addr+'</div>' +
-    '<div class="wo" onclick="go(\'https://bscscan.com/address/'+addr+'\')"><div class="wi" style="background:#f0b90b22">🔍</div><div><div class="wn">View on BSCScan</div></div></div>' +
+    '<div class="mt">CONNECTED</div>'+
+    '<div class="ms" style="word-break:break-all;font-family:\'Space Mono\',monospace;font-size:11px">'+addr+'</div>'+
+    '<div class="wo" onclick="window.open(\'https://bscscan.com/address/'+addr+'\',\'_blank\')"><div class="wi" style="background:#f0b90b22">🔍</div><div><div class="wn">View on BSCScan</div></div></div>'+
     '<div class="wo" onclick="doDisconnect()" style="border-color:rgba(224,80,80,.3)"><div class="wi" style="background:rgba(224,80,80,.1)">🔌</div><div><div class="wn" style="color:var(--red)">Disconnect</div></div></div>'
   );
 }
 
-/* ── WALLETCONNECT ── */
-function showWC() {
+/* ═══════════════════════════════════════
+   WALLETCONNECT
+═══════════════════════════════════════ */
+function showWC(){
   setBody('<button class="mbk" onclick="showMobile()">← Back</button><div class="mt">WALLETCONNECT</div><div class="ms">Loading...</div><div class="spw"><div class="sp"></div></div>');
   loadSrc('https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js')
     .then(function(){
@@ -426,7 +513,7 @@ function showWC() {
       var wcp=new WW({rpc:{56:RPC},chainId:56,qrcode:false});
       wcp.connector.on('display_uri',function(err,pay){
         var u=pay.params[0];
-        setBody('<button class="mbk" onclick="showMobile()">← Back</button><div class="mt">SCAN TO CONNECT</div><div class="ms">Open your wallet and scan</div><div class="qrw"><canvas id="qrc"></canvas></div><div class="urib" onclick="cp(\''+u+'\')">Tap to copy · '+u.slice(0,40)+'...</div>');
+        setBody('<button class="mbk" onclick="showMobile()">← Back</button><div class="mt">SCAN TO CONNECT</div><div class="ms">Open your wallet app and scan</div><div class="qrw"><canvas id="qrc"></canvas></div><div class="urib" onclick="cp(\''+u+'\')">Tap to copy URI · '+u.slice(0,40)+'...</div>');
         if(window.QRCode)QRCode.toCanvas(g('qrc'),u,{width:200});
       });
       return wcp.enable().then(function(){
@@ -439,8 +526,10 @@ function showWC() {
     }).catch(function(e){showMobile();toast('WC: '+(e.message||'Cancelled'));});
 }
 
-/* ── READS ── */
-function loadPublic() {
+/* ═══════════════════════════════════════
+   READS
+═══════════════════════════════════════ */
+function loadPublic(){
   new ethers.Contract(CA,MABI,new ethers.providers.JsonRpcProvider(RPC))
     .getPoolStats().then(function(r){
       var f=function(b){return parseFloat(ethers.utils.formatUnits(b,18));};
@@ -455,7 +544,7 @@ function loadPublic() {
     }).catch(function(){});
 }
 
-function loadUser() {
+function loadUser(){
   if(!live||!addr||!mc)return;
   mc.getUserStats(addr).then(function(r){
     var f=function(b){return parseFloat(ethers.utils.formatUnits(b,18));};
@@ -477,32 +566,15 @@ function tickPend(){
   g('pRew').textContent=(parseFloat(ethers.utils.formatUnits(pBN,18))+df*(ybps/10000)*((Math.floor(Date.now()/1000)-pTS)/86400)).toFixed(6)+' USDT';
 }
 
-/* ── TRANSACTIONS ── */
+/* ═══════════════════════════════════════
+   TRANSACTIONS
+═══════════════════════════════════════ */
 function txShow(t,s){g('txTt').textContent=t;g('txSt').textContent=s;g('txOv').classList.add('open');}
 function txHide(){g('txOv').classList.remove('open');}
 function txErr(e){txHide();var m=e.reason||e.data&&e.data.message||e.message||'Failed';toast(m.length>80?m.slice(0,80)+'…':m);}
 
-function doApprove(){
-  if(!live){onConnectClick();return;}
-  var a=parseFloat(g('dAmt').value);
-  if(!a||a<10){toast('Enter amount (min 10 USDT)');return;}
-  txShow('APPROVING USDT','Confirm in MetaMask');
-  uc.approve(CA,ethers.utils.parseUnits(String(a),18))
-    .then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
-    .then(function(){txHide();g('bDep').disabled=false;toast('Approved! Click Deposit.');})
-    .catch(txErr);
-}
-function doDeposit(){
-  if(!live){onConnectClick();return;}
-  var a=parseFloat(g('dAmt').value);
-  if(!a||a<10){toast('Min 10 USDT');return;}
-  var ref=ethers.utils.isAddress(g('rInp').value.trim())?g('rInp').value.trim():ethers.constants.AddressZero;
-  txShow('DEPOSITING','Confirm in MetaMask');
-  mc.deposit(ethers.utils.parseUnits(String(a),18),ref)
-    .then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
-    .then(function(){txHide();g('dAmt').value='';g('bDep').disabled=true;onDep();loadPublic();loadUser();toast('Deposited '+a.toFixed(2)+' USDT');})
-    .catch(txErr);
-}
+function doApprove(){if(!live){onConnectClick();return;}var a=parseFloat(g('dAmt').value);if(!a||a<10){toast('Enter amount (min 10 USDT)');return;}txShow('APPROVING USDT','Confirm in MetaMask');uc.approve(CA,ethers.utils.parseUnits(String(a),18)).then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();g('bDep').disabled=false;toast('Approved! Click Deposit.');}).catch(txErr);}
+function doDeposit(){if(!live){onConnectClick();return;}var a=parseFloat(g('dAmt').value);if(!a||a<10){toast('Min 10 USDT');return;}var ref=ethers.utils.isAddress(g('rInp').value.trim())?g('rInp').value.trim():ethers.constants.AddressZero;txShow('DEPOSITING','Confirm in MetaMask');mc.deposit(ethers.utils.parseUnits(String(a),18),ref).then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();g('dAmt').value='';g('bDep').disabled=true;onDep();loadPublic();loadUser();toast('Deposited '+a.toFixed(2)+' USDT');}).catch(txErr);}
 function doWithdraw(){if(!live)return;txShow('WITHDRAWING','Confirm in MetaMask');mc.withdraw().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();loadPublic();loadUser();toast('Withdrawn');}).catch(txErr);}
 function doCompound(){if(!live)return;txShow('COMPOUNDING','Confirm in MetaMask');mc.compound().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();loadPublic();loadUser();toast('Compounded');}).catch(txErr);}
 function doExit(){if(!live)return;if(!confirm('Exit? 10% fee on all funds.'))return;txShow('EXITING','Confirm in MetaMask');mc.withdrawPrincipal().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();dBN=pBN=ethers.constants.Zero;loadPublic();loadUser();toast('Exited');}).catch(txErr);}
