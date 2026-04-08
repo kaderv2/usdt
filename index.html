@@ -25,10 +25,11 @@
   .connect-btn:hover{border-color:var(--gold);background:rgba(201,168,76,.08)}
   .connect-btn.connected{border-color:var(--green);color:var(--green)}
 
+  /* ── MODAL ── */
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
   .modal-overlay.open{display:flex}
   .modal{background:var(--bg2);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:32px 28px;width:100%;max-width:420px;position:relative}
-  .modal-close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;line-height:1;padding:4px}
+  .modal-close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px}
   .modal-title{font-family:'Space Mono',monospace;font-size:14px;color:var(--gold);letter-spacing:.08em;margin-bottom:6px}
   .modal-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6}
   .wallet-opt{display:flex;align-items:center;gap:14px;padding:16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;margin-bottom:10px;transition:border-color .2s,background .2s;user-select:none}
@@ -46,7 +47,10 @@
   .wc-qr canvas{border-radius:8px;border:6px solid #fff;display:block;margin:0 auto}
   .wc-uri-box{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim);word-break:break-all;margin-top:12px;background:var(--bg3);padding:10px;border-radius:var(--radius);cursor:pointer;border:1px solid var(--border)}
   .wc-uri-box:hover{color:var(--gold)}
+  .info-banner{background:rgba(201,168,76,.07);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:16px}
+  .info-banner strong{color:var(--gold)}
 
+  /* ── TX OVERLAY ── */
   .tx-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2000;display:none;align-items:center;justify-content:center}
   .tx-overlay.open{display:flex}
   .tx-box{background:var(--bg2);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:36px 28px;text-align:center;max-width:340px;width:100%}
@@ -55,6 +59,7 @@
   .tx-sub{font-size:13px;color:var(--text-muted)}
 
   main{max-width:1100px;margin:0 auto;padding:40px 24px 80px}
+
   .yield-hero{text-align:center;padding:48px 24px 40px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:28px;position:relative;overflow:hidden}
   .yield-hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:280px;height:160px;background:radial-gradient(ellipse,rgba(201,168,76,.12) 0%,transparent 70%);pointer-events:none}
   .ylabel{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px}
@@ -79,7 +84,7 @@
 
   .iw{position:relative;margin-bottom:14px}
   .iw label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-family:'Space Mono',monospace;letter-spacing:.04em}
-  .iw input[type="text"],.iw input[type="number"]{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 48px 12px 14px;font-family:'Space Mono',monospace;font-size:15px;color:var(--text);outline:none;transition:border-color .2s}
+  .iw input[type="text"],.iw input[type="number"]{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 52px 12px 14px;font-family:'Space Mono',monospace;font-size:15px;color:var(--text);outline:none;transition:border-color .2s}
   .iw input:focus{border-color:var(--gold-dim)}
   .isuffix{position:absolute;right:14px;top:37px;font-family:'Space Mono',monospace;font-size:12px;color:var(--text-dim)}
   .fee-note{font-size:12px;color:var(--text-dim);margin-bottom:14px}
@@ -108,7 +113,7 @@
 
   .ref-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
   .ref-link{flex:1;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .ref-copy{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--gold);font-size:11px;font-family:'Space Mono',monospace;padding:6px 12px;cursor:pointer;flex-shrink:0;white-space:nowrap}
+  .ref-copy{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--gold);font-size:11px;font-family:'Space Mono',monospace;padding:6px 12px;cursor:pointer;flex-shrink:0}
   .ref-copy:hover{background:rgba(201,168,76,.08)}
 
   input[type="range"]{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--bg4);outline:none;margin:8px 0}
@@ -133,7 +138,6 @@
 </head>
 <body>
 
-<!-- WALLET MODAL -->
 <div class="modal-overlay" id="walletModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
@@ -141,7 +145,6 @@
   </div>
 </div>
 
-<!-- TX OVERLAY -->
 <div class="tx-overlay" id="txOverlay">
   <div class="tx-box">
     <div class="tx-spin"></div>
@@ -212,9 +215,9 @@
       <div class="irow"><span class="ik">Total withdrawn</span><span class="iv" id="totWith">—</span></div>
       <div class="irow"><span class="ik">Days to break even</span><span class="iv gld" id="breakEven">—</span></div>
       <div style="margin-top:20px">
-        <button class="btn-g"  id="btnWith"     onclick="doWithdraw()"  disabled>WITHDRAW REWARDS</button>
-        <button class="btn-gh" id="btnCompound"  onclick="doCompound()"  disabled>COMPOUND (+3% fee)</button>
-        <button class="btn-r"  id="btnExit"      onclick="doExit()"      disabled>EXIT — WITHDRAW PRINCIPAL</button>
+        <button class="btn-g"  id="btnWith"    onclick="doWithdraw()" disabled>WITHDRAW REWARDS</button>
+        <button class="btn-gh" id="btnCompound" onclick="doCompound()" disabled>COMPOUND (+3% fee)</button>
+        <button class="btn-r"  id="btnExit"     onclick="doExit()"     disabled>EXIT — WITHDRAW PRINCIPAL</button>
       </div>
     </div>
   </div>
@@ -245,7 +248,7 @@
       <div class="ptitle"><span class="dot"></span>REFERRAL PROGRAM</div>
       <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;line-height:1.7">
         Earn <span style="color:var(--gold);font-weight:600">10%</span> of every deposit made via your link.
-        No deposit required to earn referrals. Claim at any time.
+        No deposit required. Claim anytime.
       </p>
       <div class="ref-box">
         <span class="ref-link" id="refLink">Connect wallet to generate your link</span>
@@ -266,298 +269,285 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Load ethers from unpkg (fallback chain) -->
-<script>
-window._ethersLoaded = false;
-</script>
 <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"
-  onload="window._ethersLoaded=true"
   onerror="loadEthersFallback()"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
 <script>
+// ─── fallback CDN for ethers ───────────────────────────────
 function loadEthersFallback() {
   var s = document.createElement('script');
   s.src = 'https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js';
-  s.onload = function(){ window._ethersLoaded = true; bootApp(); };
-  s.onerror = function(){ showFatalError(); };
   document.head.appendChild(s);
 }
-function showFatalError() {
-  document.body.innerHTML = '<div style="font-family:monospace;color:#c9a84c;background:#0a0c0e;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px"><div><div style="font-size:32px;margin-bottom:16px">⚠</div><div style="font-size:16px;margin-bottom:8px">Could not load ethers.js</div><div style="font-size:13px;color:#8a8070">Please check your internet connection and reload.<br>This page requires a live web connection to function.</div></div></div>';
-}
 
-// ═══════════════════════════════════════════════
-//  CONSTANTS
-// ═══════════════════════════════════════════════
-const CONTRACT = "0x441D75BcA3C9345257E884FB00967329868ef864";
-const USDT     = "0x55d398326f99059fF775485246999027B3197955";
-const BSC_RPC  = "https://bsc-dataseed1.binance.org/";
-const BSC_HEX  = "0x38";
+// ═══════════════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════════════
+var CONTRACT = '0x441D75BcA3C9345257E884FB00967329868ef864';
+var USDT_ADR = '0x55d398326f99059fF775485246999027B3197955';
+var BSC_RPC  = 'https://bsc-dataseed1.binance.org/';
+var BSC_HEX  = '0x38';
 
-const MINER_ABI = [
-  "function deposit(uint256 _amount, address _referrer) external",
-  "function withdraw() external",
-  "function withdrawPrincipal() external",
-  "function compound() external",
-  "function claimReferral() external",
-  "function getUserStats(address) external view returns (uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)",
-  "function getPoolStats() external view returns (uint256,uint256,uint256,uint256)"
+var MINER_ABI = [
+  'function deposit(uint256 _amount, address _referrer) external',
+  'function withdraw() external',
+  'function withdrawPrincipal() external',
+  'function compound() external',
+  'function claimReferral() external',
+  'function getUserStats(address) external view returns (uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)',
+  'function getPoolStats() external view returns (uint256,uint256,uint256,uint256)'
 ];
-const USDT_ABI = [
-  "function approve(address,uint256) external returns (bool)",
-  "function allowance(address,address) external view returns (uint256)"
+var USDT_ABI = [
+  'function approve(address,uint256) external returns (bool)',
+  'function allowance(address,address) external view returns (uint256)'
 ];
 
-// ═══════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+//  STATE  — no auto-connect, no background checks
+// ═══════════════════════════════════════════════════════════
 var provider, signer, miner, usdt;
-var walletAddr = null, connected = false;
-var yieldBps = 100;
+var walletAddr  = null;
+var connected   = false;
+var yieldBps    = 100;
 var depBN, pendBN, pendTs;
-var tickTimer, chainTimer;
+var tickTimer, refreshTimer;
 
-// ═══════════════════════════════════════════════
-//  BOOT — wait for ethers to be ready
-// ═══════════════════════════════════════════════
-function bootApp() {
-  if (typeof ethers === 'undefined') {
-    setTimeout(bootApp, 100);
-    return;
-  }
-  depBN  = ethers.constants.Zero;
-  pendBN = ethers.constants.Zero;
-  pendTs = 0;
+// ═══════════════════════════════════════════════════════════
+//  BOOT  — only load public stats, never touch MetaMask
+// ═══════════════════════════════════════════════════════════
+window.addEventListener('load', function () {
+  // Small delay to let ethers finish executing from script tag
+  setTimeout(function () {
+    depBN  = ethers.constants.Zero;
+    pendBN = ethers.constants.Zero;
+    pendTs = 0;
 
-  // Pre-fill referral from URL
-  var ref = new URLSearchParams(location.search).get('ref');
-  if (ref && ethers.utils.isAddress(ref)) {
-    document.getElementById('refInput').value = ref;
-    showToast('Referral address detected');
-  }
+    // Pre-fill referral param from URL
+    var ref = new URLSearchParams(location.search).get('ref');
+    if (ref && ethers.utils.isAddress(ref)) {
+      document.getElementById('refInput').value = ref;
+      showToast('Referral address detected');
+    }
 
-  loadPublicStats();
-  calcYield();
+    // Load public pool stats without touching wallet at all
+    loadPublicStats();
+    calcYield();
 
-  // Detect if running inside a wallet browser (Trust Wallet, MetaMask mobile, etc.)
-  // These inject window.ethereum but don't always fire standard events
-  waitForEthereum(function(eth) {
-    if (!eth) return; // no wallet found — user must click connect manually
-    // Silently check if already authorised (do NOT prompt)
-    eth.request({ method: 'eth_accounts' }).then(function(accs) {
-      if (accs && accs.length > 0) {
-        // Already have permission — connect silently
-        setupMetaMask(accs[0], true);
-      }
-      // else: not authorised yet — wait for user to click Connect
-    }).catch(function(){});
-  });
-}
-
-// Wait up to 3s for window.ethereum to be injected (MetaMask/mobile wallet)
-function waitForEthereum(cb) {
-  if (window.ethereum) { cb(window.ethereum); return; }
-  var tries = 0;
-  var t = setInterval(function() {
-    tries++;
-    if (window.ethereum) { clearInterval(t); cb(window.ethereum); }
-    else if (tries >= 30) { clearInterval(t); cb(null); }
-  }, 100);
-}
-
-window.addEventListener('load', function() {
-  // Give ethers.js time to execute after the script tag loads
-  setTimeout(bootApp, 200);
+    // Refresh pool stats every 60s passively
+    refreshTimer = setInterval(loadPublicStats, 60000);
+  }, 300);
 });
 
-// ═══════════════════════════════════════════════
-//  MODAL
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+//  CONNECT BUTTON
+// ═══════════════════════════════════════════════════════════
 function onConnectClick() {
-  if (connected) { showConnectedModal(); return; }
+  if (connected) {
+    showConnectedMenu();
+    return;
+  }
   openModal();
   renderWalletMenu();
 }
 
+// ═══════════════════════════════════════════════════════════
+//  MODAL HELPERS
+// ═══════════════════════════════════════════════════════════
 function openModal()  { document.getElementById('walletModal').classList.add('open'); }
 function closeModal() { document.getElementById('walletModal').classList.remove('open'); }
 
 function renderWalletMenu() {
-  document.getElementById('modalContent').innerHTML =
-    '<div class="modal-title">CONNECT WALLET</div>' +
-    '<div class="modal-sub">Select your wallet to connect to BNB Smart Chain</div>' +
-    '<div class="wallet-opt" onclick="clickMetaMask()">' +
-      '<div class="wicon" style="background:#f6851b22">🦊</div>' +
-      '<div><div class="wname">MetaMask</div><div class="wdesc">Browser extension (desktop)</div></div>' +
-    '</div>' +
-    '<div class="wallet-opt" onclick="renderMobileMenu()">' +
-      '<div class="wicon" style="background:#3b99fc22">📱</div>' +
-      '<div><div class="wname">Mobile Wallets</div><div class="wdesc">Trust Wallet · Coinbase · Rainbow</div></div>' +
-    '</div>' +
-    '<div style="margin-top:16px;text-align:center;font-size:10px;font-family:\'Space Mono\',monospace;color:var(--text-dim)">' +
-      'Contract: ' + CONTRACT.slice(0,8) + '...' + CONTRACT.slice(-6) +
-    '</div>';
+  document.getElementById('modalContent').innerHTML = [
+    '<div class="modal-title">CONNECT WALLET</div>',
+    '<div class="modal-sub">Choose your wallet to connect to BNB Smart Chain</div>',
+    '<div class="wallet-opt" onclick="clickMetaMask()">',
+      '<div class="wicon" style="background:#f6851b22">🦊</div>',
+      '<div><div class="wname">MetaMask</div><div class="wdesc">Browser extension — desktop</div></div>',
+    '</div>',
+    '<div class="wallet-opt" onclick="renderMobileMenu()">',
+      '<div class="wicon" style="background:#3b99fc22">📱</div>',
+      '<div><div class="wname">Mobile Wallets</div><div class="wdesc">Trust Wallet · Coinbase · MetaMask Mobile</div></div>',
+    '</div>',
+    '<div style="margin-top:14px;text-align:center;font-size:10px;font-family:\'Space Mono\',monospace;color:var(--text-dim)">',
+      'Contract: ' + CONTRACT.slice(0,10) + '...' + CONTRACT.slice(-6),
+    '</div>'
+  ].join('');
 }
 
 function renderMobileMenu() {
-  var enc = encodeURIComponent(location.href);
+  var enc  = encodeURIComponent(location.href);
   var host = location.host + location.pathname;
-  document.getElementById('modalContent').innerHTML =
-    '<button class="modal-back" onclick="renderWalletMenu()">← Back</button>' +
-    '<div class="modal-title">MOBILE WALLETS</div>' +
-    '<div class="modal-sub">Open this dApp inside your wallet\'s browser</div>' +
-    '<div class="wallet-opt" onclick="openLink(\'https://link.trustwallet.com/open_url?coin_id=20000714&url=' + enc + '\')">' +
-      '<div class="wicon" style="background:#3375bb22">🛡️</div>' +
-      '<div><div class="wname">Trust Wallet</div><div class="wdesc">Opens in Trust Wallet browser</div></div>' +
-    '</div>' +
-    '<div class="wallet-opt" onclick="openLink(\'https://metamask.app.link/dapp/' + host + '\')">' +
-      '<div class="wicon" style="background:#f6851b22">🦊</div>' +
-      '<div><div class="wname">MetaMask Mobile</div><div class="wdesc">Opens in MetaMask in-app browser</div></div>' +
-    '</div>' +
-    '<div class="wallet-opt" onclick="openLink(\'https://go.cb-w.com/dapp?cb_url=' + enc + '\')">' +
-      '<div class="wicon" style="background:#0052ff22">🔵</div>' +
-      '<div><div class="wname">Coinbase Wallet</div><div class="wdesc">Opens in Coinbase browser</div></div>' +
-    '</div>' +
-    '<div class="wallet-opt" onclick="renderWCQR()">' +
-      '<div class="wicon" style="background:#3b99fc22">🔗</div>' +
-      '<div><div class="wname">WalletConnect QR</div><div class="wdesc">Scan with any compatible wallet</div></div>' +
-    '</div>';
+  document.getElementById('modalContent').innerHTML = [
+    '<button class="modal-back" onclick="renderWalletMenu()">← Back</button>',
+    '<div class="modal-title">MOBILE WALLETS</div>',
+    '<div class="modal-sub">Tap to open this dApp inside your wallet\'s browser</div>',
+    '<div class="wallet-opt" onclick="goTo(\'https://link.trustwallet.com/open_url?coin_id=20000714&url=' + enc + '\')">',
+      '<div class="wicon" style="background:#3375bb22">🛡️</div>',
+      '<div><div class="wname">Trust Wallet</div><div class="wdesc">Opens in Trust Wallet browser</div></div>',
+    '</div>',
+    '<div class="wallet-opt" onclick="goTo(\'https://metamask.app.link/dapp/' + host + '\')">',
+      '<div class="wicon" style="background:#f6851b22">🦊</div>',
+      '<div><div class="wname">MetaMask Mobile</div><div class="wdesc">Opens in MetaMask in-app browser</div></div>',
+    '</div>',
+    '<div class="wallet-opt" onclick="goTo(\'https://go.cb-w.com/dapp?cb_url=' + enc + '\')">',
+      '<div class="wicon" style="background:#0052ff22">🔵</div>',
+      '<div><div class="wname">Coinbase Wallet</div><div class="wdesc">Opens in Coinbase browser</div></div>',
+    '</div>',
+    '<div class="wallet-opt" onclick="renderWCQR()">',
+      '<div class="wicon" style="background:#3b99fc22">🔗</div>',
+      '<div><div class="wname">WalletConnect QR</div><div class="wdesc">Scan with any WC-compatible wallet</div></div>',
+    '</div>'
+  ].join('');
 }
 
-function showConnectedModal() {
+function showConnectedMenu() {
   openModal();
-  document.getElementById('modalContent').innerHTML =
-    '<div class="modal-title">CONNECTED</div>' +
-    '<div class="modal-sub" style="word-break:break-all;font-family:\'Space Mono\',monospace;font-size:12px">' + walletAddr + '</div>' +
-    '<div class="wallet-opt" onclick="openLink(\'https://bscscan.com/address/' + walletAddr + '\')">' +
-      '<div class="wicon" style="background:#f0b90b22">🔍</div>' +
-      '<div><div class="wname">View on BSCScan</div><div class="wdesc">See your transactions</div></div>' +
-    '</div>' +
-    '<div class="wallet-opt" onclick="doDisconnect()" style="border-color:rgba(224,80,80,.3)">' +
-      '<div class="wicon" style="background:rgba(224,80,80,.1)">🔌</div>' +
-      '<div><div class="wname" style="color:var(--red)">Disconnect</div><div class="wdesc">Remove wallet connection</div></div>' +
-    '</div>';
+  document.getElementById('modalContent').innerHTML = [
+    '<div class="modal-title">CONNECTED</div>',
+    '<div class="modal-sub" style="word-break:break-all;font-family:\'Space Mono\',monospace;font-size:11px">' + walletAddr + '</div>',
+    '<div class="wallet-opt" onclick="goTo(\'https://bscscan.com/address/' + walletAddr + '\')">',
+      '<div class="wicon" style="background:#f0b90b22">🔍</div>',
+      '<div><div class="wname">View on BSCScan</div><div class="wdesc">See your on-chain history</div></div>',
+    '</div>',
+    '<div class="wallet-opt" onclick="doDisconnect()" style="border-color:rgba(224,80,80,.3)">',
+      '<div class="wicon" style="background:rgba(224,80,80,.1)">🔌</div>',
+      '<div><div class="wname" style="color:var(--red)">Disconnect</div><div class="wdesc">Clear wallet connection</div></div>',
+    '</div>'
+  ].join('');
 }
 
-function openLink(url) { window.open(url, '_blank'); }
+function goTo(url) { window.open(url, '_blank'); }
 
-// ═══════════════════════════════════════════════
-//  WALLETCONNECT QR (loads WC v1 from CDN)
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+//  METAMASK CONNECT  (only runs on explicit user click)
+// ═══════════════════════════════════════════════════════════
+function clickMetaMask() {
+  // No MetaMask installed at all — send to download / deep link
+  if (!window.ethereum) {
+    goTo('https://metamask.app.link/dapp/' + location.host + location.pathname);
+    closeModal();
+    showToast('Opening MetaMask...');
+    return;
+  }
+
+  renderSpinner('Connecting...', 'Approve in MetaMask');
+
+  // Switch chain first, then request accounts
+  switchToBSC()
+    .then(function () {
+      return window.ethereum.request({ method: 'eth_requestAccounts' });
+    })
+    .then(function (accs) {
+      if (!accs || accs.length === 0) {
+        throw new Error('No accounts returned');
+      }
+      provider   = new ethers.providers.Web3Provider(window.ethereum, 'any');
+      signer     = provider.getSigner();
+      walletAddr = accs[0];
+
+      // Listen for account / chain changes AFTER successful connect
+      window.ethereum.on('accountsChanged', function (a) {
+        if (!a || !a.length) { doDisconnect(); }
+        else {
+          walletAddr = a[0];
+          provider   = new ethers.providers.Web3Provider(window.ethereum, 'any');
+          signer     = provider.getSigner();
+          miner      = new ethers.Contract(CONTRACT, MINER_ABI, signer);
+          usdt       = new ethers.Contract(USDT_ADR, USDT_ABI, signer);
+          document.getElementById('connectBtn').textContent = walletAddr.slice(0,6)+'...'+walletAddr.slice(-4);
+          loadUserStats();
+        }
+      });
+      window.ethereum.on('chainChanged', function () { location.reload(); });
+
+      onConnected('MetaMask');
+    })
+    .catch(function (e) {
+      // Show the real error so user knows what to do
+      var msg = e.message || 'Connection cancelled';
+      // Strip the ugly ethers prefix if present
+      msg = msg.replace('MetaMask Personal Message Signature: ', '');
+      renderWalletMenu();
+      showToast(msg);
+    });
+}
+
+function switchToBSC() {
+  return window.ethereum
+    .request({ method: 'wallet_switchEthereumChain', params: [{ chainId: BSC_HEX }] })
+    .catch(function (e) {
+      if (e.code === 4902) {
+        return window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: BSC_HEX,
+            chainName: 'BNB Smart Chain',
+            nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+            rpcUrls: [BSC_RPC],
+            blockExplorerUrls: ['https://bscscan.com/']
+          }]
+        });
+      }
+      throw e;
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WALLETCONNECT QR
+// ═══════════════════════════════════════════════════════════
 function renderWCQR() {
   document.getElementById('modalContent').innerHTML =
     '<button class="modal-back" onclick="renderMobileMenu()">← Back</button>' +
     '<div class="modal-title">WALLETCONNECT</div>' +
-    '<div class="modal-sub">Loading QR session...</div>' +
+    '<div class="modal-sub">Loading session...</div>' +
     '<div class="spin-wrap"><div class="spin"></div></div>';
 
   loadScript('https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js')
-    .then(function() {
+    .then(function () {
       var WCP = (window.WalletConnectProvider && window.WalletConnectProvider.default)
               ? window.WalletConnectProvider.default
               : window.WalletConnectProvider;
+
       var wcp = new WCP({ rpc: { 56: BSC_RPC }, chainId: 56, qrcode: false });
 
-      wcp.connector.on('display_uri', function(err, payload) {
+      wcp.connector.on('display_uri', function (err, payload) {
         var uri = payload.params[0];
         document.getElementById('modalContent').innerHTML =
           '<button class="modal-back" onclick="renderMobileMenu()">← Back</button>' +
           '<div class="modal-title">SCAN TO CONNECT</div>' +
           '<div class="modal-sub">Open your wallet app and scan this QR code</div>' +
           '<div class="wc-qr"><canvas id="wcCanvas"></canvas></div>' +
-          '<div class="wc-uri-box" onclick="copyText(\'' + uri + '\')">Tap to copy URI · ' + uri.slice(0,40) + '...</div>';
-        if (window.QRCode) QRCode.toCanvas(document.getElementById('wcCanvas'), uri, { width: 200 });
+          '<div class="wc-uri-box" onclick="copyText(\'' + uri + '\')">Tap to copy URI · ' + uri.slice(0, 42) + '...</div>';
+        if (window.QRCode) {
+          QRCode.toCanvas(document.getElementById('wcCanvas'), uri, { width: 200 });
+        }
       });
 
-      wcp.enable().then(function() {
+      return wcp.enable().then(function () {
         provider   = new ethers.providers.Web3Provider(wcp);
         signer     = provider.getSigner();
         return provider.listAccounts();
-      }).then(function(accs) {
+      }).then(function (accs) {
         walletAddr = accs[0];
         onConnected('WalletConnect');
-      }).catch(function(e) {
-        renderMobileMenu();
-        showToast('WalletConnect cancelled');
       });
     })
-    .catch(function() {
-      document.getElementById('modalContent').innerHTML =
-        '<button class="modal-back" onclick="renderMobileMenu()">← Back</button>' +
-        '<div class="modal-title">LOAD ERROR</div>' +
-        '<div class="modal-sub">Could not load WalletConnect SDK. Please use the mobile deep links instead, or host this dApp on a web server.</div>';
+    .catch(function (e) {
+      renderMobileMenu();
+      showToast('WalletConnect: ' + (e.message || 'Cancelled'));
     });
 }
 
-// ═══════════════════════════════════════════════
-//  METAMASK
-// ═══════════════════════════════════════════════
-function clickMetaMask() {
-  if (!window.ethereum) {
-    // Redirect to MetaMask deep link for mobile
-    openLink('https://metamask.app.link/dapp/' + location.host + location.pathname);
-    closeModal();
-    showToast('Opening MetaMask...');
-    return;
-  }
-  renderSpinner('Connecting...', 'Approve in MetaMask');
-  switchToBSC().then(function() {
-    return window.ethereum.request({ method: 'eth_requestAccounts' });
-  }).then(function(accs) {
-    setupMetaMask(accs[0], false);
-  }).catch(function(e) {
-    renderWalletMenu();
-    showToast('MetaMask: ' + (e.message || 'Rejected'));
-  });
-}
-
-function setupMetaMask(addr, silent) {
-  provider   = new ethers.providers.Web3Provider(window.ethereum, 'any');
-  signer     = provider.getSigner();
-  walletAddr = addr;
-
-  window.ethereum.removeAllListeners && window.ethereum.removeAllListeners();
-  window.ethereum.on('accountsChanged', function(accs) {
-    if (!accs || !accs.length) doDisconnect();
-    else { walletAddr = accs[0]; onConnected('MetaMask'); }
-  });
-  window.ethereum.on('chainChanged', function() { location.reload(); });
-
-  onConnected('MetaMask', silent);
-}
-
-function switchToBSC() {
-  return window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: BSC_HEX }] })
-    .catch(function(e) {
-      if (e.code === 4902) {
-        return window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{
-          chainId: BSC_HEX, chainName: 'BNB Smart Chain',
-          nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-          rpcUrls: [BSC_RPC], blockExplorerUrls: ['https://bscscan.com/']
-        }]});
-      }
-      throw e;
-    });
-}
-
-function renderSpinner(t, s) {
-  document.getElementById('modalContent').innerHTML =
-    '<div class="spin-wrap">' +
-    '<div class="spin"></div>' +
-    '<div style="font-family:\'Space Mono\',monospace;font-size:13px;color:var(--gold);margin-bottom:6px">' + t + '</div>' +
-    '<div style="font-size:12px;color:var(--text-muted)">' + s + '</div></div>';
-}
-
-// ═══════════════════════════════════════════════
-//  POST-CONNECT
-// ═══════════════════════════════════════════════
-function onConnected(method, silent) {
+// ═══════════════════════════════════════════════════════════
+//  POST CONNECT
+// ═══════════════════════════════════════════════════════════
+function onConnected(method) {
   connected = true;
   closeModal();
 
   miner = new ethers.Contract(CONTRACT, MINER_ABI, signer);
-  usdt  = new ethers.Contract(USDT, USDT_ABI, signer);
+  usdt  = new ethers.Contract(USDT_ADR,  USDT_ABI,  signer);
 
   var short = walletAddr.slice(0,6) + '...' + walletAddr.slice(-4);
   var btn = document.getElementById('connectBtn');
@@ -567,97 +557,96 @@ function onConnected(method, silent) {
   document.getElementById('refLink').textContent =
     location.origin + location.pathname + '?ref=' + walletAddr;
 
-  enableButtons(true);
-  if (!silent) showToast('Connected via ' + method);
+  setButtons(true);
+  showToast('Connected via ' + method);
+  loadUserStats();
 
-  refreshAll();
-  startTimers();
+  // Tick rewards every second
+  clearInterval(tickTimer);
+  tickTimer = setInterval(tickPending, 1000);
 }
 
 function doDisconnect() {
-  connected = false; walletAddr = null;
+  connected  = false;
+  walletAddr = null;
   provider = signer = miner = usdt = null;
-  clearInterval(tickTimer); clearInterval(chainTimer);
+  clearInterval(tickTimer);
   var btn = document.getElementById('connectBtn');
   btn.textContent = 'CONNECT WALLET';
   btn.classList.remove('connected');
-  enableButtons(false);
+  setButtons(false);
   document.getElementById('refLink').textContent = 'Connect wallet to generate your link';
   document.getElementById('pendingR').textContent = '0.000000 USDT';
+  ['myDep','totEarned','totWith','breakEven','refPend','refTot']
+    .forEach(function(id){ document.getElementById(id).textContent = '—'; });
+  depBN = pendBN = ethers.constants.Zero;
   closeModal();
   showToast('Disconnected');
 }
 
-function enableButtons(on) {
-  ['btnApprove','btnWith','btnCompound','btnExit','btnClaimRef'].forEach(function(id) {
+function setButtons(on) {
+  ['btnApprove','btnWith','btnCompound','btnExit','btnClaimRef'].forEach(function (id) {
     document.getElementById(id).disabled = !on;
   });
   if (!on) document.getElementById('btnDeposit').disabled = true;
 }
 
-// ═══════════════════════════════════════════════
-//  READS
-// ═══════════════════════════════════════════════
-function refreshAll() {
-  loadPublicStats();
-  if (connected) loadUserStats();
-}
-
+// ═══════════════════════════════════════════════════════════
+//  CONTRACT READS
+// ═══════════════════════════════════════════════════════════
 function loadPublicStats() {
   var rp = new ethers.providers.JsonRpcProvider(BSC_RPC);
   var rc = new ethers.Contract(CONTRACT, MINER_ABI, rp);
-  rc.getPoolStats().then(function(r) {
-    var f = function(bn) { return parseFloat(ethers.utils.formatUnits(bn, 18)); };
-    var tvl = f(r[0]), dep = f(r[1]), wth = f(r[2]);
-    yieldBps = r[3].toNumber();
-    var ratio = dep > 0 ? (wth / dep * 100).toFixed(1) : '0.0';
-    document.getElementById('sTVL').textContent   = '$' + fmt(tvl);
-    document.getElementById('sDep').textContent   = '$' + fmt(dep);
-    document.getElementById('sWth').textContent   = '$' + fmt(wth);
-    document.getElementById('sRatio').textContent = ratio + '%';
-    document.getElementById('heroRate').textContent = (yieldBps / 100).toFixed(2) + '%';
-    var bar = Math.max(0, Math.min(100, (yieldBps - 10) / 90 * 100));
-    document.getElementById('ybarFill').style.width = bar + '%';
-    calcYield();
-  }).catch(function(e) { console.warn('Pool stats:', e.message); });
+  rc.getPoolStats()
+    .then(function (r) {
+      var f   = function (bn) { return parseFloat(ethers.utils.formatUnits(bn, 18)); };
+      var tvl = f(r[0]), dep = f(r[1]), wth = f(r[2]);
+      yieldBps = r[3].toNumber();
+      var ratio = dep > 0 ? (wth / dep * 100).toFixed(1) : '0.0';
+      document.getElementById('sTVL').textContent   = '$' + fmt(tvl);
+      document.getElementById('sDep').textContent   = '$' + fmt(dep);
+      document.getElementById('sWth').textContent   = '$' + fmt(wth);
+      document.getElementById('sRatio').textContent = ratio + '%';
+      document.getElementById('heroRate').textContent = (yieldBps / 100).toFixed(2) + '%';
+      var bar = Math.max(0, Math.min(100, (yieldBps - 10) / 90 * 100));
+      document.getElementById('ybarFill').style.width = bar + '%';
+      calcYield();
+    })
+    .catch(function (e) { console.warn('Pool stats error:', e.message); });
 }
 
 function loadUserStats() {
-  if (!connected || !walletAddr) return;
-  miner.getUserStats(walletAddr).then(function(r) {
-    var f = function(bn) { return parseFloat(ethers.utils.formatUnits(bn, 18)); };
-    depBN  = r[0];
-    pendBN = r[1];
-    pendTs = Math.floor(Date.now() / 1000);
-    document.getElementById('myDep').textContent     = f(r[0]).toFixed(4) + ' USDT';
-    document.getElementById('totEarned').textContent = f(r[2]).toFixed(4) + ' USDT';
-    document.getElementById('totWith').textContent   = f(r[3]).toFixed(4) + ' USDT';
-    document.getElementById('refPend').textContent   = f(r[6]).toFixed(4) + ' USDT';
-    document.getElementById('refTot').textContent    = f(r[7]).toFixed(4) + ' USDT';
-    var be = r[5].toNumber();
-    document.getElementById('breakEven').textContent = (be > 0 && be < 99999) ? be + ' days' : '—';
-  }).catch(function(e) { console.warn('User stats:', e.message); });
-}
-
-function startTimers() {
-  clearInterval(tickTimer); clearInterval(chainTimer);
-  tickTimer  = setInterval(tickPending, 1000);
-  chainTimer = setInterval(refreshAll, 30000);
+  if (!connected || !walletAddr || !miner) return;
+  miner.getUserStats(walletAddr)
+    .then(function (r) {
+      var f = function (bn) { return parseFloat(ethers.utils.formatUnits(bn, 18)); };
+      depBN  = r[0];
+      pendBN = r[1];
+      pendTs = Math.floor(Date.now() / 1000);
+      document.getElementById('myDep').textContent     = f(r[0]).toFixed(4) + ' USDT';
+      document.getElementById('totEarned').textContent = f(r[2]).toFixed(4) + ' USDT';
+      document.getElementById('totWith').textContent   = f(r[3]).toFixed(4) + ' USDT';
+      document.getElementById('refPend').textContent   = f(r[6]).toFixed(4) + ' USDT';
+      document.getElementById('refTot').textContent    = f(r[7]).toFixed(4) + ' USDT';
+      var be = r[5].toNumber();
+      document.getElementById('breakEven').textContent = (be > 0 && be < 99999) ? be + ' days' : '—';
+    })
+    .catch(function (e) { console.warn('User stats error:', e.message); });
 }
 
 function tickPending() {
   if (!connected || !depBN) return;
-  var depF     = parseFloat(ethers.utils.formatUnits(depBN, 18));
+  var depF = parseFloat(ethers.utils.formatUnits(depBN, 18));
   if (depF <= 0) return;
-  var elapsed  = Math.floor(Date.now() / 1000) - pendTs;
-  var baseF    = parseFloat(ethers.utils.formatUnits(pendBN, 18));
-  var extra    = depF * (yieldBps / 10000) * (elapsed / 86400);
+  var elapsed = Math.floor(Date.now() / 1000) - pendTs;
+  var baseF   = parseFloat(ethers.utils.formatUnits(pendBN, 18));
+  var extra   = depF * (yieldBps / 10000) * (elapsed / 86400);
   document.getElementById('pendingR').textContent = (baseF + extra).toFixed(6) + ' USDT';
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 //  TRANSACTIONS
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 function txShow(t, s) {
   document.getElementById('txTitle').textContent = t;
   document.getElementById('txSub').textContent   = s;
@@ -665,101 +654,106 @@ function txShow(t, s) {
 }
 function txHide() { document.getElementById('txOverlay').classList.remove('open'); }
 
+function txErr(e) {
+  txHide();
+  var msg = e.reason || e.data && e.data.message || e.message || 'Transaction failed';
+  showToast(msg.length > 80 ? msg.slice(0, 80) + '...' : msg);
+}
+
 function doApprove() {
   if (!connected) { onConnectClick(); return; }
   var amt = parseFloat(document.getElementById('depAmt').value);
   if (!amt || amt < 10) { showToast('Enter an amount (min 10 USDT)'); return; }
   var amtBN = ethers.utils.parseUnits(String(amt), 18);
-  txShow('APPROVING USDT', 'Confirm approval in your wallet');
-  usdt.approve(CONTRACT, amtBN).then(function(tx) {
-    document.getElementById('txSub').textContent = 'Confirming on-chain...';
-    return tx.wait();
-  }).then(function() {
-    txHide();
-    document.getElementById('btnDeposit').disabled = false;
-    showToast('Approved! Now click Deposit.');
-  }).catch(function(e) {
-    txHide();
-    showToast('Approval failed: ' + (e.reason || e.message || 'Rejected'));
-  });
+  txShow('APPROVING USDT', 'Confirm the approval in your wallet');
+  usdt.approve(CONTRACT, amtBN)
+    .then(function (tx) {
+      document.getElementById('txSub').textContent = 'Waiting for confirmation...';
+      return tx.wait();
+    })
+    .then(function () {
+      txHide();
+      document.getElementById('btnDeposit').disabled = false;
+      showToast('Approved! Now click Deposit.');
+    })
+    .catch(txErr);
 }
 
 function doDeposit() {
   if (!connected) { onConnectClick(); return; }
-  var amt    = parseFloat(document.getElementById('depAmt').value);
+  var amt   = parseFloat(document.getElementById('depAmt').value);
   if (!amt || amt < 10) { showToast('Minimum deposit is 10 USDT'); return; }
-  var amtBN  = ethers.utils.parseUnits(String(amt), 18);
-  var refRaw = document.getElementById('refInput').value.trim();
-  var ref    = (ethers.utils.isAddress(refRaw)) ? refRaw : ethers.constants.AddressZero;
-  txShow('DEPOSITING', 'Confirm deposit in your wallet');
-  miner.deposit(amtBN, ref).then(function(tx) {
-    document.getElementById('txSub').textContent = 'Confirming on-chain...';
-    return tx.wait();
-  }).then(function() {
-    txHide();
-    document.getElementById('depAmt').value = '';
-    document.getElementById('btnDeposit').disabled = true;
-    onDepInput();
-    refreshAll();
-    showToast('Deposited ' + amt.toFixed(2) + ' USDT');
-  }).catch(function(e) {
-    txHide();
-    showToast('Deposit failed: ' + (e.reason || e.message || 'Rejected'));
-  });
+  var amtBN = ethers.utils.parseUnits(String(amt), 18);
+  var raw   = document.getElementById('refInput').value.trim();
+  var ref   = ethers.utils.isAddress(raw) ? raw : ethers.constants.AddressZero;
+  txShow('DEPOSITING', 'Confirm the deposit in your wallet');
+  miner.deposit(amtBN, ref)
+    .then(function (tx) {
+      document.getElementById('txSub').textContent = 'Waiting for confirmation...';
+      return tx.wait();
+    })
+    .then(function () {
+      txHide();
+      document.getElementById('depAmt').value = '';
+      document.getElementById('btnDeposit').disabled = true;
+      onDepInput();
+      loadPublicStats();
+      loadUserStats();
+      showToast('Deposited ' + amt.toFixed(2) + ' USDT successfully');
+    })
+    .catch(txErr);
 }
 
 function doWithdraw() {
   if (!connected) return;
   txShow('WITHDRAWING REWARDS', 'Confirm in your wallet');
-  miner.withdraw().then(function(tx) {
-    document.getElementById('txSub').textContent = 'Confirming...';
-    return tx.wait();
-  }).then(function() { txHide(); refreshAll(); showToast('Rewards withdrawn'); })
-  .catch(function(e) { txHide(); showToast('Failed: ' + (e.reason || e.message || 'Error')); });
+  miner.withdraw()
+    .then(function (tx) { document.getElementById('txSub').textContent = 'Waiting...'; return tx.wait(); })
+    .then(function () { txHide(); loadPublicStats(); loadUserStats(); showToast('Rewards withdrawn'); })
+    .catch(txErr);
 }
 
 function doCompound() {
   if (!connected) return;
   txShow('COMPOUNDING', 'Confirm in your wallet');
-  miner.compound().then(function(tx) {
-    document.getElementById('txSub').textContent = 'Confirming...';
-    return tx.wait();
-  }).then(function() { txHide(); refreshAll(); showToast('Compounded successfully'); })
-  .catch(function(e) { txHide(); showToast('Failed: ' + (e.reason || e.message || 'Error')); });
+  miner.compound()
+    .then(function (tx) { document.getElementById('txSub').textContent = 'Waiting...'; return tx.wait(); })
+    .then(function () { txHide(); loadPublicStats(); loadUserStats(); showToast('Compounded successfully'); })
+    .catch(txErr);
 }
 
 function doExit() {
   if (!connected) return;
-  if (!confirm('Exit your full position? A 10% fee applies to principal + pending rewards.')) return;
+  if (!confirm('Exit your full position? A 10% fee applies to your full balance including principal.')) return;
   txShow('EXITING POSITION', 'Confirm in your wallet');
-  miner.withdrawPrincipal().then(function(tx) {
-    document.getElementById('txSub').textContent = 'Confirming...';
-    return tx.wait();
-  }).then(function() {
-    txHide();
-    depBN = ethers.constants.Zero;
-    pendBN = ethers.constants.Zero;
-    refreshAll();
-    showToast('Exited successfully');
-  }).catch(function(e) { txHide(); showToast('Failed: ' + (e.reason || e.message || 'Error')); });
+  miner.withdrawPrincipal()
+    .then(function (tx) { document.getElementById('txSub').textContent = 'Waiting...'; return tx.wait(); })
+    .then(function () {
+      txHide();
+      depBN = pendBN = ethers.constants.Zero;
+      loadPublicStats();
+      loadUserStats();
+      showToast('Exited successfully');
+    })
+    .catch(txErr);
 }
 
 function doClaimRef() {
   if (!connected) return;
   txShow('CLAIMING REFERRALS', 'Confirm in your wallet');
-  miner.claimReferral().then(function(tx) {
-    document.getElementById('txSub').textContent = 'Confirming...';
-    return tx.wait();
-  }).then(function() { txHide(); loadUserStats(); showToast('Referral earnings claimed'); })
-  .catch(function(e) { txHide(); showToast('Failed: ' + (e.reason || e.message || 'Error')); });
+  miner.claimReferral()
+    .then(function (tx) { document.getElementById('txSub').textContent = 'Waiting...'; return tx.wait(); })
+    .then(function () { txHide(); loadUserStats(); showToast('Referral earnings claimed'); })
+    .catch(txErr);
 }
 
-// ═══════════════════════════════════════════════
-//  UI
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════════════════════════
 function onDepInput() {
   var amt = parseFloat(document.getElementById('depAmt').value) || 0;
   document.getElementById('netPrev').textContent = amt > 0 ? (amt * 0.9).toFixed(2) + ' USDT' : '—';
+  // Require re-approval if amount changes
   document.getElementById('btnDeposit').disabled = true;
 }
 
@@ -782,26 +776,40 @@ function calcYield() {
 function copyRef() {
   var t = document.getElementById('refLink').textContent;
   if (!t.startsWith('http')) { showToast('Connect wallet first'); return; }
-  copyText(t); showToast('Referral link copied');
+  copyText(t);
+  showToast('Referral link copied');
 }
 
-function copyText(t) { try { navigator.clipboard.writeText(t); } catch(e) {} }
+function copyText(t) {
+  try { navigator.clipboard.writeText(t); } catch (e) {}
+}
 
 function fmt(n) { return n.toLocaleString(undefined, { maximumFractionDigits: 2 }); }
+
+function renderSpinner(t, s) {
+  document.getElementById('modalContent').innerHTML =
+    '<div class="spin-wrap">' +
+    '<div class="spin"></div>' +
+    '<div style="font-family:\'Space Mono\',monospace;font-size:13px;color:var(--gold);margin-bottom:6px">' + t + '</div>' +
+    '<div style="font-size:12px;color:var(--text-muted)">' + s + '</div>' +
+    '</div>';
+}
 
 function showToast(msg) {
   var el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(el._t);
-  el._t = setTimeout(function() { el.classList.remove('show'); }, 3400);
+  el._t = setTimeout(function () { el.classList.remove('show'); }, 3600);
 }
 
 function loadScript(src) {
-  return new Promise(function(res, rej) {
+  return new Promise(function (res, rej) {
     if (document.querySelector('script[src="' + src + '"]')) { res(); return; }
     var s = document.createElement('script');
-    s.src = src; s.onload = res; s.onerror = rej;
+    s.src = src;
+    s.onload = res;
+    s.onerror = rej;
     document.head.appendChild(s);
   });
 }
