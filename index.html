@@ -34,16 +34,6 @@ header{border-bottom:1px solid var(--border);padding:18px 32px;display:flex;alig
 .spw{text-align:center;padding:30px 0}
 .sp{display:inline-block;width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:rot .7s linear infinite;margin-bottom:14px}
 @keyframes rot{to{transform:rotate(360deg)}}
-/* pending-request help box */
-.pending-box{background:rgba(201,168,76,.07);border:1px solid var(--bs);border-radius:var(--r);padding:18px;text-align:center}
-.pending-box .pb-icon{font-size:32px;margin-bottom:10px}
-.pending-box .pb-title{font-family:'Space Mono',monospace;font-size:13px;color:var(--gold);margin-bottom:8px}
-.pending-box .pb-msg{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px}
-.pb-steps{text-align:left;background:var(--bg3);border-radius:var(--r);padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:2}
-.pb-steps b{color:var(--text)}
-.btn-gold-sm{background:var(--gold);color:#0a0c0e;border:none;border-radius:var(--r);padding:11px 20px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;width:100%;margin-bottom:8px}
-.btn-ghost-sm{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);padding:10px 20px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;width:100%}
-.btn-ghost-sm:hover{border-color:var(--bs);color:var(--text)}
 .qrw{text-align:center;padding:8px 0}
 .qrw canvas{border-radius:8px;border:6px solid #fff;display:block;margin:0 auto}
 .urib{font-family:'Space Mono',monospace;font-size:10px;color:var(--dim);word-break:break-all;margin-top:10px;background:var(--bg3);padding:10px;border-radius:var(--r);cursor:pointer;border:1px solid var(--border)}
@@ -206,15 +196,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
-if (typeof ethers === 'undefined') {
-  document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"><\/scr'+'ipt>');
-}
+if(typeof ethers==='undefined'){document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"><\/scr'+'ipt>');}
 </script>
 <script>
 var CA   = '0x441D75BcA3C9345257E884FB00967329868ef864';
 var USDT = '0x55d398326f99059fF775485246999027B3197955';
 var RPC  = 'https://bsc-dataseed1.binance.org/';
-
 var MABI = [
   'function deposit(uint256,address) external',
   'function withdraw() external',
@@ -226,32 +213,252 @@ var MABI = [
 ];
 var UABI = ['function approve(address,uint256) external returns (bool)'];
 
-var prov, sign, mc, uc;
-var addr = null, live = false, ybps = 100;
-var dBN, pBN, pTS, tickT;
+var prov,sign,mc,uc,addr=null,live=false,ybps=100,dBN,pBN,pTS=0,tickT;
 
+/* ═══════════════════════════════════════════
+   BOOT
+   1. Load public stats (no wallet needed)
+   2. Silently check if MetaMask already has
+      an authorised account — NO popup, just
+      reads what's already permitted.
+      eth_accounts = silent, no prompt ever.
+      eth_requestAccounts = shows MM popup.
+      We ONLY call requestAccounts on button click.
+═══════════════════════════════════════════ */
 window.addEventListener('load', function() {
   setTimeout(function() {
     dBN = ethers.constants.Zero;
     pBN = ethers.constants.Zero;
-    pTS = 0;
+
     var ref = new URLSearchParams(location.search).get('ref');
-    if (ref && ethers.utils.isAddress(ref)) { g('rInp').value = ref; toast('Referral detected'); }
+    if (ref && ethers.utils.isAddress(ref)) {
+      g('rInp').value = ref;
+      toast('Referral detected');
+    }
+
     loadPublic();
     calcY();
-  }, 300);
+
+    /* Silent check — eth_accounts never triggers a popup.
+       If MetaMask already authorised this site, we get the
+       address back and can restore the session automatically. */
+    if (window.ethereum) {
+      window.ethereum.request({ method: 'eth_accounts' })
+        .then(function(accs) {
+          if (accs && accs.length > 0) {
+            /* Already authorised — build provider silently, no prompt */
+            buildProvider(accs[0]);
+          }
+          /* else: not authorised, user must click connect */
+        })
+        .catch(function() {
+          /* Silently ignore any error here */
+        });
+    }
+  }, 400);
 });
 
-/* ── CONNECT BUTTON ── */
-function onConnectClick() {
-  if (live) { showConnMenu(); return; }
-  openModal();
-  showWalletMenu();
+/* Build provider from an already-authorised account.
+   Never calls requestAccounts. */
+function buildProvider(account) {
+  try {
+    prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
+    sign = prov.getSigner();
+    mc   = new ethers.Contract(CA,   MABI, sign);
+    uc   = new ethers.Contract(USDT, UABI, sign);
+    addr = account;
+
+    attachListeners();
+    finishConnect('MetaMask');
+  } catch(e) {
+    /* Silently fail — user can still click connect manually */
+  }
 }
 
+/* ═══════════════════════════════════════════
+   CONNECT BUTTON
+═══════════════════════════════════════════ */
+function onConnectClick() {
+  if (live) { showConnMenu(); return; }
+  if (!window.ethereum) {
+    openModal();
+    showWalletMenu();
+    return;
+  }
+
+  /* Check silently first — maybe already authorised */
+  window.ethereum.request({ method: 'eth_accounts' })
+    .then(function(accs) {
+      if (accs && accs.length > 0) {
+        /* Already authorised — no popup needed at all */
+        buildProvider(accs[0]);
+      } else {
+        /* Not yet authorised — show wallet picker */
+        openModal();
+        showWalletMenu();
+      }
+    })
+    .catch(function() {
+      openModal();
+      showWalletMenu();
+    });
+}
+
+/* ═══════════════════════════════════════════
+   METAMASK — only called when user picks it
+   from the modal. This is the ONLY place we
+   call eth_requestAccounts.
+═══════════════════════════════════════════ */
+function clickMM() {
+  if (!window.ethereum) {
+    go('https://metamask.app.link/dapp/' + location.host + location.pathname);
+    closeModal(); return;
+  }
+
+  setBody(
+    '<div class="spw"><div class="sp"></div>' +
+    '<div style="font-family:\'Space Mono\',monospace;font-size:13px;color:var(--gold);margin-bottom:6px">Opening MetaMask...</div>' +
+    '<div style="font-size:12px;color:var(--muted)">Check your MetaMask extension</div></div>'
+  );
+
+  /* eth_requestAccounts — the one and only popup trigger */
+  window.ethereum.request({ method: 'eth_requestAccounts' })
+    .then(function(accs) {
+      if (!accs || !accs.length) throw { code: 0, message: 'No accounts' };
+      return accs;
+    })
+    .then(function(accs) {
+      prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
+      sign = prov.getSigner();
+      mc   = new ethers.Contract(CA,   MABI, sign);
+      uc   = new ethers.Contract(USDT, UABI, sign);
+      addr = accs[0];
+
+      /* Switch to BSC if needed */
+      return prov.getNetwork().then(function(net) {
+        if (net.chainId === 56) return;
+        return window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x38' }]
+        }).catch(function(e) {
+          if (e.code === 4902) {
+            return window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{ chainId:'0x38', chainName:'BNB Smart Chain',
+                nativeCurrency:{name:'BNB',symbol:'BNB',decimals:18},
+                rpcUrls:[RPC], blockExplorerUrls:['https://bscscan.com/'] }]
+            });
+          }
+        });
+      });
+    })
+    .then(function() {
+      /* Rebuild after possible chain switch */
+      prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
+      sign = prov.getSigner();
+      mc   = new ethers.Contract(CA,   MABI, sign);
+      uc   = new ethers.Contract(USDT, UABI, sign);
+      attachListeners();
+      finishConnect('MetaMask');
+    })
+    .catch(function(e) {
+      var code = e.code;
+      /* 4001 = user closed popup — go back silently */
+      if (code === 4001) { showWalletMenu(); return; }
+      /* -32002 = another request already pending */
+      if (code === -32002) {
+        setBody(
+          '<div style="text-align:center;padding:8px 0">' +
+          '<div style="font-size:32px;margin-bottom:12px">🦊</div>' +
+          '<div class="mt" style="margin-bottom:10px">PENDING REQUEST IN METAMASK</div>' +
+          '<div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.7">' +
+          'Click the MetaMask icon in your browser toolbar, then <strong style="color:var(--text)">reject the pending request</strong>. Then click Try Again.' +
+          '</div>' +
+          '<button class="bg" style="margin-bottom:10px" onclick="clickMM()">Try Again</button>' +
+          '<button class="bgh" onclick="showWalletMenu()">← Back</button>' +
+          '</div>'
+        );
+        return;
+      }
+      showWalletMenu();
+      toast('Error: ' + (e.message || 'Unknown'));
+    });
+}
+
+/* ═══════════════════════════════════════════
+   LISTENERS — named so removable
+═══════════════════════════════════════════ */
+function _onAccounts(accs) {
+  if (!accs || !accs.length) { doDisconnect(); return; }
+  /* Account switched — silently update, no popup */
+  addr = accs[0];
+  prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
+  sign = prov.getSigner();
+  mc   = new ethers.Contract(CA,   MABI, sign);
+  uc   = new ethers.Contract(USDT, UABI, sign);
+  g('cbtn').textContent = addr.slice(0,6)+'...'+addr.slice(-4);
+  loadUser();
+}
+function _onChain() { location.reload(); }
+
+function attachListeners() {
+  if (!window.ethereum) return;
+  window.ethereum.removeListener('accountsChanged', _onAccounts);
+  window.ethereum.removeListener('chainChanged', _onChain);
+  window.ethereum.on('accountsChanged', _onAccounts);
+  window.ethereum.on('chainChanged', _onChain);
+}
+
+function detachListeners() {
+  if (!window.ethereum) return;
+  try {
+    window.ethereum.removeListener('accountsChanged', _onAccounts);
+    window.ethereum.removeListener('chainChanged', _onChain);
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════
+   POST CONNECT
+═══════════════════════════════════════════ */
+function finishConnect(via) {
+  live = true;
+  closeModal();
+  g('cbtn').textContent = addr.slice(0,6)+'...'+addr.slice(-4);
+  g('cbtn').classList.add('on');
+  g('rLnk').textContent = location.origin+location.pathname+'?ref='+addr;
+  setBtns(true);
+  if (via) toast('Connected via '+via);
+  loadUser();
+  clearInterval(tickT);
+  tickT = setInterval(tickPend, 1000);
+}
+
+/* ═══════════════════════════════════════════
+   DISCONNECT — detach first, clear after
+═══════════════════════════════════════════ */
+function doDisconnect() {
+  detachListeners();
+  live = false; addr = null;
+  prov = sign = mc = uc = null;
+  clearInterval(tickT);
+  dBN = pBN = ethers.constants.Zero;
+  g('cbtn').textContent = 'CONNECT WALLET';
+  g('cbtn').classList.remove('on');
+  setBtns(false);
+  g('rLnk').textContent = 'Connect wallet to generate your link';
+  g('pRew').textContent = '0.000000 USDT';
+  ['myDep','totE','totW','brkE','rPnd','rTot'].forEach(function(x){ g(x).textContent='—'; });
+  closeModal();
+  toast('Disconnected');
+}
+
+/* ═══════════════════════════════════════════
+   MODAL HELPERS
+═══════════════════════════════════════════ */
 function openModal()  { g('wModal').classList.add('open'); }
 function closeModal() { g('wModal').classList.remove('open'); }
 function setBody(h)   { g('mBody').innerHTML = h; }
+function go(url)      { window.open(url, '_blank'); }
 
 function showWalletMenu() {
   setBody(
@@ -263,8 +470,7 @@ function showWalletMenu() {
 }
 
 function showMobile() {
-  var enc = encodeURIComponent(location.href);
-  var host = location.host + location.pathname;
+  var enc=encodeURIComponent(location.href), host=location.host+location.pathname;
   setBody(
     '<button class="mbk" onclick="showWalletMenu()">← Back</button>' +
     '<div class="mt">MOBILE WALLETS</div><div class="ms">Tap to open inside your wallet\'s browser</div>' +
@@ -285,207 +491,54 @@ function showConnMenu() {
   );
 }
 
-/* ── SHOW PENDING-REQUEST HELP ──
-   Called when MetaMask returns -32002 (request already pending).
-   Gives the user step-by-step instructions to fix it.          */
-function showPendingHelp() {
-  setBody(
-    '<div class="pending-box">' +
-    '<div class="pb-icon">🦊</div>' +
-    '<div class="pb-title">METAMASK HAS A PENDING REQUEST</div>' +
-    '<div class="pb-msg">MetaMask already has a connection request waiting. You need to open MetaMask and approve or reject it before connecting here.</div>' +
-    '<div class="pb-steps">' +
-    '<b>Fix it in 3 steps:</b><br>' +
-    '1. Click the 🦊 MetaMask icon in your browser toolbar<br>' +
-    '2. You will see a pending request — click <b>Reject</b> or <b>Cancel</b><br>' +
-    '3. Come back here and click <b>Try Again</b>' +
-    '</div>' +
-    '<button class="btn-gold-sm" onclick="clickMM()">Try Again</button>' +
-    '<button class="btn-ghost-sm" onclick="showWalletMenu()">← Back</button>' +
-    '</div>'
-  );
-}
-
-function go(url) { window.open(url, '_blank'); }
-
-/* ── METAMASK CONNECT ── */
-function clickMM() {
-  if (!window.ethereum) {
-    go('https://metamask.app.link/dapp/' + location.host + location.pathname);
-    closeModal(); toast('Opening MetaMask...'); return;
-  }
-
-  /* Show spinner */
-  setBody(
-    '<div class="spw"><div class="sp"></div>' +
-    '<div style="font-family:\'Space Mono\',monospace;font-size:13px;color:var(--gold);margin-bottom:6px">Opening MetaMask...</div>' +
-    '<div style="font-size:12px;color:var(--muted)">Check your MetaMask extension</div></div>'
-  );
-
-  window.ethereum.request({ method: 'eth_requestAccounts' })
-    .then(function(accs) {
-      if (!accs || !accs.length) throw new Error('no_accounts');
-
-      addr = accs[0];
-
-      /* Build fresh provider */
-      prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
-      sign = prov.getSigner();
-      mc   = new ethers.Contract(CA,   MABI, sign);
-      uc   = new ethers.Contract(USDT, UABI, sign);
-
-      /* Check chain — switch if needed */
-      return prov.getNetwork().then(function(net) {
-        if (net.chainId === 56) return; /* already on BSC, skip */
-        return window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x38' }]
-        }).catch(function(e) {
-          if (e.code === 4902) {
-            return window.ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [{ chainId:'0x38', chainName:'BNB Smart Chain',
-                nativeCurrency:{name:'BNB',symbol:'BNB',decimals:18},
-                rpcUrls:[RPC], blockExplorerUrls:['https://bscscan.com/'] }]
-            });
-          }
-          /* User rejected switch — warn but continue */
-          toast('Please switch to BNB Smart Chain in MetaMask');
-        });
-      });
-    })
-    .then(function() {
-      /* Rebuild provider after potential chain switch */
-      prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
-      sign = prov.getSigner();
-      mc   = new ethers.Contract(CA,   MABI, sign);
-      uc   = new ethers.Contract(USDT, UABI, sign);
-
-      /* Attach named listeners */
-      window.ethereum.removeListener('accountsChanged', _accs);
-      window.ethereum.removeListener('chainChanged', _chain);
-      window.ethereum.on('accountsChanged', _accs);
-      window.ethereum.on('chainChanged', _chain);
-
-      onConnected('MetaMask');
-    })
-    .catch(function(e) {
-      var code = e.code;
-      var msg  = (e.message || '').toLowerCase();
-
-      /* -32002 = request already pending in MetaMask */
-      if (code === -32002 || msg.indexOf('already pending') !== -1 || msg.indexOf('request already') !== -1) {
-        showPendingHelp();
-        return;
-      }
-
-      /* 4001 = user closed the popup — silently go back */
-      if (code === 4001) {
-        showWalletMenu();
-        return;
-      }
-
-      /* Any other error — show it clearly */
-      showWalletMenu();
-      toast('MetaMask error: ' + (e.message || 'Unknown error'));
-    });
-}
-
-/* ── WALLETCONNECT ── */
+/* ═══════════════════════════════════════════
+   WALLETCONNECT
+═══════════════════════════════════════════ */
 function showWC() {
   setBody('<button class="mbk" onclick="showMobile()">← Back</button><div class="mt">WALLETCONNECT</div><div class="ms">Loading session...</div><div class="spw"><div class="sp"></div></div>');
   loadSrc('https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js')
     .then(function() {
-      var W = window.WalletConnectProvider, WW = (W && W.default) ? W.default : W;
-      var wcp = new WW({ rpc:{56:RPC}, chainId:56, qrcode:false });
-      wcp.connector.on('display_uri', function(err, pay) {
-        var u = pay.params[0];
+      var W=window.WalletConnectProvider, WW=(W&&W.default)?W.default:W;
+      var wcp=new WW({rpc:{56:RPC},chainId:56,qrcode:false});
+      wcp.connector.on('display_uri',function(err,pay){
+        var u=pay.params[0];
         setBody('<button class="mbk" onclick="showMobile()">← Back</button><div class="mt">SCAN TO CONNECT</div><div class="ms">Open your wallet and scan</div><div class="qrw"><canvas id="qrc"></canvas></div><div class="urib" onclick="cp(\''+u+'\')">Tap to copy URI · '+u.slice(0,42)+'...</div>');
-        if (window.QRCode) QRCode.toCanvas(g('qrc'), u, {width:200});
+        if(window.QRCode) QRCode.toCanvas(g('qrc'),u,{width:200});
       });
-      return wcp.enable().then(function() {
-        prov = new ethers.providers.Web3Provider(wcp);
-        sign = prov.getSigner();
-        mc   = new ethers.Contract(CA, MABI, sign);
-        uc   = new ethers.Contract(USDT, UABI, sign);
+      return wcp.enable().then(function(){
+        prov=new ethers.providers.Web3Provider(wcp);
+        sign=prov.getSigner();
+        mc=new ethers.Contract(CA,MABI,sign);
+        uc=new ethers.Contract(USDT,UABI,sign);
         return prov.listAccounts();
-      }).then(function(accs) { addr=accs[0]; onConnected('WalletConnect'); });
+      }).then(function(accs){addr=accs[0];finishConnect('WalletConnect');});
     })
-    .catch(function(e) { showMobile(); toast('WalletConnect: '+(e.message||'Cancelled')); });
+    .catch(function(e){showMobile();toast('WalletConnect: '+(e.message||'Cancelled'));});
 }
 
-/* ── POST CONNECT ── */
-function onConnected(via) {
-  live = true;
-  closeModal();
-  g('cbtn').textContent = addr.slice(0,6)+'...'+addr.slice(-4);
-  g('cbtn').classList.add('on');
-  g('rLnk').textContent = location.origin+location.pathname+'?ref='+addr;
-  setBtns(true);
-  toast('Connected via '+via);
-  loadUser();
-  clearInterval(tickT);
-  tickT = setInterval(tickPend, 1000);
-}
-
-function _accs(a) {
-  if (!a || !a.length) { doDisconnect(); return; }
-  addr = a[0];
-  prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
-  sign = prov.getSigner();
-  mc   = new ethers.Contract(CA, MABI, sign);
-  uc   = new ethers.Contract(USDT, UABI, sign);
-  g('cbtn').textContent = addr.slice(0,6)+'...'+addr.slice(-4);
-  loadUser();
-}
-function _chain() { location.reload(); }
-
-/* ── DISCONNECT — remove listeners first ── */
-function doDisconnect() {
-  try {
-    window.ethereum && window.ethereum.removeListener('accountsChanged', _accs);
-    window.ethereum && window.ethereum.removeListener('chainChanged', _chain);
-  } catch(e) {}
-  live = false; addr = null;
-  prov = sign = mc = uc = null;
-  clearInterval(tickT);
-  dBN = pBN = ethers.constants.Zero;
-  g('cbtn').textContent = 'CONNECT WALLET';
-  g('cbtn').classList.remove('on');
-  setBtns(false);
-  g('rLnk').textContent = 'Connect wallet to generate your link';
-  g('pRew').textContent = '0.000000 USDT';
-  ['myDep','totE','totW','brkE','rPnd','rTot'].forEach(function(x){ g(x).textContent='—'; });
-  closeModal();
-  toast('Disconnected');
-}
-
-function setBtns(on) {
-  ['bApp','bWth','bCmp','bExt','bRef'].forEach(function(x){ g(x).disabled=!on; });
-  if (!on) g('bDep').disabled = true;
-}
-
-/* ── READS ── */
+/* ═══════════════════════════════════════════
+   READS
+═══════════════════════════════════════════ */
 function loadPublic() {
-  var rp = new ethers.providers.JsonRpcProvider(RPC);
-  new ethers.Contract(CA, MABI, rp).getPoolStats().then(function(r) {
-    var f=function(b){return parseFloat(ethers.utils.formatUnits(b,18));};
-    ybps=r[3].toNumber();
-    g('sTVL').textContent='$'+fmt(f(r[0]));
-    g('sDep').textContent='$'+fmt(f(r[1]));
-    g('sWth').textContent='$'+fmt(f(r[2]));
-    g('sRat').textContent=(f(r[1])>0?(f(r[2])/f(r[1])*100).toFixed(1):'0.0')+'%';
-    g('yRate').textContent=(ybps/100).toFixed(2)+'%';
-    g('yBar').style.width=Math.max(0,Math.min(100,(ybps-10)/90*100))+'%';
-    calcY();
-  }).catch(function(){});
+  new ethers.Contract(CA, MABI, new ethers.providers.JsonRpcProvider(RPC))
+    .getPoolStats().then(function(r) {
+      var f=function(b){return parseFloat(ethers.utils.formatUnits(b,18));};
+      ybps=r[3].toNumber();
+      g('sTVL').textContent='$'+fmt(f(r[0]));
+      g('sDep').textContent='$'+fmt(f(r[1]));
+      g('sWth').textContent='$'+fmt(f(r[2]));
+      g('sRat').textContent=(f(r[1])>0?(f(r[2])/f(r[1])*100).toFixed(1):'0.0')+'%';
+      g('yRate').textContent=(ybps/100).toFixed(2)+'%';
+      g('yBar').style.width=Math.max(0,Math.min(100,(ybps-10)/90*100))+'%';
+      calcY();
+    }).catch(function(){});
 }
 
 function loadUser() {
-  if (!live||!addr||!mc) return;
-  mc.getUserStats(addr).then(function(r) {
+  if(!live||!addr||!mc)return;
+  mc.getUserStats(addr).then(function(r){
     var f=function(b){return parseFloat(ethers.utils.formatUnits(b,18));};
-    dBN=r[0]; pBN=r[1]; pTS=Math.floor(Date.now()/1000);
+    dBN=r[0];pBN=r[1];pTS=Math.floor(Date.now()/1000);
     g('myDep').textContent=f(r[0]).toFixed(4)+' USDT';
     g('totE').textContent=f(r[2]).toFixed(4)+' USDT';
     g('totW').textContent=f(r[3]).toFixed(4)+' USDT';
@@ -496,14 +549,16 @@ function loadUser() {
   }).catch(function(){});
 }
 
-function tickPend() {
-  if (!live||!dBN) return;
+function tickPend(){
+  if(!live||!dBN)return;
   var df=parseFloat(ethers.utils.formatUnits(dBN,18));
-  if(df<=0) return;
+  if(df<=0)return;
   g('pRew').textContent=(parseFloat(ethers.utils.formatUnits(pBN,18))+df*(ybps/10000)*((Math.floor(Date.now()/1000)-pTS)/86400)).toFixed(6)+' USDT';
 }
 
-/* ── TRANSACTIONS ── */
+/* ═══════════════════════════════════════════
+   TRANSACTIONS
+═══════════════════════════════════════════ */
 function txShow(t,s){g('txTt').textContent=t;g('txSt').textContent=s;g('txOv').classList.add('open');}
 function txHide(){g('txOv').classList.remove('open');}
 function txErr(e){txHide();var m=e.reason||e.data&&e.data.message||e.message||'Transaction failed';toast(m.length>90?m.slice(0,90)+'…':m);}
@@ -532,46 +587,14 @@ function doDeposit(){
     .catch(txErr);
 }
 
-function doWithdraw(){
-  if(!live)return;
-  txShow('WITHDRAWING','Confirm in MetaMask');
-  mc.withdraw().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
-    .then(function(){txHide();loadPublic();loadUser();toast('Rewards withdrawn');}).catch(txErr);
-}
+function doWithdraw(){if(!live)return;txShow('WITHDRAWING','Confirm in MetaMask');mc.withdraw().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();loadPublic();loadUser();toast('Rewards withdrawn');}).catch(txErr);}
+function doCompound(){if(!live)return;txShow('COMPOUNDING','Confirm in MetaMask');mc.compound().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();loadPublic();loadUser();toast('Compounded');}).catch(txErr);}
+function doExit(){if(!live)return;if(!confirm('Exit full position? 10% fee on principal + rewards.'))return;txShow('EXITING','Confirm in MetaMask');mc.withdrawPrincipal().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();dBN=pBN=ethers.constants.Zero;loadPublic();loadUser();toast('Exited successfully');}).catch(txErr);}
+function doClaimRef(){if(!live)return;txShow('CLAIMING REFERRALS','Confirm in MetaMask');mc.claimReferral().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();loadUser();toast('Referral earnings claimed');}).catch(txErr);}
 
-function doCompound(){
-  if(!live)return;
-  txShow('COMPOUNDING','Confirm in MetaMask');
-  mc.compound().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
-    .then(function(){txHide();loadPublic();loadUser();toast('Compounded');}).catch(txErr);
-}
-
-function doExit(){
-  if(!live)return;
-  if(!confirm('Exit full position? 10% fee on principal + rewards.'))return;
-  txShow('EXITING','Confirm in MetaMask');
-  mc.withdrawPrincipal().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
-    .then(function(){txHide();dBN=pBN=ethers.constants.Zero;loadPublic();loadUser();toast('Exited successfully');}).catch(txErr);
-}
-
-function doClaimRef(){
-  if(!live)return;
-  txShow('CLAIMING REFERRALS','Confirm in MetaMask');
-  mc.claimReferral().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
-    .then(function(){txHide();loadUser();toast('Referral earnings claimed');}).catch(txErr);
-}
-
-/* ── UI ── */
+function setBtns(on){['bApp','bWth','bCmp','bExt','bRef'].forEach(function(x){g(x).disabled=!on;});if(!on)g('bDep').disabled=true;}
 function onDep(){var a=parseFloat(g('dAmt').value)||0;g('nPrev').textContent=a>0?(a*.9).toFixed(2)+' USDT':'—';g('bDep').disabled=true;}
-
-function calcY(){
-  var a=parseFloat(g('cAmt').value)||1000,d=parseInt(g('cDay').value)||30,y=ybps||100;
-  var n=a*.9,gr=n*(y/10000)*d,nw=gr*.9,dd=n*(y/10000)*.9,be=dd>0?Math.ceil(n/dd):0;
-  g('c1').textContent=n.toFixed(2)+' USDT';g('c2').textContent=gr.toFixed(4)+' USDT';
-  g('c3').textContent=nw.toFixed(4)+' USDT';g('c4').textContent=dd.toFixed(4)+' USDT';
-  g('c5').textContent=be+' days';
-}
-
+function calcY(){var a=parseFloat(g('cAmt').value)||1000,d=parseInt(g('cDay').value)||30,y=ybps||100,n=a*.9,gr=n*(y/10000)*d,nw=gr*.9,dd=n*(y/10000)*.9,be=dd>0?Math.ceil(n/dd):0;g('c1').textContent=n.toFixed(2)+' USDT';g('c2').textContent=gr.toFixed(4)+' USDT';g('c3').textContent=nw.toFixed(4)+' USDT';g('c4').textContent=dd.toFixed(4)+' USDT';g('c5').textContent=be+' days';}
 function copyRef(){var t=g('rLnk').textContent;if(!t.startsWith('http')){toast('Connect wallet first');return;}cp(t);toast('Referral link copied');}
 function g(x){return document.getElementById(x);}
 function fmt(n){return n.toLocaleString(undefined,{maximumFractionDigits:2});}
