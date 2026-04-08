@@ -19,7 +19,7 @@ header{border-bottom:1px solid var(--border);padding:18px 32px;display:flex;alig
 .cbtn.on{border-color:var(--green);color:var(--green)}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
 .ov.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--bs);border-radius:var(--rl);padding:32px 28px;width:100%;max-width:420px;position:relative}
+.modal{background:var(--bg2);border:1px solid var(--bs);border-radius:var(--rl);padding:32px 28px;width:100%;max-width:440px;position:relative}
 .mcls{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1}
 .mt{font-family:'Space Mono',monospace;font-size:14px;color:var(--gold);letter-spacing:.08em;margin-bottom:6px}
 .ms{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6}
@@ -34,6 +34,16 @@ header{border-bottom:1px solid var(--border);padding:18px 32px;display:flex;alig
 .spw{text-align:center;padding:30px 0}
 .sp{display:inline-block;width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:rot .7s linear infinite;margin-bottom:14px}
 @keyframes rot{to{transform:rotate(360deg)}}
+/* pending-request help box */
+.pending-box{background:rgba(201,168,76,.07);border:1px solid var(--bs);border-radius:var(--r);padding:18px;text-align:center}
+.pending-box .pb-icon{font-size:32px;margin-bottom:10px}
+.pending-box .pb-title{font-family:'Space Mono',monospace;font-size:13px;color:var(--gold);margin-bottom:8px}
+.pending-box .pb-msg{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.pb-steps{text-align:left;background:var(--bg3);border-radius:var(--r);padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:2}
+.pb-steps b{color:var(--text)}
+.btn-gold-sm{background:var(--gold);color:#0a0c0e;border:none;border-radius:var(--r);padding:11px 20px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;width:100%;margin-bottom:8px}
+.btn-ghost-sm{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);padding:10px 20px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;width:100%}
+.btn-ghost-sm:hover{border-color:var(--bs);color:var(--text)}
 .qrw{text-align:center;padding:8px 0}
 .qrw canvas{border-radius:8px;border:6px solid #fff;display:block;margin:0 auto}
 .urib{font-family:'Space Mono',monospace;font-size:10px;color:var(--dim);word-break:break-all;margin-top:10px;background:var(--bg3);padding:10px;border-radius:var(--r);cursor:pointer;border:1px solid var(--border)}
@@ -201,9 +211,6 @@ if (typeof ethers === 'undefined') {
 }
 </script>
 <script>
-/* ─────────────────────────────────────────
-   CONFIG
-───────────────────────────────────────── */
 var CA   = '0x441D75BcA3C9345257E884FB00967329868ef864';
 var USDT = '0x55d398326f99059fF775485246999027B3197955';
 var RPC  = 'https://bsc-dataseed1.binance.org/';
@@ -217,47 +224,31 @@ var MABI = [
   'function getUserStats(address) external view returns (uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)',
   'function getPoolStats() external view returns (uint256,uint256,uint256,uint256)'
 ];
-var UABI = [
-  'function approve(address,uint256) external returns (bool)'
-];
+var UABI = ['function approve(address,uint256) external returns (bool)'];
 
-/* ─────────────────────────────────────────
-   STATE
-───────────────────────────────────────── */
 var prov, sign, mc, uc;
 var addr = null, live = false, ybps = 100;
 var dBN, pBN, pTS, tickT;
 
-/* ─────────────────────────────────────────
-   BOOT — never touch MetaMask on load
-───────────────────────────────────────── */
 window.addEventListener('load', function() {
   setTimeout(function() {
     dBN = ethers.constants.Zero;
     pBN = ethers.constants.Zero;
     pTS = 0;
     var ref = new URLSearchParams(location.search).get('ref');
-    if (ref && ethers.utils.isAddress(ref)) {
-      g('rInp').value = ref;
-      toast('Referral address detected');
-    }
+    if (ref && ethers.utils.isAddress(ref)) { g('rInp').value = ref; toast('Referral detected'); }
     loadPublic();
     calcY();
   }, 300);
 });
 
-/* ─────────────────────────────────────────
-   CONNECT BUTTON CLICK
-───────────────────────────────────────── */
+/* ── CONNECT BUTTON ── */
 function onConnectClick() {
   if (live) { showConnMenu(); return; }
   openModal();
   showWalletMenu();
 }
 
-/* ─────────────────────────────────────────
-   MODAL HELPERS
-───────────────────────────────────────── */
 function openModal()  { g('wModal').classList.add('open'); }
 function closeModal() { g('wModal').classList.remove('open'); }
 function setBody(h)   { g('mBody').innerHTML = h; }
@@ -276,8 +267,7 @@ function showMobile() {
   var host = location.host + location.pathname;
   setBody(
     '<button class="mbk" onclick="showWalletMenu()">← Back</button>' +
-    '<div class="mt">MOBILE WALLETS</div>' +
-    '<div class="ms">Tap to open inside your wallet\'s browser</div>' +
+    '<div class="mt">MOBILE WALLETS</div><div class="ms">Tap to open inside your wallet\'s browser</div>' +
     '<div class="wo" onclick="go(\'https://link.trustwallet.com/open_url?coin_id=20000714&url='+enc+'\')"><div class="wi" style="background:#3375bb22">🛡️</div><div><div class="wn">Trust Wallet</div><div class="wd">Opens in Trust Wallet browser</div></div></div>' +
     '<div class="wo" onclick="go(\'https://metamask.app.link/dapp/'+host+'\')"><div class="wi" style="background:#f6851b22">🦊</div><div><div class="wn">MetaMask Mobile</div><div class="wd">Opens in MetaMask in-app browser</div></div></div>' +
     '<div class="wo" onclick="go(\'https://go.cb-w.com/dapp?cb_url='+enc+'\')"><div class="wi" style="background:#0052ff22">🔵</div><div><div class="wn">Coinbase Wallet</div><div class="wd">Opens in Coinbase browser</div></div></div>' +
@@ -295,115 +285,136 @@ function showConnMenu() {
   );
 }
 
+/* ── SHOW PENDING-REQUEST HELP ──
+   Called when MetaMask returns -32002 (request already pending).
+   Gives the user step-by-step instructions to fix it.          */
+function showPendingHelp() {
+  setBody(
+    '<div class="pending-box">' +
+    '<div class="pb-icon">🦊</div>' +
+    '<div class="pb-title">METAMASK HAS A PENDING REQUEST</div>' +
+    '<div class="pb-msg">MetaMask already has a connection request waiting. You need to open MetaMask and approve or reject it before connecting here.</div>' +
+    '<div class="pb-steps">' +
+    '<b>Fix it in 3 steps:</b><br>' +
+    '1. Click the 🦊 MetaMask icon in your browser toolbar<br>' +
+    '2. You will see a pending request — click <b>Reject</b> or <b>Cancel</b><br>' +
+    '3. Come back here and click <b>Try Again</b>' +
+    '</div>' +
+    '<button class="btn-gold-sm" onclick="clickMM()">Try Again</button>' +
+    '<button class="btn-ghost-sm" onclick="showWalletMenu()">← Back</button>' +
+    '</div>'
+  );
+}
+
 function go(url) { window.open(url, '_blank'); }
 
-/* ─────────────────────────────────────────
-   METAMASK CONNECT
-   
-   Key insight: request accounts FIRST with
-   the raw ethereum provider, THEN build the
-   ethers provider. Never chain switchChain
-   before requestAccounts — it confuses MM.
-───────────────────────────────────────── */
+/* ── METAMASK CONNECT ── */
 function clickMM() {
   if (!window.ethereum) {
     go('https://metamask.app.link/dapp/' + location.host + location.pathname);
     closeModal(); toast('Opening MetaMask...'); return;
   }
-  spin('Opening MetaMask...', 'Check your MetaMask extension');
 
-  /* Step 1: ask for accounts. This is the ONLY call that can prompt unlock. */
+  /* Show spinner */
+  setBody(
+    '<div class="spw"><div class="sp"></div>' +
+    '<div style="font-family:\'Space Mono\',monospace;font-size:13px;color:var(--gold);margin-bottom:6px">Opening MetaMask...</div>' +
+    '<div style="font-size:12px;color:var(--muted)">Check your MetaMask extension</div></div>'
+  );
+
   window.ethereum.request({ method: 'eth_requestAccounts' })
     .then(function(accs) {
-      if (!accs || !accs.length) throw new Error('No accounts returned');
+      if (!accs || !accs.length) throw new Error('no_accounts');
+
       addr = accs[0];
 
-      /* Step 2: NOW build a fresh ethers provider */
+      /* Build fresh provider */
       prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
       sign = prov.getSigner();
       mc   = new ethers.Contract(CA,   MABI, sign);
       uc   = new ethers.Contract(USDT, UABI, sign);
 
-      /* Step 3: switch to BSC silently AFTER we have accounts */
+      /* Check chain — switch if needed */
       return prov.getNetwork().then(function(net) {
-        if (net.chainId !== 56) {
-          return window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x38' }]
-          }).catch(function(e) {
-            /* Chain not added yet — add it */
-            if (e.code === 4902) {
-              return window.ethereum.request({
-                method: 'wallet_addEthereumChain',
-                params: [{ chainId:'0x38', chainName:'BNB Smart Chain',
-                  nativeCurrency:{name:'BNB',symbol:'BNB',decimals:18},
-                  rpcUrls:[RPC], blockExplorerUrls:['https://bscscan.com/'] }]
-              });
-            }
-            /* User rejected chain switch — still let them in, just warn */
-            toast('Please switch MetaMask to BNB Smart Chain');
-          });
-        }
+        if (net.chainId === 56) return; /* already on BSC, skip */
+        return window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x38' }]
+        }).catch(function(e) {
+          if (e.code === 4902) {
+            return window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{ chainId:'0x38', chainName:'BNB Smart Chain',
+                nativeCurrency:{name:'BNB',symbol:'BNB',decimals:18},
+                rpcUrls:[RPC], blockExplorerUrls:['https://bscscan.com/'] }]
+            });
+          }
+          /* User rejected switch — warn but continue */
+          toast('Please switch to BNB Smart Chain in MetaMask');
+        });
       });
     })
     .then(function() {
-      /* Rebuild provider after possible chain switch */
+      /* Rebuild provider after potential chain switch */
       prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
       sign = prov.getSigner();
       mc   = new ethers.Contract(CA,   MABI, sign);
       uc   = new ethers.Contract(USDT, UABI, sign);
+
+      /* Attach named listeners */
+      window.ethereum.removeListener('accountsChanged', _accs);
+      window.ethereum.removeListener('chainChanged', _chain);
+      window.ethereum.on('accountsChanged', _accs);
+      window.ethereum.on('chainChanged', _chain);
+
       onConnected('MetaMask');
     })
     .catch(function(e) {
-      showWalletMenu();
-      /* Only show an error if it wasn't just the user closing the popup */
-      if (e.code !== 4001 && e.code !== -32002) {
-        toast(e.message || 'Connection failed');
+      var code = e.code;
+      var msg  = (e.message || '').toLowerCase();
+
+      /* -32002 = request already pending in MetaMask */
+      if (code === -32002 || msg.indexOf('already pending') !== -1 || msg.indexOf('request already') !== -1) {
+        showPendingHelp();
+        return;
       }
+
+      /* 4001 = user closed the popup — silently go back */
+      if (code === 4001) {
+        showWalletMenu();
+        return;
+      }
+
+      /* Any other error — show it clearly */
+      showWalletMenu();
+      toast('MetaMask error: ' + (e.message || 'Unknown error'));
     });
 }
 
-/* ─────────────────────────────────────────
-   WALLETCONNECT QR
-───────────────────────────────────────── */
+/* ── WALLETCONNECT ── */
 function showWC() {
-  setBody(
-    '<button class="mbk" onclick="showMobile()">← Back</button>' +
-    '<div class="mt">WALLETCONNECT</div><div class="ms">Loading session...</div>' +
-    '<div class="spw"><div class="sp"></div></div>'
-  );
+  setBody('<button class="mbk" onclick="showMobile()">← Back</button><div class="mt">WALLETCONNECT</div><div class="ms">Loading session...</div><div class="spw"><div class="sp"></div></div>');
   loadSrc('https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js')
     .then(function() {
-      var W  = window.WalletConnectProvider;
-      var WW = (W && W.default) ? W.default : W;
+      var W = window.WalletConnectProvider, WW = (W && W.default) ? W.default : W;
       var wcp = new WW({ rpc:{56:RPC}, chainId:56, qrcode:false });
       wcp.connector.on('display_uri', function(err, pay) {
         var u = pay.params[0];
-        setBody(
-          '<button class="mbk" onclick="showMobile()">← Back</button>' +
-          '<div class="mt">SCAN TO CONNECT</div><div class="ms">Open your wallet and scan</div>' +
-          '<div class="qrw"><canvas id="qrc"></canvas></div>' +
-          '<div class="urib" onclick="cp(\''+u+'\')">Tap to copy URI · '+u.slice(0,42)+'...</div>'
-        );
+        setBody('<button class="mbk" onclick="showMobile()">← Back</button><div class="mt">SCAN TO CONNECT</div><div class="ms">Open your wallet and scan</div><div class="qrw"><canvas id="qrc"></canvas></div><div class="urib" onclick="cp(\''+u+'\')">Tap to copy URI · '+u.slice(0,42)+'...</div>');
         if (window.QRCode) QRCode.toCanvas(g('qrc'), u, {width:200});
       });
       return wcp.enable().then(function() {
         prov = new ethers.providers.Web3Provider(wcp);
         sign = prov.getSigner();
-        mc   = new ethers.Contract(CA,   MABI, sign);
+        mc   = new ethers.Contract(CA, MABI, sign);
         uc   = new ethers.Contract(USDT, UABI, sign);
         return prov.listAccounts();
-      }).then(function(accs) {
-        addr = accs[0];
-        onConnected('WalletConnect');
-      });
+      }).then(function(accs) { addr=accs[0]; onConnected('WalletConnect'); });
     })
     .catch(function(e) { showMobile(); toast('WalletConnect: '+(e.message||'Cancelled')); });
 }
 
-/* ─────────────────────────────────────────
-   POST CONNECT
-───────────────────────────────────────── */
+/* ── POST CONNECT ── */
 function onConnected(via) {
   live = true;
   closeModal();
@@ -415,12 +426,6 @@ function onConnected(via) {
   loadUser();
   clearInterval(tickT);
   tickT = setInterval(tickPend, 1000);
-
-  /* Listen for account/chain changes — named so removable */
-  window.ethereum && window.ethereum.removeListener('accountsChanged', _accs);
-  window.ethereum && window.ethereum.removeListener('chainChanged', _chain);
-  window.ethereum && window.ethereum.on('accountsChanged', _accs);
-  window.ethereum && window.ethereum.on('chainChanged', _chain);
 }
 
 function _accs(a) {
@@ -428,31 +433,23 @@ function _accs(a) {
   addr = a[0];
   prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
   sign = prov.getSigner();
-  mc   = new ethers.Contract(CA,   MABI, sign);
+  mc   = new ethers.Contract(CA, MABI, sign);
   uc   = new ethers.Contract(USDT, UABI, sign);
   g('cbtn').textContent = addr.slice(0,6)+'...'+addr.slice(-4);
   loadUser();
 }
 function _chain() { location.reload(); }
 
-/* ─────────────────────────────────────────
-   DISCONNECT
-   Detach listeners BEFORE clearing state so
-   the MM accountsChanged event that fires on
-   disconnect doesn't re-trigger doDisconnect.
-───────────────────────────────────────── */
+/* ── DISCONNECT — remove listeners first ── */
 function doDisconnect() {
-  /* Remove listeners first */
   try {
     window.ethereum && window.ethereum.removeListener('accountsChanged', _accs);
     window.ethereum && window.ethereum.removeListener('chainChanged', _chain);
   } catch(e) {}
-
   live = false; addr = null;
   prov = sign = mc = uc = null;
   clearInterval(tickT);
   dBN = pBN = ethers.constants.Zero;
-
   g('cbtn').textContent = 'CONNECT WALLET';
   g('cbtn').classList.remove('on');
   setBtns(false);
@@ -460,7 +457,7 @@ function doDisconnect() {
   g('pRew').textContent = '0.000000 USDT';
   ['myDep','totE','totW','brkE','rPnd','rTot'].forEach(function(x){ g(x).textContent='—'; });
   closeModal();
-  toast('Disconnected — click Connect Wallet to reconnect');
+  toast('Disconnected');
 }
 
 function setBtns(on) {
@@ -468,22 +465,18 @@ function setBtns(on) {
   if (!on) g('bDep').disabled = true;
 }
 
-/* ─────────────────────────────────────────
-   READS
-───────────────────────────────────────── */
+/* ── READS ── */
 function loadPublic() {
   var rp = new ethers.providers.JsonRpcProvider(RPC);
-  var rc = new ethers.Contract(CA, MABI, rp);
-  rc.getPoolStats().then(function(r) {
-    var f = function(b){ return parseFloat(ethers.utils.formatUnits(b,18)); };
-    var tvl=f(r[0]),dep=f(r[1]),wth=f(r[2]);
-    ybps = r[3].toNumber();
-    g('sTVL').textContent = '$'+fmt(tvl);
-    g('sDep').textContent = '$'+fmt(dep);
-    g('sWth').textContent = '$'+fmt(wth);
-    g('sRat').textContent = (dep>0?(wth/dep*100).toFixed(1):'0.0')+'%';
-    g('yRate').textContent = (ybps/100).toFixed(2)+'%';
-    g('yBar').style.width  = Math.max(0,Math.min(100,(ybps-10)/90*100))+'%';
+  new ethers.Contract(CA, MABI, rp).getPoolStats().then(function(r) {
+    var f=function(b){return parseFloat(ethers.utils.formatUnits(b,18));};
+    ybps=r[3].toNumber();
+    g('sTVL').textContent='$'+fmt(f(r[0]));
+    g('sDep').textContent='$'+fmt(f(r[1]));
+    g('sWth').textContent='$'+fmt(f(r[2]));
+    g('sRat').textContent=(f(r[1])>0?(f(r[2])/f(r[1])*100).toFixed(1):'0.0')+'%';
+    g('yRate').textContent=(ybps/100).toFixed(2)+'%';
+    g('yBar').style.width=Math.max(0,Math.min(100,(ybps-10)/90*100))+'%';
     calcY();
   }).catch(function(){});
 }
@@ -491,137 +484,100 @@ function loadPublic() {
 function loadUser() {
   if (!live||!addr||!mc) return;
   mc.getUserStats(addr).then(function(r) {
-    var f = function(b){ return parseFloat(ethers.utils.formatUnits(b,18)); };
+    var f=function(b){return parseFloat(ethers.utils.formatUnits(b,18));};
     dBN=r[0]; pBN=r[1]; pTS=Math.floor(Date.now()/1000);
-    g('myDep').textContent = f(r[0]).toFixed(4)+' USDT';
-    g('totE').textContent  = f(r[2]).toFixed(4)+' USDT';
-    g('totW').textContent  = f(r[3]).toFixed(4)+' USDT';
-    g('rPnd').textContent  = f(r[6]).toFixed(4)+' USDT';
-    g('rTot').textContent  = f(r[7]).toFixed(4)+' USDT';
+    g('myDep').textContent=f(r[0]).toFixed(4)+' USDT';
+    g('totE').textContent=f(r[2]).toFixed(4)+' USDT';
+    g('totW').textContent=f(r[3]).toFixed(4)+' USDT';
+    g('rPnd').textContent=f(r[6]).toFixed(4)+' USDT';
+    g('rTot').textContent=f(r[7]).toFixed(4)+' USDT';
     var be=r[5].toNumber();
-    g('brkE').textContent  = (be>0&&be<99999)?be+' days':'—';
+    g('brkE').textContent=(be>0&&be<99999)?be+' days':'—';
   }).catch(function(){});
 }
 
 function tickPend() {
   if (!live||!dBN) return;
-  var df = parseFloat(ethers.utils.formatUnits(dBN,18));
-  if (df<=0) return;
-  var el = Math.floor(Date.now()/1000)-pTS;
-  var bf = parseFloat(ethers.utils.formatUnits(pBN,18));
-  g('pRew').textContent = (bf+df*(ybps/10000)*(el/86400)).toFixed(6)+' USDT';
+  var df=parseFloat(ethers.utils.formatUnits(dBN,18));
+  if(df<=0) return;
+  g('pRew').textContent=(parseFloat(ethers.utils.formatUnits(pBN,18))+df*(ybps/10000)*((Math.floor(Date.now()/1000)-pTS)/86400)).toFixed(6)+' USDT';
 }
 
-/* ─────────────────────────────────────────
-   TRANSACTIONS
-───────────────────────────────────────── */
-function txShow(t,s){ g('txTt').textContent=t; g('txSt').textContent=s; g('txOv').classList.add('open'); }
-function txHide(){ g('txOv').classList.remove('open'); }
-function txErr(e){ txHide(); var m=e.reason||e.data&&e.data.message||e.message||'Transaction failed'; toast(m.length>90?m.slice(0,90)+'…':m); }
+/* ── TRANSACTIONS ── */
+function txShow(t,s){g('txTt').textContent=t;g('txSt').textContent=s;g('txOv').classList.add('open');}
+function txHide(){g('txOv').classList.remove('open');}
+function txErr(e){txHide();var m=e.reason||e.data&&e.data.message||e.message||'Transaction failed';toast(m.length>90?m.slice(0,90)+'…':m);}
 
-function doApprove() {
-  if (!live){ onConnectClick(); return; }
+function doApprove(){
+  if(!live){onConnectClick();return;}
   var a=parseFloat(g('dAmt').value);
-  if (!a||a<10){ toast('Enter an amount (min 10 USDT)'); return; }
+  if(!a||a<10){toast('Enter an amount (min 10 USDT)');return;}
   txShow('APPROVING USDT','Confirm in MetaMask');
-  uc.approve(CA, ethers.utils.parseUnits(String(a),18))
-    .then(function(tx){ g('txSt').textContent='Confirming...'; return tx.wait(); })
-    .then(function(){ txHide(); g('bDep').disabled=false; toast('Approved! Now click Deposit.'); })
+  uc.approve(CA,ethers.utils.parseUnits(String(a),18))
+    .then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
+    .then(function(){txHide();g('bDep').disabled=false;toast('Approved! Now click Deposit.');})
     .catch(txErr);
 }
 
-function doDeposit() {
-  if (!live){ onConnectClick(); return; }
+function doDeposit(){
+  if(!live){onConnectClick();return;}
   var a=parseFloat(g('dAmt').value);
-  if (!a||a<10){ toast('Minimum deposit is 10 USDT'); return; }
+  if(!a||a<10){toast('Minimum deposit is 10 USDT');return;}
   var raw=g('rInp').value.trim();
   var ref=ethers.utils.isAddress(raw)?raw:ethers.constants.AddressZero;
   txShow('DEPOSITING','Confirm in MetaMask');
-  mc.deposit(ethers.utils.parseUnits(String(a),18), ref)
-    .then(function(tx){ g('txSt').textContent='Confirming...'; return tx.wait(); })
-    .then(function(){ txHide(); g('dAmt').value=''; g('bDep').disabled=true; onDep(); loadPublic(); loadUser(); toast('Deposited '+a.toFixed(2)+' USDT'); })
+  mc.deposit(ethers.utils.parseUnits(String(a),18),ref)
+    .then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
+    .then(function(){txHide();g('dAmt').value='';g('bDep').disabled=true;onDep();loadPublic();loadUser();toast('Deposited '+a.toFixed(2)+' USDT');})
     .catch(txErr);
 }
 
-function doWithdraw() {
-  if (!live) return;
+function doWithdraw(){
+  if(!live)return;
   txShow('WITHDRAWING','Confirm in MetaMask');
-  mc.withdraw()
-    .then(function(tx){ g('txSt').textContent='Confirming...'; return tx.wait(); })
-    .then(function(){ txHide(); loadPublic(); loadUser(); toast('Rewards withdrawn'); })
-    .catch(txErr);
+  mc.withdraw().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
+    .then(function(){txHide();loadPublic();loadUser();toast('Rewards withdrawn');}).catch(txErr);
 }
 
-function doCompound() {
-  if (!live) return;
+function doCompound(){
+  if(!live)return;
   txShow('COMPOUNDING','Confirm in MetaMask');
-  mc.compound()
-    .then(function(tx){ g('txSt').textContent='Confirming...'; return tx.wait(); })
-    .then(function(){ txHide(); loadPublic(); loadUser(); toast('Compounded'); })
-    .catch(txErr);
+  mc.compound().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
+    .then(function(){txHide();loadPublic();loadUser();toast('Compounded');}).catch(txErr);
 }
 
-function doExit() {
-  if (!live) return;
-  if (!confirm('Exit full position? 10% fee on principal + rewards.')) return;
+function doExit(){
+  if(!live)return;
+  if(!confirm('Exit full position? 10% fee on principal + rewards.'))return;
   txShow('EXITING','Confirm in MetaMask');
-  mc.withdrawPrincipal()
-    .then(function(tx){ g('txSt').textContent='Confirming...'; return tx.wait(); })
-    .then(function(){ txHide(); dBN=pBN=ethers.constants.Zero; loadPublic(); loadUser(); toast('Exited successfully'); })
-    .catch(txErr);
+  mc.withdrawPrincipal().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
+    .then(function(){txHide();dBN=pBN=ethers.constants.Zero;loadPublic();loadUser();toast('Exited successfully');}).catch(txErr);
 }
 
-function doClaimRef() {
-  if (!live) return;
+function doClaimRef(){
+  if(!live)return;
   txShow('CLAIMING REFERRALS','Confirm in MetaMask');
-  mc.claimReferral()
-    .then(function(tx){ g('txSt').textContent='Confirming...'; return tx.wait(); })
-    .then(function(){ txHide(); loadUser(); toast('Referral earnings claimed'); })
-    .catch(txErr);
+  mc.claimReferral().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();})
+    .then(function(){txHide();loadUser();toast('Referral earnings claimed');}).catch(txErr);
 }
 
-/* ─────────────────────────────────────────
-   UI HELPERS
-───────────────────────────────────────── */
-function onDep() {
-  var a=parseFloat(g('dAmt').value)||0;
-  g('nPrev').textContent = a>0?(a*.9).toFixed(2)+' USDT':'—';
-  g('bDep').disabled = true;
-}
+/* ── UI ── */
+function onDep(){var a=parseFloat(g('dAmt').value)||0;g('nPrev').textContent=a>0?(a*.9).toFixed(2)+' USDT':'—';g('bDep').disabled=true;}
 
-function calcY() {
-  var a=parseFloat(g('cAmt').value)||1000, d=parseInt(g('cDay').value)||30, y=ybps||100;
-  var n=a*.9, gr=n*(y/10000)*d, nw=gr*.9, dd=n*(y/10000)*.9, be=dd>0?Math.ceil(n/dd):0;
-  g('c1').textContent=n.toFixed(2)+' USDT';
-  g('c2').textContent=gr.toFixed(4)+' USDT';
-  g('c3').textContent=nw.toFixed(4)+' USDT';
-  g('c4').textContent=dd.toFixed(4)+' USDT';
+function calcY(){
+  var a=parseFloat(g('cAmt').value)||1000,d=parseInt(g('cDay').value)||30,y=ybps||100;
+  var n=a*.9,gr=n*(y/10000)*d,nw=gr*.9,dd=n*(y/10000)*.9,be=dd>0?Math.ceil(n/dd):0;
+  g('c1').textContent=n.toFixed(2)+' USDT';g('c2').textContent=gr.toFixed(4)+' USDT';
+  g('c3').textContent=nw.toFixed(4)+' USDT';g('c4').textContent=dd.toFixed(4)+' USDT';
   g('c5').textContent=be+' days';
 }
 
-function copyRef() {
-  var t=g('rLnk').textContent;
-  if (!t.startsWith('http')){ toast('Connect wallet first'); return; }
-  cp(t); toast('Referral link copied');
-}
-
-function g(x)    { return document.getElementById(x); }
-function fmt(n)  { return n.toLocaleString(undefined,{maximumFractionDigits:2}); }
-function cp(t)   { try{ navigator.clipboard.writeText(t); }catch(e){} }
-function spin(t,s){ setBody('<div class="spw"><div class="sp"></div><div style="font-family:\'Space Mono\',monospace;font-size:13px;color:var(--gold);margin-bottom:6px">'+t+'</div><div style="font-size:12px;color:var(--muted)">'+s+'</div></div>'); }
-
-function toast(m) {
-  var e=g('toast'); e.textContent=m; e.classList.add('show');
-  clearTimeout(e._t); e._t=setTimeout(function(){ e.classList.remove('show'); },3800);
-}
-
-function loadSrc(src) {
-  return new Promise(function(res,rej){
-    if (document.querySelector('script[src="'+src+'"]')){ res(); return; }
-    var s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej;
-    document.head.appendChild(s);
-  });
-}
+function copyRef(){var t=g('rLnk').textContent;if(!t.startsWith('http')){toast('Connect wallet first');return;}cp(t);toast('Referral link copied');}
+function g(x){return document.getElementById(x);}
+function fmt(n){return n.toLocaleString(undefined,{maximumFractionDigits:2});}
+function cp(t){try{navigator.clipboard.writeText(t);}catch(e){}}
+function toast(m){var e=g('toast');e.textContent=m;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('show');},3800);}
+function loadSrc(src){return new Promise(function(res,rej){if(document.querySelector('script[src="'+src+'"]')){res();return;}var s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
 </script>
 </body>
 </html>
