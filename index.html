@@ -1,5 +1,254 @@
 <!DOCTYPE html>
 <html lang="en">
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+<script src="abi.js"></script>
+
+<script>
+
+const CONTRACT_ADDRESS = "PASTE_YOUR_CONTRACT_ADDRESS";
+const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // BSC USDT
+
+let provider;
+let signer;
+let contract;
+let walletAddress;
+let connected = false;
+
+async function toggleConnect(){
+
+ if(!window.ethereum){
+  alert("Install MetaMask");
+  return;
+ }
+
+ provider = new ethers.BrowserProvider(window.ethereum);
+
+ await provider.send("eth_requestAccounts", []);
+
+ signer = await provider.getSigner();
+
+ walletAddress = await signer.getAddress();
+
+ contract = new ethers.Contract(
+  CONTRACT_ADDRESS,
+  CONTRACT_ABI,
+  signer
+ );
+
+ connected = true;
+
+ document.getElementById("connectBtn").innerText =
+ walletAddress.slice(0,6)+"..."+walletAddress.slice(-4);
+
+ loadUserStats();
+ loadPoolStats();
+}
+
+async function handleDeposit(){
+
+ if(!connected) return alert("Connect wallet");
+
+ const amount = document.getElementById("depositAmount").value;
+
+ if(amount <= 0) return alert("Enter amount");
+
+ const ref = document.getElementById("refInput").value || ethers.ZeroAddress;
+
+ const usdt = new ethers.Contract(
+  USDT_ADDRESS,
+  ["function approve(address,uint256)"],
+  signer
+ );
+
+ const amountWei = ethers.parseUnits(amount,18);
+
+ try{
+
+  toast("Approving USDT...");
+
+  const approveTx = await usdt.approve(CONTRACT_ADDRESS, amountWei);
+
+  await approveTx.wait();
+
+  toast("Depositing...");
+
+  const depositTx = await contract.deposit(amountWei, ref);
+
+  await depositTx.wait();
+
+  toast("Deposit successful");
+
+  loadUserStats();
+  loadPoolStats();
+
+ }catch(e){
+  console.log(e);
+  alert("Transaction failed");
+ }
+}
+
+async function handleWithdraw(){
+
+ if(!connected) return alert("Connect wallet");
+
+ try{
+
+  toast("Withdrawing rewards...");
+
+  const tx = await contract.withdraw();
+
+  await tx.wait();
+
+  toast("Withdraw complete");
+
+  loadUserStats();
+  loadPoolStats();
+
+ }catch(e){
+  console.log(e);
+ }
+
+}
+
+async function handleCompound(){
+
+ if(!connected) return alert("Connect wallet");
+
+ try{
+
+  toast("Compounding...");
+
+  const tx = await contract.compound();
+
+  await tx.wait();
+
+  toast("Compound successful");
+
+  loadUserStats();
+
+ }catch(e){
+  console.log(e);
+ }
+
+}
+
+async function handleExit(){
+
+ if(!connected) return alert("Connect wallet");
+
+ try{
+
+  toast("Withdrawing principal...");
+
+  const tx = await contract.withdrawPrincipal();
+
+  await tx.wait();
+
+  toast("Exit complete");
+
+  loadUserStats();
+  loadPoolStats();
+
+ }catch(e){
+  console.log(e);
+ }
+
+}
+
+async function handleClaimRef(){
+
+ if(!connected) return;
+
+ try{
+
+  const tx = await contract.claimReferral();
+
+  await tx.wait();
+
+  toast("Referral claimed");
+
+  loadUserStats();
+
+ }catch(e){
+  console.log(e);
+ }
+
+}
+
+async function loadUserStats(){
+
+ if(!connected) return;
+
+ try{
+
+  const stats = await contract.getUserStats(walletAddress);
+
+  document.getElementById("myDeposit").innerText =
+  ethers.formatUnits(stats[0],18)+" USDT";
+
+  document.getElementById("pendingRewards").innerText =
+  ethers.formatUnits(stats[1],18)+" USDT";
+
+  document.getElementById("totalEarned").innerText =
+  ethers.formatUnits(stats[2],18)+" USDT";
+
+  document.getElementById("totalWithdrawnUser").innerText =
+  ethers.formatUnits(stats[3],18)+" USDT";
+
+  document.getElementById("refPending").innerText =
+  ethers.formatUnits(stats[6],18)+" USDT";
+
+  document.getElementById("refTotal").innerText =
+  ethers.formatUnits(stats[7],18)+" USDT";
+
+ }catch(e){
+  console.log(e);
+ }
+
+}
+
+async function loadPoolStats(){
+
+ try{
+
+  const stats = await contract.getPoolStats();
+
+  document.getElementById("statTVL").innerText =
+  "$"+ethers.formatUnits(stats[0],18);
+
+  document.getElementById("statDeposited").innerText =
+  "$"+ethers.formatUnits(stats[1],18);
+
+  document.getElementById("statWithdrawn").innerText =
+  "$"+ethers.formatUnits(stats[2],18);
+
+  const yieldPct = (stats[3]/100).toFixed(2)+"%";
+
+  document.getElementById("heroRate").innerText = yieldPct;
+
+ }catch(e){
+  console.log(e);
+ }
+
+}
+
+function toast(msg){
+ console.log(msg);
+}
+
+setInterval(()=>{
+
+ if(connected){
+  loadUserStats();
+  loadPoolStats();
+ }
+
+},10000);
+
+</script>
+
+  
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
