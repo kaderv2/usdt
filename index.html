@@ -203,15 +203,20 @@ var CA   = '0x441D75BcA3C9345257E884FB00967329868ef864';
 var USDT = '0x55d398326f99059fF775485246999027B3197955';
 var RPC  = 'https://bsc-dataseed1.binance.org/';
 var MABI = [
-  'function deposit(uint256,address) external',
+  'function deposit(uint256 amount, address referrer) external',
   'function withdraw() external',
-  'function withdrawPrincipal() external',
   'function compound() external',
+  'function withdrawPrincipal() external',
   'function claimReferral() external',
   'function getUserStats(address) external view returns (uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)',
-  'function getPoolStats() external view returns (uint256,uint256,uint256,uint256)'
+  'function getPoolStats() external view returns (uint256,uint256,uint256,uint256)',
+  'function pendingRewards(address) external view returns (uint256)'
 ];
-var UABI = ['function approve(address,uint256) external returns (bool)'];
+var UABI = [
+  'function approve(address spender, uint256 amount) external returns (bool)',
+  'function allowance(address owner, address spender) external view returns (uint256)',
+  'function balanceOf(address account) external view returns (uint256)'
+];
 
 var prov,sign,mc,uc,addr=null,live=false,ybps=100,dBN,pBN,pTS=0,tickT;
 
@@ -546,24 +551,30 @@ function loadPublic(){
 
 function loadUser(){
   if(!live||!addr||!mc)return;
-  mc.getUserStats(addr).then(function(r){
-    var f=function(b){return parseFloat(ethers.utils.formatUnits(b,18));};
-    dBN=r[0];pBN=r[1];pTS=Math.floor(Date.now()/1000);
-    g('myDep').textContent=f(r[0]).toFixed(4)+' USDT';
-    g('totE').textContent=f(r[2]).toFixed(4)+' USDT';
-    g('totW').textContent=f(r[3]).toFixed(4)+' USDT';
-    g('rPnd').textContent=f(r[6]).toFixed(4)+' USDT';
-    g('rTot').textContent=f(r[7]).toFixed(4)+' USDT';
-    var be=r[5].toNumber();
-    g('brkE').textContent=(be>0&&be<99999)?be+' days':'—';
-  }).catch(function(){});
+  Promise.all([mc.getUserStats(addr), mc.pendingRewards(addr)])
+    .then(function(res){
+      var r=res[0], pending=res[1];
+      var f=function(b){return parseFloat(ethers.utils.formatUnits(b,18));};
+      dBN=r[0]; pBN=pending; pTS=Math.floor(Date.now()/1000);
+      g('myDep').textContent=f(r[0]).toFixed(4)+' USDT';
+      g('totE').textContent =f(r[2]).toFixed(4)+' USDT';
+      g('totW').textContent =f(r[3]).toFixed(4)+' USDT';
+      g('rPnd').textContent =f(r[6]).toFixed(4)+' USDT';
+      g('rTot').textContent =f(r[7]).toFixed(4)+' USDT';
+      g('pRew').textContent =f(pending).toFixed(6)+' USDT';
+      var be=r[5].toNumber();
+      g('brkE').textContent=(be>0&&be<99999)?be+' days':'—';
+    }).catch(function(e){console.warn('loadUser:',e.message);});
 }
 
 function tickPend(){
   if(!live||!dBN)return;
   var df=parseFloat(ethers.utils.formatUnits(dBN,18));
-  if(df<=0)return;
-  g('pRew').textContent=(parseFloat(ethers.utils.formatUnits(pBN,18))+df*(ybps/10000)*((Math.floor(Date.now()/1000)-pTS)/86400)).toFixed(6)+' USDT';
+  if(df<=0){g('pRew').textContent='0.000000 USDT';return;}
+  var base=parseFloat(ethers.utils.formatUnits(pBN,18));
+  var elapsed=(Math.floor(Date.now()/1000)-pTS);
+  var extra=df*(ybps/10000)*(elapsed/86400);
+  g('pRew').textContent=(base+extra).toFixed(6)+' USDT';
 }
 
 /* ═══════════════════════════════════════
