@@ -14,9 +14,21 @@ header{border-bottom:1px solid var(--border);padding:18px 32px;display:flex;alig
 .logo-icon{width:30px;height:30px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .hdr{display:flex;align-items:center;gap:10px}
 .badge{font-family:'Space Mono',monospace;font-size:11px;background:rgba(240,185,11,.12);border:1px solid rgba(240,185,11,.3);color:#f0b90b;padding:6px 12px;border-radius:var(--r);letter-spacing:.04em}
+.badge.wrong{background:rgba(224,80,80,.1);border-color:rgba(224,80,80,.4);color:var(--red)}
 .cbtn{font-family:'Space Mono',monospace;font-size:12px;background:transparent;border:1px solid var(--gold-dim);color:var(--gold);padding:9px 20px;border-radius:var(--r);cursor:pointer;letter-spacing:.05em;transition:border-color .2s,background .2s}
 .cbtn:hover{border-color:var(--gold);background:rgba(201,168,76,.08)}
 .cbtn.on{border-color:var(--green);color:var(--green)}
+
+/* ── TX OVERLAY ── */
+.txov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px}
+.txov.open{display:flex}
+.txb{background:var(--bg2);border:1px solid var(--bs);border-radius:var(--rl);padding:36px 28px;text-align:center;max-width:340px;width:100%}
+.txsp{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:rot .8s linear infinite;margin:0 auto 18px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.txtt{font-family:'Space Mono',monospace;font-size:14px;color:var(--gold);margin-bottom:8px}
+.txst{font-size:13px;color:var(--muted)}
+
+/* ── DISCONNECT MODAL ── */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
 .ov.open{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--bs);border-radius:var(--rl);padding:32px 28px;width:100%;max-width:440px;position:relative}
@@ -29,21 +41,8 @@ header{border-bottom:1px solid var(--border);padding:18px 32px;display:flex;alig
 .wi{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
 .wn{font-family:'Space Mono',monospace;font-size:13px;color:var(--text);margin-bottom:3px}
 .wd{font-size:12px;color:var(--dim)}
-.mbk{background:none;border:none;color:var(--muted);font-size:12px;font-family:'Space Mono',monospace;cursor:pointer;margin-bottom:16px;display:flex;align-items:center;gap:6px;padding:0}
-.mbk:hover{color:var(--text)}
-.spw{text-align:center;padding:30px 0}
-.sp{display:inline-block;width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:rot .7s linear infinite;margin-bottom:14px}
-@keyframes rot{to{transform:rotate(360deg)}}
-.qrw{text-align:center;padding:8px 0}
-.qrw canvas{border-radius:8px;border:6px solid #fff;display:block;margin:0 auto}
-.urib{font-family:'Space Mono',monospace;font-size:10px;color:var(--dim);word-break:break-all;margin-top:10px;background:var(--bg3);padding:10px;border-radius:var(--r);cursor:pointer;border:1px solid var(--border)}
-.urib:hover{color:var(--gold)}
-.txov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2000;display:none;align-items:center;justify-content:center}
-.txov.open{display:flex}
-.txb{background:var(--bg2);border:1px solid var(--bs);border-radius:var(--rl);padding:36px 28px;text-align:center;max-width:340px;width:100%}
-.txsp{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:rot .8s linear infinite;margin:0 auto 18px}
-.txtt{font-family:'Space Mono',monospace;font-size:14px;color:var(--gold);margin-bottom:8px}
-.txst{font-size:13px;color:var(--muted)}
+
+/* ── MAIN LAYOUT ── */
 main{max-width:1100px;margin:0 auto;padding:40px 24px 80px}
 .hero{text-align:center;padding:48px 24px 40px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:28px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:280px;height:160px;background:radial-gradient(ellipse,rgba(201,168,76,.12) 0%,transparent 70%);pointer-events:none}
@@ -71,8 +70,8 @@ main{max-width:1100px;margin:0 auto;padding:40px 24px 80px}
 .sfx{position:absolute;right:14px;top:37px;font-family:'Space Mono',monospace;font-size:12px;color:var(--dim)}
 .fn{font-size:12px;color:var(--dim);margin-bottom:14px}
 .fn span{color:var(--gold)}
-.bg{width:100%;background:var(--gold);color:#0a0c0e;border:none;border-radius:var(--r);padding:14px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:opacity .2s,transform .1s;margin-bottom:10px}
-.bg:hover{opacity:.88}.bg:active{transform:scale(.98)}.bg:disabled{opacity:.35;cursor:not-allowed}
+.bg{width:100%;background:var(--gold);color:#0a0c0e;border:none;border-radius:var(--r);padding:14px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:opacity .2s,transform .1s;margin-bottom:10px;position:relative}
+.bg:hover{opacity:.88}.bg:active{transform:scale(.98)}.bg:disabled{opacity:.35;cursor:not-allowed;transform:none}
 .bgh{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:border-color .2s,color .2s;margin-bottom:10px}
 .bgh:hover{border-color:var(--bs);color:var(--text)}.bgh:disabled{opacity:.35;cursor:not-allowed}
 .br{width:100%;background:transparent;color:var(--red);border:1px solid rgba(224,80,80,.3);border-radius:var(--r);padding:12px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:background .2s}
@@ -98,21 +97,37 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .hb{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-top:16px}
 .hb .hd{font-size:11px;font-family:'Space Mono',monospace;color:var(--dim);margin-bottom:8px;letter-spacing:.08em;text-transform:uppercase}
 .hb p{font-size:12px;color:var(--muted);line-height:1.8}
-.toast{position:fixed;bottom:28px;right:28px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px 20px;font-size:13px;color:var(--text);font-family:'Space Mono',monospace;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:9999;max-width:320px;pointer-events:none}
+.toast{position:fixed;bottom:28px;right:28px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px 20px;font-size:13px;color:var(--text);font-family:'Space Mono',monospace;transform:translateY(80px);opacity:0;transition:transform .3s,opacity .3s;z-index:9999;max-width:360px;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
-.steps{background:var(--bg3);border-radius:var(--r);padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:2}
-.steps b{color:var(--text)}
+.toast.err{border-color:var(--red);color:var(--red)}
+
+/* ── LOADING STATES ── */
+.btn-spin{position:relative;color:transparent!important;pointer-events:none}
+.btn-spin::after{content:'';position:absolute;top:50%;left:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border:2px solid rgba(10,12,14,.3);border-top-color:#0a0c0e;border-radius:50%;animation:rot .6s linear infinite}
+.bgh.btn-spin::after,.br.btn-spin::after{border-color:rgba(201,168,76,.3);border-top-color:var(--gold)}
+
+/* ── USDT BALANCE DISPLAY ── */
+.bal-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:10px;padding:8px 12px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border)}
+.bal-row .bl{color:var(--dim);font-family:'Space Mono',monospace;letter-spacing:.04em}
+.bal-row .bv{color:var(--gold);font-family:'Space Mono',monospace;font-weight:700}
+.max-btn{background:none;border:1px solid var(--gold-dim);color:var(--gold);font-family:'Space Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:8px;letter-spacing:.04em}
+.max-btn:hover{background:rgba(201,168,76,.12)}
+
 @media(max-width:768px){.sg{grid-template-columns:repeat(2,1fr)}.mg{grid-template-columns:1fr}header{padding:14px 16px}main{padding:24px 14px 60px}.yr{font-size:38px}.badge{display:none}}
 </style>
 </head>
 <body>
+
+<!-- DISCONNECT / INFO MODAL -->
 <div class="ov" id="wModal"><div class="modal"><button class="mcls" onclick="closeModal()">✕</button><div id="mBody"></div></div></div>
+
+<!-- TX PENDING OVERLAY -->
 <div class="txov" id="txOv"><div class="txb"><div class="txsp"></div><div class="txtt" id="txTt">CONFIRM IN WALLET</div><div class="txst" id="txSt">Approve the transaction</div></div></div>
 
 <header>
   <div class="logo"><div class="logo-icon">◈</div>USDT MINER</div>
   <div class="hdr">
-    <div class="badge">BSC MAINNET</div>
+    <div class="badge" id="netBadge">BSC MAINNET</div>
     <button class="cbtn" id="cbtn" onclick="onConnectClick()">CONNECT WALLET</button>
   </div>
 </header>
@@ -137,10 +152,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <div class="mg">
     <div class="pn">
       <div class="pt"><span class="dot"></span>DEPOSIT USDT</div>
-      <div class="iw"><label>Amount (min 10 USDT)</label><input type="number" id="dAmt" placeholder="0.00" min="10" step="1" oninput="onDep()"/><span class="sfx">USDT</span></div>
+      <div class="bal-row" id="balRow" style="display:none">
+        <span class="bl">Your USDT balance:</span>
+        <span><span class="bv" id="usdtBal">0.00</span><button class="max-btn" onclick="setMax()">MAX</button></span>
+      </div>
+      <div class="iw"><label>Amount (min 10 USDT)</label><input type="number" id="dAmt" placeholder="0.00" min="10" step="1" oninput="onDepInput()"/><span class="sfx">USDT</span></div>
       <div class="iw"><label>Referral Address (optional)</label><input type="text" id="rInp" placeholder="0x..."/></div>
       <div class="fn">10% deposit fee · Net deposit: <span id="nPrev">—</span></div>
-      <button class="bg" id="bApp" onclick="doApprove()">1. APPROVE USDT</button>
+      <button class="bg" id="bApp" onclick="doApprove()" disabled>1. APPROVE USDT</button>
       <button class="bg" id="bDep" onclick="doDeposit()" disabled>2. DEPOSIT</button>
       <div style="margin-top:18px;border-top:1px solid var(--border);padding-top:18px">
         <div class="pt" style="margin-bottom:14px"><span class="dot"></span>FEES</div>
@@ -193,15 +212,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 </main>
 <div class="toast" id="toast"></div>
 
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS — ethers v5 (unchanged, stable CDN)
+═══════════════════════════════════════════════════════ -->
 <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
 if(typeof ethers==='undefined'){document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"><\/scr'+'ipt>');}
 </script>
 <script>
+/* ═══════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════ */
 var CA   = '0x441D75BcA3C9345257E884FB00967329868ef864';
 var USDT = '0x55d398326f99059fF775485246999027B3197955';
 var RPC  = 'https://bsc-dataseed1.binance.org/';
+var RPC_FALLBACKS = [
+  'https://bsc-dataseed2.binance.org/',
+  'https://bsc-dataseed3.binance.org/',
+  'https://bsc-dataseed4.binance.org/',
+  'https://bsc.publicnode.com'
+];
 var MABI = [
   'function deposit(uint256 amount, address referrer) external',
   'function withdraw() external',
@@ -215,391 +245,553 @@ var MABI = [
 var UABI = [
   'function approve(address spender, uint256 amount) external returns (bool)',
   'function allowance(address owner, address spender) external view returns (uint256)',
-  'function balanceOf(address account) external view returns (uint256)'
+  'function balanceOf(address account) external view returns (uint256)',
+  'function decimals() external view returns (uint8)'
 ];
 
-var prov,sign,mc,uc,addr=null,live=false,ybps=100,dBN,pBN,pTS=0,tickT;
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+var prov, sign, mc, uc, addr = null, live = false;
+var ybps = 100, dBN, pBN, pTS = 0;
+var tickT, refreshT, balBN;
 
-window.addEventListener('load',function(){
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+window.addEventListener('load', function(){
   setTimeout(function(){
-    dBN=ethers.constants.Zero; pBN=ethers.constants.Zero;
-    var ref=new URLSearchParams(location.search).get('ref');
-    if(ref&&ethers.utils.isAddress(ref)){g('rInp').value=ref;toast('Referral detected');}
-    loadPublic(); calcY();
-  },500);
+    dBN = ethers.constants.Zero;
+    pBN = ethers.constants.Zero;
+    balBN = ethers.constants.Zero;
+
+    var ref = new URLSearchParams(location.search).get('ref');
+    if(ref && ethers.utils.isAddress(ref)){
+      g('rInp').value = ref;
+      toast('Referral detected');
+    }
+
+    loadPublic();
+    calcY();
+
+    // Auto-refresh pool stats every 30s
+    refreshT = setInterval(loadPublic, 30000);
+  }, 400);
 });
 
 /* ═══════════════════════════════════════
    CONNECT BUTTON
 ═══════════════════════════════════════ */
 function onConnectClick(){
-  if(live){showConnMenu();return;}
-  openModal(); showWalletMenu();
+  if(live){ showConnMenu(); return; }
+
+  // Check for injected wallet (MetaMask, Trust Wallet in-app, etc.)
+  if(window.ethereum){
+    connectInjected();
+  } else if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+    // Mobile without injected provider — show deep link options
+    openModal();
+    showMobileOptions();
+  } else {
+    // Desktop without MetaMask
+    toast('No wallet detected. Install MetaMask or open in a wallet browser.', true);
+    window.open('https://metamask.io/download/', '_blank');
+  }
 }
 
 /* ═══════════════════════════════════════
-   METAMASK
-   
-   KEY FIX: Do NOT chain wallet_switchEthereumChain
-   inside the same .then() as eth_requestAccounts.
-   Instead: request accounts → connect → THEN in a
-   separate async step check/switch chain.
-   This eliminates -32603 on Chrome.
+   INJECTED WALLET CONNECT (MetaMask / Trust / etc.)
+
+   Strategy: request accounts first, connect UI,
+   then switch chain in background. This avoids
+   -32603 errors on Chrome from chaining requests.
 ═══════════════════════════════════════ */
-function clickMM(){
-  if(!window.ethereum){
-    /* No MetaMask installed — open download page */
-    window.open('https://metamask.io/download/','_blank');
-    closeModal(); return;
-  }
+function connectInjected(){
+  g('cbtn').textContent = 'CONNECTING...';
+  g('cbtn').disabled = true;
 
-  showSpinner('Check MetaMask...','Approve the connection in MetaMask');
-
-  /* STEP 1: Request accounts only. Nothing else. */
-  window.ethereum.request({method:'eth_requestAccounts'})
+  window.ethereum.request({ method: 'eth_requestAccounts' })
     .then(function(accs){
-      if(!accs||!accs.length) throw {code:0,message:'No accounts returned'};
+      if(!accs || !accs.length) throw { code: 0, message: 'No accounts returned' };
       addr = accs[0];
 
-      /* STEP 2: Build provider from the now-unlocked wallet */
-      prov = new ethers.providers.Web3Provider(window.ethereum,'any');
+      // Build provider
+      prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
       sign = prov.getSigner();
-      mc   = new ethers.Contract(CA,   MABI, sign);
+      mc   = new ethers.Contract(CA, MABI, sign);
       uc   = new ethers.Contract(USDT, UABI, sign);
 
-      /* STEP 3: Attach listeners */
-      window.ethereum.removeListener('accountsChanged',onAccChange);
-      window.ethereum.removeListener('chainChanged',   onChainChange);
-      window.ethereum.on('accountsChanged',onAccChange);
-      window.ethereum.on('chainChanged',   onChainChange);
+      // Attach listeners (remove first to prevent duplicates)
+      try {
+        window.ethereum.removeListener('accountsChanged', onAccChange);
+        window.ethereum.removeListener('chainChanged', onChainChange);
+      } catch(e){}
+      window.ethereum.on('accountsChanged', onAccChange);
+      window.ethereum.on('chainChanged', onChainChange);
 
-      /* STEP 4: Connect the UI immediately — don't wait for chain switch */
-      finishConnect('MetaMask');
+      // Connect UI immediately
+      finishConnect();
 
-      /* STEP 5: Switch chain in background AFTER UI is connected.
-                 This way a -32603 on chain switch doesn't block login. */
-      setTimeout(function(){ ensureBSC(); }, 800);
+      // Switch chain in background after short delay
+      setTimeout(ensureBSC, 600);
     })
     .catch(function(e){
-      var code=e.code, msg=String(e.message||'');
-      if(code===4001){showWalletMenu();return;}
-      if(code===-32002){showPending();return;}
-      showErrScreen(code,msg);
+      g('cbtn').textContent = 'CONNECT WALLET';
+      g('cbtn').disabled = false;
+      var code = e.code, msg = String(e.message || '');
+      if(code === 4001){
+        toast('Connection rejected');
+      } else if(code === -32002){
+        toast('MetaMask has a pending request — check the extension and approve or reject it', true);
+      } else {
+        toast('Connection error: ' + (msg.length > 60 ? msg.slice(0,60) + '…' : msg), true);
+      }
     });
 }
 
-/* Switch to BSC — called after connect, non-blocking */
+/* ═══════════════════════════════════════
+   ENSURE BSC CHAIN
+═══════════════════════════════════════ */
 function ensureBSC(){
-  if(!window.ethereum||!prov) return;
+  if(!window.ethereum || !prov) return;
   prov.getNetwork().then(function(net){
-    if(net.chainId===56) return; /* already on BSC */
-    window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x38'}]})
-      .then(function(){
-        /* Rebuild provider after chain switch */
-        prov=new ethers.providers.Web3Provider(window.ethereum,'any');
-        sign=prov.getSigner();
-        mc=new ethers.Contract(CA,MABI,sign);
-        uc=new ethers.Contract(USDT,UABI,sign);
-        loadUser();
-      })
-      .catch(function(e){
-        if(e.code===4902){
-          window.ethereum.request({method:'wallet_addEthereumChain',params:[{
-            chainId:'0x38',chainName:'BNB Smart Chain',
-            nativeCurrency:{name:'BNB',symbol:'BNB',decimals:18},
-            rpcUrls:[RPC],blockExplorerUrls:['https://bscscan.com/']
-          }]}).then(function(){
-            prov=new ethers.providers.Web3Provider(window.ethereum,'any');
-            sign=prov.getSigner();
-            mc=new ethers.Contract(CA,MABI,sign);
-            uc=new ethers.Contract(USDT,UABI,sign);
-            loadUser();
-          }).catch(function(){});
-        } else {
-          toast('Please switch MetaMask to BNB Smart Chain');
-        }
-      });
+    updateNetBadge(net.chainId);
+    if(net.chainId === 56) return;
+
+    window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0x38' }]
+    }).then(function(){
+      rebuildProvider();
+      updateNetBadge(56);
+    }).catch(function(e){
+      if(e.code === 4902){
+        window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: '0x38',
+            chainName: 'BNB Smart Chain',
+            nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+            rpcUrls: [RPC],
+            blockExplorerUrls: ['https://bscscan.com/']
+          }]
+        }).then(function(){
+          rebuildProvider();
+          updateNetBadge(56);
+        }).catch(function(){
+          toast('Please switch to BNB Smart Chain manually', true);
+        });
+      } else {
+        toast('Please switch to BNB Smart Chain in your wallet', true);
+      }
+    });
   }).catch(function(){});
 }
 
-/* Named listener handlers */
-function onAccChange(accs){
-  if(!accs||!accs.length){doDisconnect();return;}
-  addr=accs[0];
-  prov=new ethers.providers.Web3Provider(window.ethereum,'any');
-  sign=prov.getSigner();
-  mc=new ethers.Contract(CA,MABI,sign);
-  uc=new ethers.Contract(USDT,UABI,sign);
-  g('cbtn').textContent=addr.slice(0,6)+'...'+addr.slice(-4);
+function rebuildProvider(){
+  prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
+  sign = prov.getSigner();
+  mc   = new ethers.Contract(CA, MABI, sign);
+  uc   = new ethers.Contract(USDT, UABI, sign);
   loadUser();
+  loadBalance();
+}
+
+function updateNetBadge(chainId){
+  var badge = g('netBadge');
+  if(chainId === 56){
+    badge.textContent = 'BSC MAINNET';
+    badge.className = 'badge';
+  } else {
+    badge.textContent = 'WRONG NETWORK';
+    badge.className = 'badge wrong';
+  }
+}
+
+/* ═══════════════════════════════════════
+   ACCOUNT / CHAIN CHANGE LISTENERS
+═══════════════════════════════════════ */
+function onAccChange(accs){
+  if(!accs || !accs.length){ doDisconnect(); return; }
+  addr = accs[0];
+  rebuildProvider();
+  g('cbtn').textContent = addr.slice(0,6) + '...' + addr.slice(-4);
+  g('rLnk').textContent = location.origin + location.pathname + '?ref=' + addr;
+  loadUser();
+  loadBalance();
 }
 function onChainChange(){ location.reload(); }
 
 /* ═══════════════════════════════════════
-   MOBILE WALLETS
-   
-   KEY FIX: Use window.location.href to redirect
-   to the deep link. This works whether the site
-   is hosted or opened locally, and the wallet
-   app will then open its own browser pointed
-   at the hosted URL.
-   
-   NOTE: Mobile wallet connect only works when
-   the site is hosted at a real https:// URL.
-   If testing locally, host it first e.g. on
-   netlify.com/drop (free, drag and drop).
-═══════════════════════════════════════ */
-function openMobileWallet(deepLink){
-  /* If on mobile, use location.href for better app switching */
-  if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-    window.location.href = deepLink;
-  } else {
-    window.open(deepLink,'_blank');
-  }
-}
-
-function showMobile(){
-  var url = encodeURIComponent(location.href);
-  var host = location.host + location.pathname;
-
-  /* Detect if we're on a real hosted URL or still on file:// */
-  var isHosted = location.protocol === 'https:' || location.protocol === 'http:';
-
-  if(!isHosted){
-    setBody(
-      '<button class="mbk" onclick="showWalletMenu()">← Back</button>'+
-      '<div class="mt">HOST REQUIRED</div>'+
-      '<div style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:20px">'+
-      'Mobile wallets need a hosted URL to connect.<br><br>'+
-      '<strong style="color:var(--gold)">How to host for free in 30 seconds:</strong><br>'+
-      '1. Go to <strong style="color:var(--text)">netlify.com/drop</strong><br>'+
-      '2. Drag and drop your HTML file<br>'+
-      '3. Use the generated URL on mobile'+
-      '</div>'+
-      '<button class="bg" onclick="window.open(\'https://app.netlify.com/drop\',\'_blank\')">Open Netlify Drop</button>'+
-      '<button class="bgh" onclick="showWalletMenu()">← Back</button>'
-    );
-    return;
-  }
-
-  setBody(
-    '<button class="mbk" onclick="showWalletMenu()">← Back</button>'+
-    '<div class="mt">MOBILE WALLETS</div>'+
-    '<div class="ms">Tap to open this dApp in your wallet\'s browser</div>'+
-    '<div class="wo" onclick="openMobileWallet(\'https://link.trustwallet.com/open_url?coin_id=20000714&url='+url+'\')">'+
-      '<div class="wi" style="background:#3375bb22">🛡️</div>'+
-      '<div><div class="wn">Trust Wallet</div><div class="wd">Opens in Trust Wallet browser</div></div>'+
-    '</div>'+
-    '<div class="wo" onclick="openMobileWallet(\'https://metamask.app.link/dapp/'+host+'\')">'+
-      '<div class="wi" style="background:#f6851b22">🦊</div>'+
-      '<div><div class="wn">MetaMask Mobile</div><div class="wd">Opens in MetaMask browser</div></div>'+
-    '</div>'+
-    '<div class="wo" onclick="openMobileWallet(\'https://go.cb-w.com/dapp?cb_url='+url+'\')">'+
-      '<div class="wi" style="background:#0052ff22">🔵</div>'+
-      '<div><div class="wn">Coinbase Wallet</div><div class="wd">Opens in Coinbase browser</div></div>'+
-    '</div>'+
-    '<div class="wo" onclick="showWC()">'+
-      '<div class="wi" style="background:#3b99fc22">🔗</div>'+
-      '<div><div class="wn">WalletConnect QR</div><div class="wd">Scan with any WC wallet</div></div>'+
-    '</div>'
-  );
-}
-
-/* ═══════════════════════════════════════
-   ERROR SCREENS
-═══════════════════════════════════════ */
-function showPending(){
-  setBody(
-    '<div style="text-align:center;padding:4px 0">'+
-    '<div style="font-size:36px;margin-bottom:12px">🦊</div>'+
-    '<div class="mt" style="margin-bottom:10px">PENDING REQUEST</div>'+
-    '<div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px">'+
-    'MetaMask has an unresolved request sitting in its queue.<br><br>'+
-    '<strong style="color:var(--text)">Fix:</strong> Click the MetaMask icon → find the pending notification → click Reject. Then try again.'+
-    '</div>'+
-    '<button class="bg" onclick="clickMM()">Try Again</button>'+
-    '<button class="bgh" onclick="showWalletMenu()">← Back</button>'+
-    '</div>'
-  );
-}
-
-function showErrScreen(code,msg){
-  setBody(
-    '<div style="text-align:center;padding:4px 0">'+
-    '<div style="font-size:36px;margin-bottom:12px">⚠️</div>'+
-    '<div class="mt" style="margin-bottom:10px">CONNECTION ERROR</div>'+
-    '<div class="steps">'+
-    '<b>Error code: '+code+'</b><br>'+
-    (msg?msg.slice(0,120)+'<br><br>':'')+ 
-    '<b>Things to try:</b><br>'+
-    '1. Open MetaMask and make sure it is fully unlocked<br>'+
-    '2. In MetaMask, switch to Ethereum Mainnet, then switch back to BNB Chain<br>'+
-    '3. Restart Chrome fully and try again<br>'+
-    '4. Go to MetaMask Settings → Advanced → Reset Account'+
-    '</div>'+
-    '<button class="bg" onclick="clickMM()">Try Again</button>'+
-    '<button class="bgh" onclick="showWalletMenu()">← Back</button>'+
-    '</div>'
-  );
-}
-
-/* ═══════════════════════════════════════
    FINISH CONNECT / DISCONNECT
 ═══════════════════════════════════════ */
-function finishConnect(via){
-  live=true; closeModal();
-  g('cbtn').textContent=addr.slice(0,6)+'...'+addr.slice(-4);
+function finishConnect(){
+  live = true;
+  g('cbtn').textContent = addr.slice(0,6) + '...' + addr.slice(-4);
   g('cbtn').classList.add('on');
-  g('rLnk').textContent=location.origin+location.pathname+'?ref='+addr;
+  g('cbtn').disabled = false;
+  g('rLnk').textContent = location.origin + location.pathname + '?ref=' + addr;
+  g('balRow').style.display = 'flex';
   setBtns(true);
-  toast('Connected via '+via);
   loadUser();
+  loadBalance();
   clearInterval(tickT);
-  tickT=setInterval(tickPend,1000);
+  tickT = setInterval(tickPend, 1000);
 }
 
 function doDisconnect(){
-  try{
-    window.ethereum.removeListener('accountsChanged',onAccChange);
-    window.ethereum.removeListener('chainChanged',   onChainChange);
-  }catch(e){}
-  live=false; addr=null; prov=sign=mc=uc=null;
+  try {
+    window.ethereum.removeListener('accountsChanged', onAccChange);
+    window.ethereum.removeListener('chainChanged', onChainChange);
+  } catch(e){}
+
+  live = false; addr = null; prov = sign = mc = uc = null;
   clearInterval(tickT);
-  dBN=pBN=ethers.constants.Zero;
-  g('cbtn').textContent='CONNECT WALLET';
+  dBN = pBN = ethers.constants.Zero;
+  balBN = ethers.constants.Zero;
+  g('cbtn').textContent = 'CONNECT WALLET';
   g('cbtn').classList.remove('on');
+  g('cbtn').disabled = false;
+  g('balRow').style.display = 'none';
   setBtns(false);
-  g('rLnk').textContent='Connect wallet to generate your link';
-  g('pRew').textContent='0.000000 USDT';
-  ['myDep','totE','totW','brkE','rPnd','rTot'].forEach(function(x){g(x).textContent='—';});
-  closeModal(); toast('Disconnected');
+  g('rLnk').textContent = 'Connect wallet to generate your link';
+  g('pRew').textContent = '0.000000 USDT';
+  g('usdtBal').textContent = '0.00';
+  ['myDep','totE','totW','brkE','rPnd','rTot'].forEach(function(x){ g(x).textContent = '—'; });
+  closeModal();
+  toast('Disconnected');
+}
+
+/* ═══════════════════════════════════════
+   MOBILE DEEP LINKS
+═══════════════════════════════════════ */
+function showMobileOptions(){
+  var url = encodeURIComponent(location.href);
+  var host = location.host + location.pathname;
+  var isHosted = location.protocol === 'https:' || location.protocol === 'http:';
+
+  if(!isHosted){
+    g('mBody').innerHTML =
+      '<div class="mt">HOST REQUIRED</div>'+
+      '<div style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:20px">'+
+      'Mobile wallets need an HTTPS URL.<br><br>'+
+      '<strong style="color:var(--gold)">Quick free hosting:</strong><br>'+
+      '1. Go to <strong style="color:var(--text)">netlify.com/drop</strong><br>'+
+      '2. Drag and drop your HTML file<br>'+
+      '3. Use the generated URL on mobile</div>';
+    return;
+  }
+
+  g('mBody').innerHTML =
+    '<div class="mt">OPEN IN WALLET</div>'+
+    '<div class="ms">Tap your wallet to open this dApp in its built-in browser</div>'+
+    '<div class="wo" onclick="mobileGo(\'https://link.trustwallet.com/open_url?coin_id=20000714&url='+url+'\')">'+
+      '<div class="wi" style="background:#3375bb22">🛡️</div>'+
+      '<div><div class="wn">Trust Wallet</div><div class="wd">Opens in Trust Wallet browser</div></div></div>'+
+    '<div class="wo" onclick="mobileGo(\'https://metamask.app.link/dapp/'+host+'\')">'+
+      '<div class="wi" style="background:#f6851b22">🦊</div>'+
+      '<div><div class="wn">MetaMask Mobile</div><div class="wd">Opens in MetaMask browser</div></div></div>'+
+    '<div class="wo" onclick="mobileGo(\'https://go.cb-w.com/dapp?cb_url='+url+'\')">'+
+      '<div class="wi" style="background:#0052ff22">🔵</div>'+
+      '<div><div class="wn">Coinbase Wallet</div><div class="wd">Opens in Coinbase browser</div></div></div>';
+}
+
+function mobileGo(deepLink){
+  if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+    window.location.href = deepLink;
+  } else {
+    window.open(deepLink, '_blank');
+  }
+}
+
+/* ═══════════════════════════════════════
+   CONNECTED MENU (click address)
+═══════════════════════════════════════ */
+function showConnMenu(){
+  openModal();
+  g('mBody').innerHTML =
+    '<div class="mt">CONNECTED</div>'+
+    '<div class="ms" style="word-break:break-all;font-family:\'Space Mono\',monospace;font-size:11px">' + addr + '</div>'+
+    '<div class="wo" onclick="window.open(\'https://bscscan.com/address/'+addr+'\',\'_blank\')">'+
+      '<div class="wi" style="background:#f0b90b22">🔍</div>'+
+      '<div><div class="wn">View on BSCScan</div></div></div>'+
+    '<div class="wo" onclick="doDisconnect()" style="border-color:rgba(224,80,80,.3)">'+
+      '<div class="wi" style="background:rgba(224,80,80,.1)">🔌</div>'+
+      '<div><div class="wn" style="color:var(--red)">Disconnect</div></div></div>';
 }
 
 /* ═══════════════════════════════════════
    MODAL HELPERS
 ═══════════════════════════════════════ */
-function openModal() {g('wModal').classList.add('open');}
-function closeModal(){g('wModal').classList.remove('open');}
-function setBody(h)  {g('mBody').innerHTML=h;}
-
-function showSpinner(t,s){
-  setBody('<div class="spw"><div class="sp"></div>'+
-    '<div style="font-family:\'Space Mono\',monospace;font-size:13px;color:var(--gold);margin-bottom:6px">'+t+'</div>'+
-    '<div style="font-size:12px;color:var(--muted)">'+s+'</div></div>');
-}
-
-function showWalletMenu(){
-  setBody(
-    '<div class="mt">CONNECT WALLET</div>'+
-    '<div class="ms">Choose your wallet for BNB Smart Chain</div>'+
-    '<div class="wo" onclick="clickMM()"><div class="wi" style="background:#f6851b22">🦊</div><div><div class="wn">MetaMask</div><div class="wd">Browser extension — desktop</div></div></div>'+
-    '<div class="wo" onclick="showMobile()"><div class="wi" style="background:#3b99fc22">📱</div><div><div class="wn">Mobile Wallets</div><div class="wd">Trust Wallet · Coinbase · Rainbow</div></div></div>'
-  );
-}
-
-function showConnMenu(){
-  openModal();
-  setBody(
-    '<div class="mt">CONNECTED</div>'+
-    '<div class="ms" style="word-break:break-all;font-family:\'Space Mono\',monospace;font-size:11px">'+addr+'</div>'+
-    '<div class="wo" onclick="window.open(\'https://bscscan.com/address/'+addr+'\',\'_blank\')"><div class="wi" style="background:#f0b90b22">🔍</div><div><div class="wn">View on BSCScan</div></div></div>'+
-    '<div class="wo" onclick="doDisconnect()" style="border-color:rgba(224,80,80,.3)"><div class="wi" style="background:rgba(224,80,80,.1)">🔌</div><div><div class="wn" style="color:var(--red)">Disconnect</div></div></div>'
-  );
-}
+function openModal() { g('wModal').classList.add('open'); }
+function closeModal(){ g('wModal').classList.remove('open'); }
 
 /* ═══════════════════════════════════════
-   WALLETCONNECT
+   CONTRACT READS
 ═══════════════════════════════════════ */
-function showWC(){
-  setBody('<button class="mbk" onclick="showMobile()">← Back</button><div class="mt">WALLETCONNECT</div><div class="ms">Loading...</div><div class="spw"><div class="sp"></div></div>');
-  loadSrc('https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js')
-    .then(function(){
-      var W=window.WalletConnectProvider,WW=(W&&W.default)?W.default:W;
-      var wcp=new WW({rpc:{56:RPC},chainId:56,qrcode:false});
-      wcp.connector.on('display_uri',function(err,pay){
-        var u=pay.params[0];
-        setBody('<button class="mbk" onclick="showMobile()">← Back</button><div class="mt">SCAN TO CONNECT</div><div class="ms">Open your wallet app and scan</div><div class="qrw"><canvas id="qrc"></canvas></div><div class="urib" onclick="cp(\''+u+'\')">Tap to copy URI · '+u.slice(0,40)+'...</div>');
-        if(window.QRCode)QRCode.toCanvas(g('qrc'),u,{width:200});
-      });
-      return wcp.enable().then(function(){
-        prov=new ethers.providers.Web3Provider(wcp);
-        sign=prov.getSigner();
-        mc=new ethers.Contract(CA,MABI,sign);
-        uc=new ethers.Contract(USDT,UABI,sign);
-        return prov.listAccounts();
-      }).then(function(accs){addr=accs[0];finishConnect('WalletConnect');});
-    }).catch(function(e){showMobile();toast('WC: '+(e.message||'Cancelled'));});
+function getReadProvider(){
+  // Try primary RPC, fall back to alternates
+  return new ethers.providers.JsonRpcProvider(RPC);
 }
 
-/* ═══════════════════════════════════════
-   READS
-═══════════════════════════════════════ */
 function loadPublic(){
-  new ethers.Contract(CA,MABI,new ethers.providers.JsonRpcProvider(RPC))
-    .getPoolStats().then(function(r){
-      var f=function(b){return parseFloat(ethers.utils.formatUnits(b,18));};
-      ybps=r[3].toNumber();
-      g('sTVL').textContent='$'+fmt(f(r[0]));
-      g('sDep').textContent='$'+fmt(f(r[1]));
-      g('sWth').textContent='$'+fmt(f(r[2]));
-      g('sRat').textContent=(f(r[1])>0?(f(r[2])/f(r[1])*100).toFixed(1):'0.0')+'%';
-      g('yRate').textContent=(ybps/100).toFixed(2)+'%';
-      g('yBar').style.width=Math.max(0,Math.min(100,(ybps-10)/90*100))+'%';
-      calcY();
-    }).catch(function(){});
+  var readMc = new ethers.Contract(CA, MABI, getReadProvider());
+  readMc.getPoolStats().then(function(r){
+    var f = function(b){ return parseFloat(ethers.utils.formatUnits(b, 18)); };
+    ybps = r[3].toNumber();
+    g('sTVL').textContent = '$' + fmt(f(r[0]));
+    g('sDep').textContent = '$' + fmt(f(r[1]));
+    g('sWth').textContent = '$' + fmt(f(r[2]));
+    g('sRat').textContent = (f(r[1]) > 0 ? (f(r[2]) / f(r[1]) * 100).toFixed(1) : '0.0') + '%';
+    g('yRate').textContent = (ybps / 100).toFixed(2) + '%';
+    g('yBar').style.width = Math.max(0, Math.min(100, (ybps - 10) / 90 * 100)) + '%';
+    calcY();
+  }).catch(function(e){
+    console.warn('loadPublic failed:', e.message);
+    g('sTVL').textContent = 'Error';
+  });
 }
 
 function loadUser(){
-  if(!live||!addr||!mc)return;
+  if(!live || !addr || !mc) return;
   Promise.all([mc.getUserStats(addr), mc.pendingRewards(addr)])
     .then(function(res){
-      var r=res[0], pending=res[1];
-      var f=function(b){return parseFloat(ethers.utils.formatUnits(b,18));};
-      dBN=r[0]; pBN=pending; pTS=Math.floor(Date.now()/1000);
-      g('myDep').textContent=f(r[0]).toFixed(4)+' USDT';
-      g('totE').textContent =f(r[2]).toFixed(4)+' USDT';
-      g('totW').textContent =f(r[3]).toFixed(4)+' USDT';
-      g('rPnd').textContent =f(r[6]).toFixed(4)+' USDT';
-      g('rTot').textContent =f(r[7]).toFixed(4)+' USDT';
-      g('pRew').textContent =f(pending).toFixed(6)+' USDT';
-      var be=r[5].toNumber();
-      g('brkE').textContent=(be>0&&be<99999)?be+' days':'—';
-    }).catch(function(e){console.warn('loadUser:',e.message);});
+      var r = res[0], pending = res[1];
+      var f = function(b){ return parseFloat(ethers.utils.formatUnits(b, 18)); };
+      dBN = r[0]; pBN = pending; pTS = Math.floor(Date.now() / 1000);
+      g('myDep').textContent  = f(r[0]).toFixed(4) + ' USDT';
+      g('totE').textContent   = f(r[2]).toFixed(4) + ' USDT';
+      g('totW').textContent   = f(r[3]).toFixed(4) + ' USDT';
+      g('rPnd').textContent   = f(r[6]).toFixed(4) + ' USDT';
+      g('rTot').textContent   = f(r[7]).toFixed(4) + ' USDT';
+      g('pRew').textContent   = f(pending).toFixed(6) + ' USDT';
+      var be = r[5].toNumber();
+      g('brkE').textContent = (be > 0 && be < 99999) ? be + ' days' : '—';
+    }).catch(function(e){ console.warn('loadUser:', e.message); });
+}
+
+function loadBalance(){
+  if(!live || !addr || !uc) return;
+  uc.balanceOf(addr).then(function(bal){
+    balBN = bal;
+    g('usdtBal').textContent = parseFloat(ethers.utils.formatUnits(bal, 18)).toFixed(2);
+  }).catch(function(){});
 }
 
 function tickPend(){
-  if(!live||!dBN)return;
-  var df=parseFloat(ethers.utils.formatUnits(dBN,18));
-  if(df<=0){g('pRew').textContent='0.000000 USDT';return;}
-  var base=parseFloat(ethers.utils.formatUnits(pBN,18));
-  var elapsed=(Math.floor(Date.now()/1000)-pTS);
-  var extra=df*(ybps/10000)*(elapsed/86400);
-  g('pRew').textContent=(base+extra).toFixed(6)+' USDT';
+  if(!live || !dBN) return;
+  var df = parseFloat(ethers.utils.formatUnits(dBN, 18));
+  if(df <= 0){ g('pRew').textContent = '0.000000 USDT'; return; }
+  var base = parseFloat(ethers.utils.formatUnits(pBN, 18));
+  var elapsed = Math.floor(Date.now() / 1000) - pTS;
+  var extra = df * (ybps / 10000) * (elapsed / 86400);
+  g('pRew').textContent = (base + extra).toFixed(6) + ' USDT';
 }
 
 /* ═══════════════════════════════════════
    TRANSACTIONS
 ═══════════════════════════════════════ */
-function txShow(t,s){g('txTt').textContent=t;g('txSt').textContent=s;g('txOv').classList.add('open');}
-function txHide(){g('txOv').classList.remove('open');}
-function txErr(e){txHide();var m=e.reason||e.data&&e.data.message||e.message||'Failed';toast(m.length>80?m.slice(0,80)+'…':m);}
+function txShow(t, s){ g('txTt').textContent = t; g('txSt').textContent = s; g('txOv').classList.add('open'); }
+function txHide(){ g('txOv').classList.remove('open'); }
+function txErr(e){
+  txHide();
+  var m = e.reason || (e.data && e.data.message) || e.message || 'Transaction failed';
+  if(m.indexOf('user rejected') >= 0 || m.indexOf('User denied') >= 0 || e.code === 4001){
+    toast('Transaction cancelled');
+  } else {
+    toast(m.length > 100 ? m.slice(0, 100) + '…' : m, true);
+  }
+}
 
-function doApprove(){if(!live){onConnectClick();return;}var a=parseFloat(g('dAmt').value);if(!a||a<10){toast('Enter amount (min 10 USDT)');return;}txShow('APPROVING USDT','Confirm in MetaMask');uc.approve(CA,ethers.utils.parseUnits(String(a),18)).then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();g('bDep').disabled=false;toast('Approved! Click Deposit.');}).catch(txErr);}
-function doDeposit(){if(!live){onConnectClick();return;}var a=parseFloat(g('dAmt').value);if(!a||a<10){toast('Min 10 USDT');return;}var ref=ethers.utils.isAddress(g('rInp').value.trim())?g('rInp').value.trim():ethers.constants.AddressZero;txShow('DEPOSITING','Confirm in MetaMask');mc.deposit(ethers.utils.parseUnits(String(a),18),ref).then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();g('dAmt').value='';g('bDep').disabled=true;onDep();loadPublic();loadUser();toast('Deposited '+a.toFixed(2)+' USDT');}).catch(txErr);}
-function doWithdraw(){if(!live)return;txShow('WITHDRAWING','Confirm in MetaMask');mc.withdraw().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();loadPublic();loadUser();toast('Withdrawn');}).catch(txErr);}
-function doCompound(){if(!live)return;txShow('COMPOUNDING','Confirm in MetaMask');mc.compound().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();loadPublic();loadUser();toast('Compounded');}).catch(txErr);}
-function doExit(){if(!live)return;if(!confirm('Exit? 10% fee on all funds.'))return;txShow('EXITING','Confirm in MetaMask');mc.withdrawPrincipal().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();dBN=pBN=ethers.constants.Zero;loadPublic();loadUser();toast('Exited');}).catch(txErr);}
-function doClaimRef(){if(!live)return;txShow('CLAIMING','Confirm in MetaMask');mc.claimReferral().then(function(tx){g('txSt').textContent='Confirming...';return tx.wait();}).then(function(){txHide();loadUser();toast('Referral claimed');}).catch(txErr);}
+/* APPROVE — checks existing allowance first */
+function doApprove(){
+  if(!live){ onConnectClick(); return; }
+  var a = parseFloat(g('dAmt').value);
+  if(!a || a < 10){ toast('Enter amount (min 10 USDT)'); return; }
 
-function setBtns(on){['bApp','bWth','bCmp','bExt','bRef'].forEach(function(x){g(x).disabled=!on;});if(!on)g('bDep').disabled=true;}
-function onDep(){var a=parseFloat(g('dAmt').value)||0;g('nPrev').textContent=a>0?(a*.9).toFixed(2)+' USDT':'—';g('bDep').disabled=true;}
-function calcY(){var a=parseFloat(g('cAmt').value)||1000,d=parseInt(g('cDay').value)||30,y=ybps||100,n=a*.9,gr=n*(y/10000)*d,nw=gr*.9,dd=n*(y/10000)*.9,be=dd>0?Math.ceil(n/dd):0;g('c1').textContent=n.toFixed(2)+' USDT';g('c2').textContent=gr.toFixed(4)+' USDT';g('c3').textContent=nw.toFixed(4)+' USDT';g('c4').textContent=dd.toFixed(4)+' USDT';g('c5').textContent=be+' days';}
-function copyRef(){var t=g('rLnk').textContent;if(!t.startsWith('http')){toast('Connect first');return;}cp(t);toast('Copied');}
-function g(x){return document.getElementById(x);}
-function fmt(n){return n.toLocaleString(undefined,{maximumFractionDigits:2});}
-function cp(t){try{navigator.clipboard.writeText(t);}catch(e){}}
-function toast(m){var e=g('toast');e.textContent=m;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('show');},3800);}
-function loadSrc(src){return new Promise(function(res,rej){if(document.querySelector('script[src="'+src+'"]')){res();return;}var s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+  var amtBN = ethers.utils.parseUnits(String(a), 18);
+
+  // Check existing allowance first
+  txShow('CHECKING ALLOWANCE', 'Reading contract...');
+  uc.allowance(addr, CA).then(function(existing){
+    if(existing.gte(amtBN)){
+      // Already approved enough
+      txHide();
+      g('bDep').disabled = false;
+      g('bApp').textContent = '✓ APPROVED';
+      g('bApp').disabled = true;
+      toast('Already approved — click Deposit');
+      return;
+    }
+    // Need approval — use MaxUint256 so user doesn't need to re-approve
+    g('txTt').textContent = 'APPROVING USDT';
+    g('txSt').textContent = 'Confirm in your wallet';
+    return uc.approve(CA, ethers.constants.MaxUint256).then(function(tx){
+      g('txSt').textContent = 'Confirming on-chain...';
+      return tx.wait();
+    }).then(function(){
+      txHide();
+      g('bDep').disabled = false;
+      g('bApp').textContent = '✓ APPROVED';
+      g('bApp').disabled = true;
+      toast('Approved! Now click Deposit.');
+    });
+  }).catch(txErr);
+}
+
+/* DEPOSIT */
+function doDeposit(){
+  if(!live){ onConnectClick(); return; }
+  var a = parseFloat(g('dAmt').value);
+  if(!a || a < 10){ toast('Min 10 USDT'); return; }
+
+  // Validate balance
+  var amtBN = ethers.utils.parseUnits(String(a), 18);
+  if(balBN.lt(amtBN)){
+    toast('Insufficient USDT balance', true);
+    return;
+  }
+
+  var ref = ethers.utils.isAddress(g('rInp').value.trim())
+    ? g('rInp').value.trim()
+    : ethers.constants.AddressZero;
+
+  txShow('DEPOSITING', 'Confirm in your wallet');
+  mc.deposit(amtBN, ref).then(function(tx){
+    g('txSt').textContent = 'Confirming on-chain...';
+    return tx.wait();
+  }).then(function(){
+    txHide();
+    g('dAmt').value = '';
+    g('bDep').disabled = true;
+    g('bApp').textContent = '1. APPROVE USDT';
+    g('bApp').disabled = false;
+    onDepInput();
+    loadPublic(); loadUser(); loadBalance();
+    toast('Deposited ' + a.toFixed(2) + ' USDT');
+  }).catch(txErr);
+}
+
+function doWithdraw(){
+  if(!live) return;
+  txShow('WITHDRAWING', 'Confirm in your wallet');
+  mc.withdraw().then(function(tx){
+    g('txSt').textContent = 'Confirming on-chain...';
+    return tx.wait();
+  }).then(function(){
+    txHide(); loadPublic(); loadUser(); loadBalance();
+    toast('Rewards withdrawn');
+  }).catch(txErr);
+}
+
+function doCompound(){
+  if(!live) return;
+  txShow('COMPOUNDING', 'Confirm in your wallet');
+  mc.compound().then(function(tx){
+    g('txSt').textContent = 'Confirming on-chain...';
+    return tx.wait();
+  }).then(function(){
+    txHide(); loadPublic(); loadUser();
+    toast('Compounded');
+  }).catch(txErr);
+}
+
+function doExit(){
+  if(!live) return;
+  if(!confirm('Exit all funds? A 10% fee applies on principal + pending rewards.')) return;
+  txShow('EXITING', 'Confirm in your wallet');
+  mc.withdrawPrincipal().then(function(tx){
+    g('txSt').textContent = 'Confirming on-chain...';
+    return tx.wait();
+  }).then(function(){
+    txHide();
+    dBN = pBN = ethers.constants.Zero;
+    loadPublic(); loadUser(); loadBalance();
+    toast('Exited');
+  }).catch(txErr);
+}
+
+function doClaimRef(){
+  if(!live) return;
+  txShow('CLAIMING REFERRAL', 'Confirm in your wallet');
+  mc.claimReferral().then(function(tx){
+    g('txSt').textContent = 'Confirming on-chain...';
+    return tx.wait();
+  }).then(function(){
+    txHide(); loadUser(); loadBalance();
+    toast('Referral earnings claimed');
+  }).catch(txErr);
+}
+
+/* ═══════════════════════════════════════
+   UI HELPERS
+═══════════════════════════════════════ */
+function setBtns(on){
+  ['bApp','bWth','bCmp','bExt','bRef'].forEach(function(x){ g(x).disabled = !on; });
+  if(!on) g('bDep').disabled = true;
+}
+
+function onDepInput(){
+  var a = parseFloat(g('dAmt').value) || 0;
+  g('nPrev').textContent = a > 0 ? (a * 0.9).toFixed(2) + ' USDT' : '—';
+  // Reset approve/deposit flow when amount changes
+  g('bDep').disabled = true;
+  g('bApp').textContent = '1. APPROVE USDT';
+  if(live) g('bApp').disabled = false;
+}
+
+function setMax(){
+  if(!balBN || balBN.isZero()) return;
+  var maxVal = parseFloat(ethers.utils.formatUnits(balBN, 18));
+  // Floor to 2 decimals to avoid dust issues
+  maxVal = Math.floor(maxVal * 100) / 100;
+  g('dAmt').value = maxVal;
+  onDepInput();
+}
+
+function calcY(){
+  var a = parseFloat(g('cAmt').value) || 1000;
+  var d = parseInt(g('cDay').value) || 30;
+  var y = ybps || 100;
+  var n = a * 0.9;
+  var gr = n * (y / 10000) * d;
+  var nw = gr * 0.9;
+  var dd = n * (y / 10000) * 0.9;
+  var be = dd > 0 ? Math.ceil(n / dd) : 0;
+  g('c1').textContent = n.toFixed(2) + ' USDT';
+  g('c2').textContent = gr.toFixed(4) + ' USDT';
+  g('c3').textContent = nw.toFixed(4) + ' USDT';
+  g('c4').textContent = dd.toFixed(4) + ' USDT';
+  g('c5').textContent = be + ' days';
+}
+
+function copyRef(){
+  var t = g('rLnk').textContent;
+  if(!t.startsWith('http')){ toast('Connect wallet first'); return; }
+  cp(t);
+  toast('Referral link copied!');
+}
+
+/* ═══════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════ */
+function g(x){ return document.getElementById(x); }
+function fmt(n){ return n.toLocaleString(undefined, { maximumFractionDigits: 2 }); }
+function cp(t){ try { navigator.clipboard.writeText(t); } catch(e){
+  // Fallback for older browsers / insecure contexts
+  var ta = document.createElement('textarea');
+  ta.value = t; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch(e2){}
+  document.body.removeChild(ta);
+}}
+function toast(m, isErr){
+  var e = g('toast');
+  e.textContent = m;
+  e.className = 'toast show' + (isErr ? ' err' : '');
+  clearTimeout(e._t);
+  e._t = setTimeout(function(){ e.className = 'toast'; }, 4000);
+}
 </script>
 </body>
 </html>
