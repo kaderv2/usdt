@@ -285,28 +285,8 @@ window.addEventListener('load', function(){
   waitForEthereum(function(found){
     ethReady = found;
     if(found){
-      var eth = window.ethereum;
-      if(eth.providers && eth.providers.length){
-        var mm = eth.providers.find(function(p){ return p.isMetaMask; });
-        if(mm) eth = mm;
-      }
+      var eth = getEth();
       console.log('[USDTMiner] Wallet provider detected:', eth.isMetaMask ? 'MetaMask' : eth.isTrust ? 'Trust Wallet' : 'EIP-1193');
-      // Auto-reconnect if wallet was previously connected (uses eth_accounts, NOT eth_requestAccounts — no popup)
-      eth.request({ method: 'eth_accounts' }).then(function(accs){
-        if(accs && accs.length > 0){
-          addr = accs[0];
-          prov = new ethers.providers.Web3Provider(eth, 'any');
-          sign = prov.getSigner();
-          mc = new ethers.Contract(CA, MABI, sign);
-          uc = new ethers.Contract(USDT, UABI, sign);
-          try {
-            window.ethereum.on('accountsChanged', onAccChange);
-            window.ethereum.on('chainChanged', onChainChange);
-          } catch(e){}
-          finishConnect();
-          setTimeout(ensureBSC, 600);
-        }
-      }).catch(function(e){ console.warn('[USDTMiner] Auto-reconnect skipped:', e.message); });
     }
   });
 });
@@ -320,6 +300,17 @@ function waitForEthereum(cb){
     if(window.ethereum){ clearInterval(poll); cb(true); return; }
     if(attempts >= 15){ clearInterval(poll); cb(false); } // 15 * 200ms = 3s
   }, 200);
+}
+
+/* Get the best ethereum provider (handles multi-wallet) */
+function getEth(){
+  var eth = window.ethereum;
+  if(!eth) return null;
+  if(eth.providers && eth.providers.length){
+    var mm = eth.providers.find(function(p){ return p.isMetaMask; });
+    if(mm) return mm;
+  }
+  return eth;
 }
 
 /* ═══════════════════════════════════════
@@ -350,42 +341,30 @@ function onConnectClick(){
    -32603 errors on Chrome from chaining requests.
 ═══════════════════════════════════════ */
 function connectInjected(){
-  g('cbtn').textContent = 'CONNECTING...';
-  g('cbtn').disabled = true;
-
-  // Double-check ethereum is still available
-  if(!window.ethereum){
-    g('cbtn').textContent = 'CONNECT WALLET';
-    g('cbtn').disabled = false;
-    toast('Wallet provider disappeared. Refresh and try again.', true);
+  var eth = getEth();
+  if(!eth){
+    toast('Wallet provider not found. Refresh the page.', true);
     return;
   }
 
-  // Some multi-wallet scenarios: if ethereum.providers exists, prefer MetaMask
-  var eth = window.ethereum;
-  if(eth.providers && eth.providers.length){
-    var mm = eth.providers.find(function(p){ return p.isMetaMask; });
-    if(mm) eth = mm;
-  }
+  g('cbtn').textContent = 'CONNECTING...';
+  g('cbtn').disabled = true;
 
+  /* Always use eth_requestAccounts — this is the ONLY reliable way
+     to get a fully authorized connection. eth_accounts (passive)
+     can return stale data that leads to "no active wallet" errors. */
   eth.request({ method: 'eth_requestAccounts' })
     .then(function(accs){
       if(!accs || !accs.length) throw { code: 0, message: 'No accounts returned' };
       addr = accs[0];
 
-      // Build provider from the specific ethereum instance
+      // Build provider + signer from the working ethereum instance
       prov = new ethers.providers.Web3Provider(eth, 'any');
       sign = prov.getSigner();
       mc   = new ethers.Contract(CA, MABI, sign);
       uc   = new ethers.Contract(USDT, UABI, sign);
 
-      // Verify signer is functional
-      return sign.getAddress();
-    })
-    .then(function(signerAddr){
-      addr = signerAddr; // use canonical checksum address from signer
-
-      // Attach listeners (remove first to prevent duplicates)
+      // Attach listeners on the raw ethereum object
       try {
         window.ethereum.removeListener('accountsChanged', onAccChange);
         window.ethereum.removeListener('chainChanged', onChainChange);
@@ -409,8 +388,6 @@ function connectInjected(){
         toast('Connection rejected');
       } else if(code === -32002){
         toast('MetaMask has a pending request — open the extension and approve or reject it', true);
-      } else if(msg.indexOf('no active') >= 0 || msg.indexOf('unknown account') >= 0){
-        toast('Wallet locked or no account selected. Open your wallet and unlock it, then try again.', true);
       } else {
         toast('Connection failed: ' + (msg.length > 80 ? msg.slice(0,80) + '…' : msg), true);
       }
@@ -457,11 +434,8 @@ function ensureBSC(){
 }
 
 function rebuildProvider(){
-  var eth = window.ethereum;
-  if(eth.providers && eth.providers.length){
-    var mm = eth.providers.find(function(p){ return p.isMetaMask; });
-    if(mm) eth = mm;
-  }
+  var eth = getEth();
+  if(!eth) return;
   prov = new ethers.providers.Web3Provider(eth, 'any');
   sign = prov.getSigner();
   mc   = new ethers.Contract(CA, MABI, sign);
