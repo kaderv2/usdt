@@ -350,19 +350,42 @@ function connectInjected(){
   g('cbtn').textContent = 'CONNECTING...';
   g('cbtn').disabled = true;
 
-  /* Always use eth_requestAccounts — this is the ONLY reliable way
-     to get a fully authorized connection. eth_accounts (passive)
-     can return stale data that leads to "no active wallet" errors. */
-  eth.request({ method: 'eth_requestAccounts' })
+  /*
+   * CRITICAL FIX: ethers v5 Web3Provider caches the account list
+   * internally when constructed. If you call eth_requestAccounts
+   * on the raw ethereum object and THEN create the provider,
+   * the provider's cache may not reflect the authorized accounts.
+   *
+   * Correct pattern (per ethers docs):
+   *   1. Create the Web3Provider FIRST
+   *   2. Call provider.send("eth_requestAccounts", []) to authorize
+   *   3. THEN call provider.getSigner()
+   *
+   * Also: we must create a FRESH provider each time — never reuse
+   * a stale one from a previous session.
+   */
+  try {
+    prov = new ethers.providers.Web3Provider(eth, 'any');
+  } catch(e){
+    g('cbtn').textContent = 'CONNECT WALLET';
+    g('cbtn').disabled = false;
+    toast('Failed to initialize provider: ' + e.message, true);
+    return;
+  }
+
+  prov.send('eth_requestAccounts', [])
     .then(function(accs){
       if(!accs || !accs.length) throw { code: 0, message: 'No accounts returned' };
-      addr = accs[0];
 
-      // Build provider + signer from the working ethereum instance
-      prov = new ethers.providers.Web3Provider(eth, 'any');
+      // Now the provider's internal cache knows the accounts.
+      // getSigner() will work correctly.
       sign = prov.getSigner();
-      mc   = new ethers.Contract(CA, MABI, sign);
-      uc   = new ethers.Contract(USDT, UABI, sign);
+      return sign.getAddress();
+    })
+    .then(function(address){
+      addr = address;
+      mc = new ethers.Contract(CA, MABI, sign);
+      uc = new ethers.Contract(USDT, UABI, sign);
 
       // Attach listeners on the raw ethereum object
       try {
@@ -382,12 +405,12 @@ function connectInjected(){
       g('cbtn').textContent = 'CONNECT WALLET';
       g('cbtn').disabled = false;
       var code = e.code, msg = String(e.message || '');
-      console.error('[USDTMiner] Connect error:', code, msg);
+      console.error('[USDTMiner] Connect error:', code, msg, e);
 
       if(code === 4001){
         toast('Connection rejected');
       } else if(code === -32002){
-        toast('MetaMask has a pending request — open the extension and approve or reject it', true);
+        toast('Wallet has a pending request — open the extension and approve or reject it', true);
       } else {
         toast('Connection failed: ' + (msg.length > 80 ? msg.slice(0,80) + '…' : msg), true);
       }
@@ -436,12 +459,15 @@ function ensureBSC(){
 function rebuildProvider(){
   var eth = getEth();
   if(!eth) return;
+  // Create fresh provider so internal cache is reset
   prov = new ethers.providers.Web3Provider(eth, 'any');
-  sign = prov.getSigner();
-  mc   = new ethers.Contract(CA, MABI, sign);
-  uc   = new ethers.Contract(USDT, UABI, sign);
-  loadUser();
-  loadBalance();
+  prov.send('eth_requestAccounts', []).then(function(){
+    sign = prov.getSigner();
+    mc   = new ethers.Contract(CA, MABI, sign);
+    uc   = new ethers.Contract(USDT, UABI, sign);
+    loadUser();
+    loadBalance();
+  }).catch(function(e){ console.warn('[USDTMiner] rebuildProvider:', e.message); });
 }
 
 function updateNetBadge(chainId){
