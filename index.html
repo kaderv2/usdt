@@ -213,12 +213,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <div class="toast" id="toast"></div>
 
 <!-- ═══════════════════════════════════════════════════════
-     SCRIPTS — ethers v5 (unchanged, stable CDN)
+     SCRIPTS
 ═══════════════════════════════════════════════════════ -->
 <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
 if(typeof ethers==='undefined'){document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"><\/scr'+'ipt>');}
 </script>
+<!-- Load your external ABI file (optional — inline fallback below) -->
+<script src="abi.js"></script>
 <script>
 /* ═══════════════════════════════════════
    CONFIG
@@ -232,21 +234,22 @@ var RPC_FALLBACKS = [
   'https://bsc-dataseed4.binance.org/',
   'https://bsc.publicnode.com'
 ];
-var MABI = [
-  'function deposit(uint256 amount, address referrer) external',
-  'function withdraw() external',
-  'function compound() external',
-  'function withdrawPrincipal() external',
-  'function claimReferral() external',
-  'function getUserStats(address) external view returns (uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)',
-  'function getPoolStats() external view returns (uint256,uint256,uint256,uint256)',
-  'function pendingRewards(address) external view returns (uint256)'
+
+/* Use CONTRACT_ABI from abi.js if loaded, otherwise fall back to inline */
+var MABI = (typeof CONTRACT_ABI !== 'undefined') ? CONTRACT_ABI : [
+  'function deposit(uint256 amount, address referrer)',
+  'function withdraw()',
+  'function compound()',
+  'function withdrawPrincipal()',
+  'function claimReferral()',
+  'function getUserStats(address) view returns (uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)',
+  'function getPoolStats() view returns (uint256,uint256,uint256,uint256)',
+  'function pendingRewards(address) view returns (uint256)'
 ];
 var UABI = [
-  'function approve(address spender, uint256 amount) external returns (bool)',
-  'function allowance(address owner, address spender) external view returns (uint256)',
-  'function balanceOf(address account) external view returns (uint256)',
-  'function decimals() external view returns (uint8)'
+  'function approve(address spender, uint256 amount) returns (bool)',
+  'function allowance(address owner, address spender) view returns (uint256)',
+  'function balanceOf(address account) view returns (uint256)'
 ];
 
 /* ═══════════════════════════════════════
@@ -255,29 +258,69 @@ var UABI = [
 var prov, sign, mc, uc, addr = null, live = false;
 var ybps = 100, dBN, pBN, pTS = 0;
 var tickT, refreshT, balBN;
+var ethReady = false; // tracks if ethereum provider is available
 
 /* ═══════════════════════════════════════
-   INIT
+   INIT — wait for ethereum to be injected
+   Some wallets (Trust, MetaMask mobile) inject
+   window.ethereum AFTER DOMContentLoaded, so we
+   poll for it rather than checking once.
 ═══════════════════════════════════════ */
 window.addEventListener('load', function(){
-  setTimeout(function(){
-    dBN = ethers.constants.Zero;
-    pBN = ethers.constants.Zero;
-    balBN = ethers.constants.Zero;
+  dBN = ethers.constants.Zero;
+  pBN = ethers.constants.Zero;
+  balBN = ethers.constants.Zero;
 
-    var ref = new URLSearchParams(location.search).get('ref');
-    if(ref && ethers.utils.isAddress(ref)){
-      g('rInp').value = ref;
-      toast('Referral detected');
+  var ref = new URLSearchParams(location.search).get('ref');
+  if(ref && ethers.utils.isAddress(ref)){
+    g('rInp').value = ref;
+    toast('Referral detected');
+  }
+
+  loadPublic();
+  calcY();
+  refreshT = setInterval(loadPublic, 30000);
+
+  // Poll for window.ethereum (some wallets inject late)
+  waitForEthereum(function(found){
+    ethReady = found;
+    if(found){
+      var eth = window.ethereum;
+      if(eth.providers && eth.providers.length){
+        var mm = eth.providers.find(function(p){ return p.isMetaMask; });
+        if(mm) eth = mm;
+      }
+      console.log('[USDTMiner] Wallet provider detected:', eth.isMetaMask ? 'MetaMask' : eth.isTrust ? 'Trust Wallet' : 'EIP-1193');
+      // Auto-reconnect if wallet was previously connected (uses eth_accounts, NOT eth_requestAccounts — no popup)
+      eth.request({ method: 'eth_accounts' }).then(function(accs){
+        if(accs && accs.length > 0){
+          addr = accs[0];
+          prov = new ethers.providers.Web3Provider(eth, 'any');
+          sign = prov.getSigner();
+          mc = new ethers.Contract(CA, MABI, sign);
+          uc = new ethers.Contract(USDT, UABI, sign);
+          try {
+            window.ethereum.on('accountsChanged', onAccChange);
+            window.ethereum.on('chainChanged', onChainChange);
+          } catch(e){}
+          finishConnect();
+          setTimeout(ensureBSC, 600);
+        }
+      }).catch(function(e){ console.warn('[USDTMiner] Auto-reconnect skipped:', e.message); });
     }
-
-    loadPublic();
-    calcY();
-
-    // Auto-refresh pool stats every 30s
-    refreshT = setInterval(loadPublic, 30000);
-  }, 400);
+  });
 });
+
+/* Poll for window.ethereum up to 3 seconds */
+function waitForEthereum(cb){
+  if(window.ethereum){ cb(true); return; }
+  var attempts = 0;
+  var poll = setInterval(function(){
+    attempts++;
+    if(window.ethereum){ clearInterval(poll); cb(true); return; }
+    if(attempts >= 15){ clearInterval(poll); cb(false); } // 15 * 200ms = 3s
+  }, 200);
+}
 
 /* ═══════════════════════════════════════
    CONNECT BUTTON
@@ -285,17 +328,17 @@ window.addEventListener('load', function(){
 function onConnectClick(){
   if(live){ showConnMenu(); return; }
 
-  // Check for injected wallet (MetaMask, Trust Wallet in-app, etc.)
+  // Check for injected wallet
   if(window.ethereum){
     connectInjected();
   } else if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-    // Mobile without injected provider — show deep link options
+    // Mobile — might be in a regular browser, not a wallet browser
     openModal();
     showMobileOptions();
   } else {
-    // Desktop without MetaMask
-    toast('No wallet detected. Install MetaMask or open in a wallet browser.', true);
-    window.open('https://metamask.io/download/', '_blank');
+    // Desktop without any wallet extension
+    toast('No wallet found. Please install MetaMask.', true);
+    setTimeout(function(){ window.open('https://metamask.io/download/', '_blank'); }, 500);
   }
 }
 
@@ -310,16 +353,37 @@ function connectInjected(){
   g('cbtn').textContent = 'CONNECTING...';
   g('cbtn').disabled = true;
 
-  window.ethereum.request({ method: 'eth_requestAccounts' })
+  // Double-check ethereum is still available
+  if(!window.ethereum){
+    g('cbtn').textContent = 'CONNECT WALLET';
+    g('cbtn').disabled = false;
+    toast('Wallet provider disappeared. Refresh and try again.', true);
+    return;
+  }
+
+  // Some multi-wallet scenarios: if ethereum.providers exists, prefer MetaMask
+  var eth = window.ethereum;
+  if(eth.providers && eth.providers.length){
+    var mm = eth.providers.find(function(p){ return p.isMetaMask; });
+    if(mm) eth = mm;
+  }
+
+  eth.request({ method: 'eth_requestAccounts' })
     .then(function(accs){
       if(!accs || !accs.length) throw { code: 0, message: 'No accounts returned' };
       addr = accs[0];
 
-      // Build provider
-      prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
+      // Build provider from the specific ethereum instance
+      prov = new ethers.providers.Web3Provider(eth, 'any');
       sign = prov.getSigner();
       mc   = new ethers.Contract(CA, MABI, sign);
       uc   = new ethers.Contract(USDT, UABI, sign);
+
+      // Verify signer is functional
+      return sign.getAddress();
+    })
+    .then(function(signerAddr){
+      addr = signerAddr; // use canonical checksum address from signer
 
       // Attach listeners (remove first to prevent duplicates)
       try {
@@ -329,22 +393,26 @@ function connectInjected(){
       window.ethereum.on('accountsChanged', onAccChange);
       window.ethereum.on('chainChanged', onChainChange);
 
-      // Connect UI immediately
+      // Connect UI
       finishConnect();
 
-      // Switch chain in background after short delay
+      // Switch chain in background
       setTimeout(ensureBSC, 600);
     })
     .catch(function(e){
       g('cbtn').textContent = 'CONNECT WALLET';
       g('cbtn').disabled = false;
       var code = e.code, msg = String(e.message || '');
+      console.error('[USDTMiner] Connect error:', code, msg);
+
       if(code === 4001){
         toast('Connection rejected');
       } else if(code === -32002){
-        toast('MetaMask has a pending request — check the extension and approve or reject it', true);
+        toast('MetaMask has a pending request — open the extension and approve or reject it', true);
+      } else if(msg.indexOf('no active') >= 0 || msg.indexOf('unknown account') >= 0){
+        toast('Wallet locked or no account selected. Open your wallet and unlock it, then try again.', true);
       } else {
-        toast('Connection error: ' + (msg.length > 60 ? msg.slice(0,60) + '…' : msg), true);
+        toast('Connection failed: ' + (msg.length > 80 ? msg.slice(0,80) + '…' : msg), true);
       }
     });
 }
@@ -389,7 +457,12 @@ function ensureBSC(){
 }
 
 function rebuildProvider(){
-  prov = new ethers.providers.Web3Provider(window.ethereum, 'any');
+  var eth = window.ethereum;
+  if(eth.providers && eth.providers.length){
+    var mm = eth.providers.find(function(p){ return p.isMetaMask; });
+    if(mm) eth = mm;
+  }
+  prov = new ethers.providers.Web3Provider(eth, 'any');
   sign = prov.getSigner();
   mc   = new ethers.Contract(CA, MABI, sign);
   uc   = new ethers.Contract(USDT, UABI, sign);
@@ -417,8 +490,6 @@ function onAccChange(accs){
   rebuildProvider();
   g('cbtn').textContent = addr.slice(0,6) + '...' + addr.slice(-4);
   g('rLnk').textContent = location.origin + location.pathname + '?ref=' + addr;
-  loadUser();
-  loadBalance();
 }
 function onChainChange(){ location.reload(); }
 
