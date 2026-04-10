@@ -5,2448 +5,630 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Landlord USDT — Build. Grow. Earn.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Exo+2:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Exo+2:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <style>
-/* ══════════════════════════════════════════════════════
-   DESIGN TOKENS
-   ══════════════════════════════════════════════════════ */
-:root {
-  --navy-deep: #0B1628;
-  --navy: #0F1D32;
-  --navy-mid: #132742;
-  --navy-light: #1A3352;
-  --navy-surface: #162D4A;
-  --teal: #1B3A4B;
-  --gold: #F0B932;
-  --gold-dark: #C9960F;
-  --gold-bright: #FFD54F;
-  --gold-glow: rgba(240, 185, 50, 0.35);
-  --gold-subtle: rgba(240, 185, 50, 0.08);
-  --green: #4ADE80;
-  --green-dark: #22C55E;
-  --green-glow: rgba(74, 222, 128, 0.2);
-  --red: #EF4444;
-  --blue: #60A5FA;
-  --purple: #A78BFA;
-  --cyan: #22D3EE;
-  --text: #E2E8F0;
-  --text-dim: #7A8BA7;
-  --text-muted: #4A5B73;
-  --border: rgba(240, 185, 50, 0.12);
-  --border-subtle: rgba(255,255,255,0.06);
-  --card-bg: linear-gradient(145deg, #132742 0%, #0F1D32 100%);
-  --r: 14px;
-  --r-lg: 20px;
-  --r-sm: 8px;
-  --shadow: 0 4px 20px rgba(0,0,0,0.4);
-  --shadow-gold: 0 4px 25px rgba(240,185,50,0.2);
+:root{
+--bg:#0B1628;--bg2:#0F1D32;--bg3:#132742;--bg4:#1A3352;--teal:#1B3A4B;
+--gold:#F0B932;--goldd:#C9960F;--goldb:#FFD54F;--goldg:rgba(240,185,50,.35);--golds:rgba(240,185,50,.08);
+--grn:#4ADE80;--grnd:#22C55E;--grng:rgba(74,222,128,.2);
+--red:#EF4444;--blu:#60A5FA;--pur:#A78BFA;--cyn:#22D3EE;
+--tx:#E2E8F0;--txd:#7A8BA7;--txm:#4A5B73;
+--bdr:rgba(240,185,50,.12);--bdrs:rgba(255,255,255,.06);
+--r:14px;--rl:20px;--rs:8px;
 }
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden}
+.bgfx{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 100% 60% at 50% -10%,rgba(240,185,50,.07) 0%,transparent 50%),radial-gradient(ellipse 80% 40% at 0% 50%,rgba(27,58,75,.3) 0%,transparent 50%)}
 
-* { margin:0; padding:0; box-sizing:border-box; }
+/* ═══ HEADER ═══ */
+.hdr{position:relative;background:linear-gradient(180deg,#0D2137,var(--bg));border-bottom:2px solid var(--bdr);overflow:hidden}
+.hdr::before{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(180deg,transparent,var(--bg));z-index:2}
+.hdr-in{position:relative;z-index:3;max-width:1440px;margin:0 auto;padding:20px 24px 32px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.brand{display:flex;flex-direction:column;gap:4px}
+.brand-row{display:flex;align-items:center;gap:12px}
+.brand-ico{width:50px;height:50px;background:linear-gradient(135deg,var(--gold),var(--goldd));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 20px var(--goldg)}
+.brand-t{font-family:'Cinzel Decorative',serif;font-weight:900;font-size:30px;background:linear-gradient(135deg,var(--goldb),var(--gold),var(--goldd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.brand-tag{display:inline-flex;background:linear-gradient(90deg,var(--grnd),var(--grn));color:#000;font-weight:800;font-size:10px;padding:3px 14px;border-radius:5px;letter-spacing:3px;text-transform:uppercase;width:fit-content}
+.brand-sub{color:var(--txd);font-size:12px;margin-top:2px}
 
-body {
-  background: var(--navy-deep);
-  color: var(--text);
-  font-family: 'Exo 2', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+.top-stats{display:flex;gap:10px;flex-wrap:wrap}
+.ts{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 18px;min-width:140px;text-align:center}
+.ts-lab{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--txd);font-weight:700;margin-bottom:3px}
+.ts-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:var(--gold)}
+.ts-val.g{color:var(--grn)}.ts-val.sm{font-size:14px}
+.ts-ext{font-size:10px;color:var(--txd);margin-top:2px}
+.ts-btn{margin-top:6px;background:linear-gradient(135deg,var(--gold),var(--goldd));color:#000;border:none;padding:5px 14px;border-radius:5px;font-family:'Exo 2';font-weight:800;font-size:10px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .2s}
+.ts-btn:hover{box-shadow:0 4px 15px var(--goldg);transform:translateY(-1px)}
 
-/* ═══ BACKGROUND ═══ */
-.bg-effects {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background:
-    radial-gradient(ellipse 100% 60% at 50% -10%, rgba(240,185,50,0.07) 0%, transparent 50%),
-    radial-gradient(ellipse 80% 40% at 0% 50%, rgba(27,58,75,0.3) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 50% at 100% 80%, rgba(240,185,50,0.04) 0%, transparent 50%);
-}
+.wa{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.wa-row{display:flex;align-items:center;gap:8px}
+.chain{display:inline-flex;align-items:center;gap:5px;background:rgba(243,186,47,.08);border:1px solid rgba(243,186,47,.2);border-radius:50px;padding:4px 12px;font-size:10px;font-weight:700;color:#F3BA2F}
+.hs{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;transition:all .2s;text-decoration:none}
+.hs.tg{background:rgba(38,165,224,.12);color:#26A5E4;border:1px solid rgba(38,165,224,.25)}.hs.tg:hover{background:rgba(38,165,224,.25);transform:translateY(-2px)}
+.hs.x{background:rgba(255,255,255,.08);color:#E2E8F0;border:1px solid rgba(255,255,255,.15)}.hs.x:hover{background:rgba(255,255,255,.15);transform:translateY(-2px)}
+.wbtn{background:linear-gradient(135deg,var(--gold),var(--goldd));color:#000;border:none;padding:10px 28px;border-radius:50px;font-family:'Exo 2';font-weight:800;font-size:13px;cursor:pointer;letter-spacing:.5px;transition:all .3s;box-shadow:0 4px 20px var(--goldg);text-transform:uppercase}
+.wbtn:hover{transform:translateY(-2px);box-shadow:0 6px 30px var(--goldg)}
+.wbtn.on{background:var(--bg2);color:var(--gold);border:2px solid var(--gold);box-shadow:none;text-transform:none;font-size:12px}
 
-/* ═══ SKYLINE DECORATION (top banner area) ═══ */
-.skyline-banner {
-  position: relative;
-  background: linear-gradient(180deg, #0D2137 0%, var(--navy-deep) 100%);
-  border-bottom: 2px solid var(--border);
-  overflow: hidden;
-}
-
-.skyline-banner::before {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 120px;
-  background: linear-gradient(180deg, transparent, var(--navy-deep));
-  z-index: 2;
-}
-
-.skyline-inner {
-  position: relative;
-  z-index: 3;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 24px 28px 40px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.brand {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.brand-logo {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.brand-icon {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  box-shadow: var(--shadow-gold);
-  position: relative;
-}
-
-.brand-icon::after {
-  content:'';
-  position:absolute;inset:-3px;
-  border-radius:16px;
-  background:linear-gradient(135deg,var(--gold),transparent 60%);
-  opacity:0.3;
-  z-index:-1;
-}
-
-.brand-title {
-  font-family: 'Cinzel Decorative', serif;
-  font-weight: 900;
-  font-size: 34px;
-  background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--gold-dark));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  line-height: 1;
-  letter-spacing: 2px;
-  text-shadow: none;
-}
-
-.brand-tagline {
-  display: inline-flex;
-  background: linear-gradient(90deg, var(--green-dark), var(--green));
-  color: #000;
-  font-weight: 800;
-  font-size: 11px;
-  padding: 4px 16px;
-  border-radius: 6px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  width: fit-content;
-}
-
-.brand-sub {
-  color: var(--text-dim);
-  font-size: 13px;
-  margin-top: 4px;
-  font-weight: 400;
-}
-
-/* Top stats row */
-.top-stats {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: stretch;
-}
-
-.top-stat {
-  background: var(--navy);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 14px 20px;
-  min-width: 150px;
-  text-align: center;
-  position: relative;
-}
-
-.top-stat .ts-icon {
-  font-size: 18px;
-  margin-bottom: 2px;
-}
-
-.top-stat .ts-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--text-dim);
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.top-stat .ts-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  font-size: 20px;
-  color: var(--gold);
-}
-
-.top-stat .ts-value.green { color: var(--green); }
-
-.top-stat .ts-extra {
-  font-size: 11px;
-  color: var(--text-dim);
-  margin-top: 2px;
-}
-
-.top-stat .ts-btn {
-  display: inline-block;
-  margin-top: 8px;
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #000;
-  border: none;
-  padding: 6px 18px;
-  border-radius: 6px;
-  font-family: 'Exo 2', sans-serif;
-  font-weight: 700;
-  font-size: 11px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: all 0.2s;
-}
-
-.top-stat .ts-btn:hover {
-  box-shadow: var(--shadow-gold);
-  transform: translateY(-1px);
-}
-
-/* Wallet button area */
-.wallet-area {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.chain-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(243, 186, 47, 0.08);
-  border: 1px solid rgba(243, 186, 47, 0.2);
-  border-radius: 50px;
-  padding: 5px 14px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #F3BA2F;
-  letter-spacing: 0.5px;
-}
-
-.wallet-btn {
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #000;
-  border: none;
-  padding: 12px 32px;
-  border-radius: 50px;
-  font-family: 'Exo 2', sans-serif;
-  font-weight: 800;
-  font-size: 14px;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  transition: all 0.3s;
-  box-shadow: var(--shadow-gold);
-  text-transform: uppercase;
-}
-
-.wallet-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 35px var(--gold-glow);
-}
-
-.wallet-btn.connected {
-  background: var(--navy);
-  color: var(--gold);
-  border: 2px solid var(--gold);
-  box-shadow: none;
-  text-transform: none;
-  font-size: 13px;
-}
-
-/* ═══ MAIN LAYOUT ═══ */
-.main-layout {
-  position: relative;
-  z-index: 2;
-  max-width: 1440px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-  min-height: calc(100vh - 200px);
-}
+/* ═══ LAYOUT ═══ */
+.layout{position:relative;z-index:2;max-width:1440px;margin:0 auto;display:grid;grid-template-columns:200px 1fr;gap:0;min-height:calc(100vh - 180px)}
 
 /* ═══ SIDEBAR ═══ */
-.sidebar {
-  background: var(--navy);
-  border-right: 1px solid var(--border-subtle);
-  padding: 20px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-dim);
-  cursor: pointer;
-  transition: all 0.2s;
-  border-left: 3px solid transparent;
-  position: relative;
-}
-
-.nav-item:hover {
-  background: var(--gold-subtle);
-  color: var(--text);
-}
-
-.nav-item.active {
-  background: var(--gold-subtle);
-  color: var(--gold);
-  border-left-color: var(--gold);
-}
-
-.nav-item .nav-icon { font-size: 18px; width: 24px; text-align: center; }
-
-.nav-item .nav-badge {
-  position: absolute;
-  right: 16px;
-  background: var(--red);
-  color: #fff;
-  font-size: 9px;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 10px;
-  min-width: 18px;
-  text-align: center;
-}
-
-.sidebar-spacer { flex: 1; }
-
-/* Sidebar free claim card */
-.sidebar-card {
-  margin: 8px 14px;
-  background: linear-gradient(145deg, #1A3A2A, #132742);
-  border: 1px solid rgba(74,222,128,0.2);
-  border-radius: var(--r);
-  padding: 16px;
-  text-align: center;
-}
-
-.sidebar-card.boost-card {
-  background: linear-gradient(145deg, #3A2A1A, #2A1A0A);
-  border-color: rgba(240,185,50,0.3);
-}
-
-.sidebar-card h4 {
-  font-weight: 800;
-  font-size: 13px;
-  color: var(--green);
-  margin-bottom: 4px;
-}
-
-.sidebar-card.boost-card h4 { color: var(--gold); }
-
-.sidebar-card p {
-  font-size: 11px;
-  color: var(--text-dim);
-  margin-bottom: 10px;
-}
-
-.sidebar-card .timer-display {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 10px;
-}
-
-.claim-btn {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  font-family: 'Exo 2', sans-serif;
-  font-weight: 800;
-  font-size: 12px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: all 0.2s;
-}
-
-.claim-btn.free {
-  background: linear-gradient(135deg, var(--green), var(--green-dark));
-  color: #000;
-}
-
-.claim-btn.free:hover {
-  box-shadow: 0 4px 15px var(--green-glow);
-}
-
-.claim-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* ═══ CONTENT AREA ═══ */
-.content {
-  padding: 24px 28px 60px;
-  overflow-y: auto;
-}
-
-/* Section header */
-.sec-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-  margin-top: 8px;
-}
-
-.sec-head h2 {
-  font-family: 'Exo 2', sans-serif;
-  font-weight: 800;
-  font-size: 20px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sec-head .sec-sub {
-  font-size: 13px;
-  color: var(--text-dim);
-  font-weight: 400;
-}
-
-.sec-head .sec-filters {
-  display: flex;
-  gap: 6px;
-}
-
-.filter-btn {
-  background: var(--navy);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-dim);
-  padding: 6px 16px;
-  border-radius: 8px;
-  font-family: 'Exo 2', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.filter-btn.active, .filter-btn:hover {
-  background: var(--gold-subtle);
-  border-color: var(--gold);
-  color: var(--gold);
-}
-
-/* ═══ BUILDINGS GRID ═══ */
-.buildings-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.bld-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.bld-card:hover {
-  border-color: var(--border);
-  transform: translateY(-3px);
-  box-shadow: var(--shadow);
-}
-
-.bld-card .bld-num {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: var(--green-dark);
-  color: #000;
-  font-weight: 900;
-  font-size: 11px;
-  width: 26px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  z-index: 3;
-}
-
-.bld-img {
-  width: 100%;
-  height: 140px;
-  background: linear-gradient(135deg, var(--navy-mid), var(--teal));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 64px;
-  position: relative;
-  overflow: hidden;
-}
-
-.bld-img::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 40px;
-  background: linear-gradient(180deg, transparent, #132742);
-}
-
-.bld-body {
-  padding: 14px 16px 16px;
-}
-
-.bld-name-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.bld-name {
-  font-weight: 800;
-  font-size: 15px;
-}
-
-.bld-price {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--gold);
-}
-
-.bld-stats {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 12px;
-  color: var(--text-dim);
-}
-
-.bld-stats span {
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.bld-stats .yield-val { color: var(--green); font-weight: 700; }
-
-.bld-owned {
-  font-size: 12px;
-  color: var(--text-dim);
-  padding: 6px 0;
-  border-top: 1px solid var(--border-subtle);
-  margin-bottom: 10px;
-}
-
-.bld-owned strong {
-  color: var(--gold);
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.bld-buy-row {
-  display: flex;
-  gap: 8px;
-}
-
-.bld-qty {
-  width: 56px;
-  background: var(--navy-deep);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-sm);
-  padding: 8px;
-  color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  text-align: center;
-  outline: none;
-}
-
-.bld-qty:focus { border-color: var(--gold); }
-
-.bld-buy-btn {
-  flex: 1;
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #000;
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--r-sm);
-  font-family: 'Exo 2', sans-serif;
-  font-weight: 800;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.bld-buy-btn:hover {
-  box-shadow: var(--shadow-gold);
-  transform: translateY(-1px);
-}
-
-.bld-buy-btn:disabled { opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none; }
-
-/* ═══ ACTIONS ROW ═══ */
-.actions-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.act-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-lg);
-  padding: 22px;
-}
-
-.act-card h3 {
-  font-weight: 800;
-  font-size: 15px;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.act-card .act-desc {
-  font-size: 12px;
-  color: var(--text-dim);
-  margin-bottom: 14px;
-  line-height: 1.5;
-}
-
-.act-input-row {
-  display: flex;
-  gap: 10px;
-}
-
-.act-input {
-  flex: 1;
-  background: var(--navy-deep);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-sm);
-  padding: 10px 14px;
-  color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  outline: none;
-}
-
-.act-input:focus { border-color: var(--gold); }
-
-.act-btn {
-  padding: 10px 22px;
-  border: none;
-  border-radius: var(--r-sm);
-  font-family: 'Exo 2', sans-serif;
-  font-weight: 800;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-.act-btn:hover { transform:translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-.act-btn:disabled { opacity:0.4;cursor:not-allowed;transform:none; }
-
-.act-btn.green { background:linear-gradient(135deg,var(--green),var(--green-dark)); color:#000; }
-.act-btn.purple { background:linear-gradient(135deg,var(--purple),#7C3AED); color:#fff; }
-.act-btn.blue { background:linear-gradient(135deg,var(--blue),#3B82F6); color:#fff; }
-.act-btn.gold { background:linear-gradient(135deg,var(--gold),var(--gold-dark)); color:#000; }
-
-.act-fee {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 8px;
-}
-
-.act-fee .hl { color: var(--green); font-weight: 700; }
-
-/* ═══ BOOSTS GRID ═══ */
-.boosts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
-  margin-bottom: 32px;
-}
-
-.bst-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r);
-  padding: 18px;
-  text-align: center;
-  transition: all 0.3s;
-  position: relative;
-}
-
-.bst-card:hover {
-  border-color: var(--border);
-  transform: translateY(-2px);
-}
-
-.bst-card.active {
-  border-color: var(--green);
-  box-shadow: 0 0 20px var(--green-glow);
-}
-
-.bst-card.active::before {
-  content: '● ACTIVE';
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  font-size: 9px;
-  font-weight: 800;
-  color: var(--green);
-  letter-spacing: 0.5px;
-}
-
-.bst-icon { font-size: 28px; margin-bottom: 6px; }
-
-.bst-name {
-  font-weight: 700;
-  font-size: 13px;
-  margin-bottom: 10px;
-}
-
-.bst-tags {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
-}
-
-.bst-tag {
-  font-size: 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 5px;
-}
-
-.bst-tag.price { background:rgba(240,185,50,0.1); color:var(--gold); }
-.bst-tag.pct { background:rgba(74,222,128,0.1); color:var(--green); }
-.bst-tag.dur { background:rgba(96,165,250,0.1); color:var(--blue); }
-
-.bst-buy {
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #000;
-  border: none;
-  padding: 7px 18px;
-  border-radius: 6px;
-  font-family: 'Exo 2', sans-serif;
-  font-weight: 800;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.bst-buy:hover { box-shadow: var(--shadow-gold); }
-.bst-buy:disabled { opacity:0.4;cursor:not-allowed; }
-
-.bst-timer {
-  margin-top: 6px;
-  font-size: 11px;
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--green);
-}
-
-/* ═══ BOTTOM PANELS ═══ */
-.bottom-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.panel {
-  background: var(--card-bg);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-lg);
-  padding: 22px;
-}
-
-.panel h3 {
-  font-weight: 800;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.panel-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--border-subtle);
-  font-size: 13px;
-}
-
-.panel-row:last-child { border: none; }
-.panel-row .pl { color: var(--text-dim); }
-.panel-row .pv {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-}
-
-.panel-row .pv.gold { color: var(--gold); }
-.panel-row .pv.green { color: var(--green); }
-.panel-row .pv.red { color: var(--red); }
-
-/* ═══ HOW IT WORKS ═══ */
-.hiw-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
-  padding: 20px;
-  background: var(--card-bg);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-lg);
-}
-
-.hiw-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  text-align: center;
-}
-
-.hiw-icon {
-  width: 52px;
-  height: 52px;
-  background: var(--gold-subtle);
-  border: 2px solid var(--border);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-}
-
-.hiw-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--gold);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.hiw-sub {
-  font-size: 10px;
-  color: var(--text-dim);
-}
-
-.hiw-arrow {
-  font-size: 20px;
-  color: var(--text-muted);
-}
+.side{background:var(--bg2);border-right:1px solid var(--bdrs);padding:16px 0;display:flex;flex-direction:column;gap:2px}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:600;color:var(--txd);cursor:pointer;transition:all .2s;border-left:3px solid transparent}
+.ni:hover{background:var(--golds);color:var(--tx)}.ni.on{background:var(--golds);color:var(--gold);border-left-color:var(--gold)}
+.ni-i{font-size:16px;width:22px;text-align:center}
+.ssp{flex:1}
+
+.sc{margin:6px 12px;border-radius:var(--r);padding:14px;text-align:center}
+.sc.free{background:linear-gradient(145deg,#1A3A2A,#132742);border:1px solid rgba(74,222,128,.2)}
+.sc h4{font-weight:800;font-size:12px;color:var(--grn);margin-bottom:3px}
+.sc p{font-size:10px;color:var(--txd);margin-bottom:8px}
+.sc .tmr{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;margin-bottom:8px}
+.cbtn{width:100%;padding:8px;border:none;border-radius:6px;font-family:'Exo 2';font-weight:800;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .2s}
+.cbtn.fr{background:linear-gradient(135deg,var(--grn),var(--grnd));color:#000}.cbtn.fr:hover{box-shadow:0 4px 12px var(--grng)}
+.cbtn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ═══ CONTENT ═══ */
+.cnt{padding:20px 24px 50px;overflow-y:auto}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;margin-top:6px}
+.sh h2{font-weight:800;font-size:18px;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+.sh .sub{font-size:12px;color:var(--txd);font-weight:400;text-transform:none;letter-spacing:0}
+
+/* ═══ BUILDINGS ═══ */
+.bg{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:28px}
+.bc{background:linear-gradient(145deg,var(--bg3),var(--bg2));border:1px solid var(--bdrs);border-radius:var(--rl);overflow:hidden;transition:all .3s;position:relative}
+.bc:hover{border-color:var(--bdr);transform:translateY(-3px);box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.bc-n{position:absolute;top:8px;left:8px;background:var(--grnd);color:#000;font-weight:900;font-size:10px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:6px;z-index:3}
+.bc-img{width:100%;height:120px;background:linear-gradient(135deg,var(--bg3),var(--teal));display:flex;align-items:center;justify-content:center;font-size:52px;position:relative}
+.bc-img::after{content:'';position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(180deg,transparent,#132742)}
+.bc-b{padding:12px 14px 14px}
+.bc-nr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.bc-nm{font-weight:800;font-size:13px}
+.bc-pr{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;color:var(--gold)}
+.bc-st{display:flex;justify-content:space-between;margin-bottom:8px;font-size:11px;color:var(--txd)}
+.bc-st .yv{color:var(--grn);font-weight:700;font-family:'JetBrains Mono',monospace}
+.bc-ow{font-size:11px;color:var(--txd);padding:5px 0;border-top:1px solid var(--bdrs);margin-bottom:8px}
+.bc-ow strong{color:var(--gold);font-family:'JetBrains Mono',monospace}
+.bc-br{display:flex;gap:6px}
+.bc-qi{width:48px;background:var(--bg);border:1px solid var(--bdrs);border-radius:var(--rs);padding:7px;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:12px;text-align:center;outline:none}
+.bc-qi:focus{border-color:var(--gold)}
+.bc-bb{flex:1;background:linear-gradient(135deg,var(--gold),var(--goldd));color:#000;border:none;padding:7px 14px;border-radius:var(--rs);font-family:'Exo 2';font-weight:800;font-size:11px;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px}
+.bc-bb:hover{box-shadow:0 4px 15px var(--goldg);transform:translateY(-1px)}
+.bc-bb:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ═══ ACTIONS ═══ */
+.ar{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:28px}
+.ac{background:linear-gradient(145deg,var(--bg3),var(--bg2));border:1px solid var(--bdrs);border-radius:var(--rl);padding:20px}
+.ac h3{font-weight:800;font-size:14px;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.ac .ad{font-size:11px;color:var(--txd);margin-bottom:12px;line-height:1.5}
+.air{display:flex;gap:8px}
+.ai{flex:1;background:var(--bg);border:1px solid var(--bdrs);border-radius:var(--rs);padding:9px 12px;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none}
+.ai:focus{border-color:var(--gold)}
+.ab{padding:9px 20px;border:none;border-radius:var(--rs);font-family:'Exo 2';font-weight:800;font-size:11px;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.ab:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.ab:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.ab.grn{background:linear-gradient(135deg,var(--grn),var(--grnd));color:#000}
+.ab.pur{background:linear-gradient(135deg,var(--pur),#7C3AED);color:#fff}
+.ab.blu{background:linear-gradient(135deg,var(--blu),#3B82F6);color:#fff}
+.ab.gld{background:linear-gradient(135deg,var(--gold),var(--goldd));color:#000}
+.af{font-size:10px;color:var(--txm);margin-top:7px}.af .hl{color:var(--grn);font-weight:700}
+
+/* ═══ BOOSTS ═══ */
+.bsg{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:28px}
+.bsc{background:linear-gradient(145deg,var(--bg3),var(--bg2));border:1px solid var(--bdrs);border-radius:var(--r);padding:16px;text-align:center;transition:all .3s;position:relative}
+.bsc:hover{border-color:var(--bdr);transform:translateY(-2px)}
+.bsc.on{border-color:var(--grn);box-shadow:0 0 15px var(--grng)}
+.bsc.on::before{content:'● ACTIVE';position:absolute;top:7px;right:7px;font-size:8px;font-weight:800;color:var(--grn);letter-spacing:.5px}
+.bsc-i{font-size:26px;margin-bottom:5px}.bsc-n{font-weight:700;font-size:12px;margin-bottom:8px}
+.bsc-tags{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.bsc-tag{font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:700;padding:3px 7px;border-radius:4px}
+.bsc-tag.pr{background:rgba(240,185,50,.1);color:var(--gold)}.bsc-tag.pc{background:rgba(74,222,128,.1);color:var(--grn)}.bsc-tag.dr{background:rgba(96,165,250,.1);color:var(--blu)}
+.bsc-b{background:linear-gradient(135deg,var(--gold),var(--goldd));color:#000;border:none;padding:6px 16px;border-radius:5px;font-family:'Exo 2';font-weight:800;font-size:10px;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px}
+.bsc-b:hover{box-shadow:0 4px 12px var(--goldg)}.bsc-b:disabled{opacity:.4;cursor:not-allowed}
+.bsc-t{margin-top:5px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--grn)}
+
+/* ═══ PANELS ═══ */
+.pg{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:28px}
+.pn{background:linear-gradient(145deg,var(--bg3),var(--bg2));border:1px solid var(--bdrs);border-radius:var(--rl);padding:20px}
+.pn h3{font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.pr{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bdrs);font-size:12px}.pr:last-child{border:none}
+.pr .l{color:var(--txd)}.pr .v{font-family:'JetBrains Mono',monospace;font-weight:700}
+.pr .v.gd{color:var(--gold)}.pr .v.gr{color:var(--grn)}.pr .v.rd{color:var(--red)}
+
+/* ═══ REFERRAL CARD ═══ */
+.ref-card{background:linear-gradient(145deg,#1A2A3A,var(--bg3));border:1px solid rgba(96,165,250,.15);border-radius:var(--rl);padding:20px;margin-bottom:28px}
+.ref-card h3{font-weight:800;font-size:14px;margin-bottom:12px;color:var(--blu);display:flex;align-items:center;gap:6px}
+.ref-link-box{display:flex;gap:8px;margin-bottom:14px}
+.ref-link-input{flex:1;background:var(--bg);border:1px solid var(--bdrs);border-radius:var(--rs);padding:10px 12px;color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;overflow:hidden;text-overflow:ellipsis}
+.ref-copy{background:linear-gradient(135deg,var(--blu),#3B82F6);color:#fff;border:none;padding:10px 18px;border-radius:var(--rs);font-family:'Exo 2';font-weight:800;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .2s}
+.ref-copy:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(96,165,250,.3)}
+.ref-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ref-stat{text-align:center;background:var(--bg);border-radius:var(--rs);padding:12px 8px}
+.ref-stat .rs-lab{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--txd);font-weight:700;margin-bottom:4px}
+.ref-stat .rs-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;color:var(--gold)}
+
+/* ═══ SPLASH ═══ */
+#splash{grid-column:1/-1}
+.sp{text-align:center;padding:50px 20px 16px}
+.sp .bi{font-size:70px;margin-bottom:16px;filter:drop-shadow(0 6px 16px var(--goldg))}
+.sp h2{font-family:'Cinzel Decorative',serif;font-size:32px;background:linear-gradient(135deg,var(--goldb),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.sp p{color:var(--txd);max-width:460px;margin:0 auto 24px;line-height:1.6;font-size:14px}
+.sp-soc{display:flex;justify-content:center;gap:10px;margin-top:16px}
+.sl{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:10px;text-decoration:none;font-weight:700;font-size:12px;transition:all .25s;letter-spacing:.3px}
+.sl.tg{background:rgba(38,165,224,.12);color:#26A5E4;border:1px solid rgba(38,165,224,.25)}.sl.tg:hover{background:rgba(38,165,224,.25);transform:translateY(-2px)}
+.sl.x{background:rgba(255,255,255,.06);color:#E2E8F0;border:1px solid rgba(255,255,255,.12)}.sl.x:hover{background:rgba(255,255,255,.12);transform:translateY(-2px)}
+.sl.dc{background:var(--golds);color:var(--gold);border:1px solid rgba(240,185,50,.2)}.sl.dc:hover{background:rgba(240,185,50,.18);transform:translateY(-2px)}
+.hiw{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:28px auto;padding:18px;background:linear-gradient(145deg,var(--bg3),var(--bg2));border:1px solid var(--bdrs);border-radius:var(--rl);max-width:800px}
+.hiw-s{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.hiw-i{width:44px;height:44px;background:var(--golds);border:2px solid var(--bdr);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.hiw-l{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px}
+.hiw-u{font-size:9px;color:var(--txd)}
+.hiw-a{font-size:18px;color:var(--txm)}
 
 /* ═══ FOOTER ═══ */
-.footer {
-  text-align: center;
-  padding: 24px;
-  color: var(--text-muted);
-  font-size: 11px;
-  border-top: 1px solid var(--border-subtle);
-  line-height: 1.6;
-}
-
-/* ═══ NOT CONNECTED ═══ */
-#splashScreen {
-  grid-column: 1 / -1;
-}
-
-.splash {
-  text-align: center;
-  padding: 60px 20px 20px;
-}
-
-.splash .big-icon {
-  font-size: 80px;
-  margin-bottom: 20px;
-  filter: drop-shadow(0 6px 20px var(--gold-glow));
-}
-
-.splash h2 {
-  font-family: 'Cinzel Decorative', serif;
-  font-size: 36px;
-  background: linear-gradient(135deg, var(--gold-bright), var(--gold));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 10px;
-}
-
-.splash p {
-  color: var(--text-dim);
-  max-width: 480px;
-  margin: 0 auto 28px;
-  line-height: 1.6;
-  font-size: 15px;
-}
+.ft{text-align:center;padding:20px;color:var(--txm);font-size:10px;border-top:1px solid var(--bdrs);line-height:1.6}
+.ft-soc{display:flex;justify-content:center;gap:10px;margin-bottom:6px}
 
 /* ═══ TOAST ═══ */
-.toast-box {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.tb{position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px}
+.t{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 16px;font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:ti .3s ease;max-width:340px}
+.t.ok{border-left:3px solid var(--grn)}.t.er{border-left:3px solid var(--red)}.t.in{border-left:3px solid var(--blu)}
+@keyframes ti{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+.spn{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:4px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ═══ DOCS ═══ */
+.docs-c{display:grid;grid-template-columns:180px 1fr;gap:20px;align-items:start}
+.docs-toc{position:sticky;top:80px}.docs-toc .pn{padding:14px}
+.tl{display:block;padding:5px 10px;font-size:11px;font-weight:600;color:var(--txd);text-decoration:none;border-left:2px solid var(--bdrs);transition:all .2s}
+.tl:hover{color:var(--gold);border-left-color:var(--gold);background:var(--golds)}
+.docs-b{display:flex;flex-direction:column;gap:6px}
+.ds{background:linear-gradient(145deg,var(--bg3),var(--bg2));border:1px solid var(--bdrs);border-radius:var(--rl);padding:24px;scroll-margin-top:80px}
+.ds h3{font-weight:800;font-size:16px;margin-bottom:10px;color:var(--gold)}
+.ds p{font-size:13px;line-height:1.7;margin-bottom:10px}.ds p:last-child{margin-bottom:0}
+.ds table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+.ds th{text-align:left;padding:8px 12px;background:var(--bg);color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:10px;border-bottom:2px solid var(--bdr)}
+.ds td{padding:8px 12px;border-bottom:1px solid var(--bdrs)}
+.ds td.gr{color:var(--grn);font-weight:700}.ds td.gd{color:var(--gold);font-weight:700}.ds td.rd{color:var(--red);font-weight:700}
+.dhl{background:var(--golds);border:1px solid var(--bdr);border-radius:var(--rs);padding:12px 16px;font-size:12px;line-height:1.5;margin:10px 0}
+.dwn{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--rs);padding:12px 16px;font-size:12px;line-height:1.5;margin:10px 0;color:#FCA5A5}
+.dcd{background:var(--bg);border:1px solid var(--bdrs);border-radius:var(--rs);padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;margin:10px 0;color:var(--grn)}
+.ds code{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--bg);padding:2px 6px;border-radius:3px;color:var(--cyn)}
+
+@media(max-width:900px){
+.layout{grid-template-columns:1fr}
+.side{flex-direction:row;overflow-x:auto;padding:8px 12px;gap:0;border-right:none;border-bottom:1px solid var(--bdrs)}
+.ni{padding:6px 12px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap}.ni.on{border-left-color:transparent;border-bottom-color:var(--gold)}
+.ssp,.sc{display:none}
+.hdr-in{flex-direction:column;align-items:stretch}.wa{align-items:flex-start}
+.brand-t{font-size:24px}
+.docs-c{grid-template-columns:1fr}.docs-toc{position:static}
 }
-
-.toast {
-  background: var(--navy);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 12px 18px;
-  font-size: 13px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-  animation: tIn 0.3s ease;
-  max-width: 360px;
-}
-
-.toast.success { border-left: 3px solid var(--green); }
-.toast.error { border-left: 3px solid var(--red); }
-.toast.info { border-left: 3px solid var(--blue); }
-
-@keyframes tIn {
-  from { opacity: 0; transform: translateX(30px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.spinner {
-  display: inline-block;
-  width: 14px; height: 14px;
-  border: 2px solid rgba(255,255,255,0.2);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  vertical-align: middle;
-  margin-right: 6px;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ═══ RESPONSIVE ═══ */
-@media (max-width: 900px) {
-  .main-layout { grid-template-columns: 1fr; }
-  .sidebar {
-    flex-direction: row;
-    overflow-x: auto;
-    padding: 10px 14px;
-    gap: 0;
-    border-right: none;
-    border-bottom: 1px solid var(--border-subtle);
-  }
-  .nav-item { padding: 8px 14px; border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
-  .nav-item.active { border-left-color: transparent; border-bottom-color: var(--gold); }
-  .sidebar-spacer { display: none; }
-  .sidebar-card { display: none; }
-  .skyline-inner { flex-direction: column; align-items: stretch; }
-  .wallet-area { align-items: flex-start; }
-  .top-stats { flex-wrap: wrap; }
-  .brand-title { font-size: 26px; }
-}
-
-@media (max-width: 600px) {
-  .buildings-grid { grid-template-columns: 1fr; }
-  .content { padding: 16px 14px 40px; }
-}
-
-/* ═══ SOCIAL LINKS ═══ */
-.header-social {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  transition: all 0.2s;
-  text-decoration: none;
-}
-
-.header-social.tg {
-  background: rgba(38, 165, 224, 0.12);
-  color: #26A5E4;
-  border: 1px solid rgba(38, 165, 224, 0.25);
-}
-
-.header-social.tg:hover {
-  background: rgba(38, 165, 224, 0.25);
-  box-shadow: 0 4px 15px rgba(38, 165, 224, 0.3);
-  transform: translateY(-2px);
-}
-
-.header-social.x {
-  background: rgba(255,255,255,0.08);
-  color: #E2E8F0;
-  border: 1px solid rgba(255,255,255,0.15);
-}
-
-.header-social.x:hover {
-  background: rgba(255,255,255,0.15);
-  box-shadow: 0 4px 15px rgba(255,255,255,0.15);
-  transform: translateY(-2px);
-}
-
-.splash-social {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  margin-top: 20px;
-}
-
-.social-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 22px;
-  border-radius: 12px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 13px;
-  transition: all 0.25s;
-  letter-spacing: 0.3px;
-}
-
-.social-link.tg {
-  background: rgba(38, 165, 224, 0.12);
-  color: #26A5E4;
-  border: 1px solid rgba(38, 165, 224, 0.25);
-}
-
-.social-link.tg:hover {
-  background: rgba(38, 165, 224, 0.25);
-  box-shadow: 0 4px 20px rgba(38, 165, 224, 0.3);
-  transform: translateY(-2px);
-}
-
-.social-link.x {
-  background: rgba(255,255,255,0.06);
-  color: #E2E8F0;
-  border: 1px solid rgba(255,255,255,0.12);
-}
-
-.social-link.x:hover {
-  background: rgba(255,255,255,0.12);
-  box-shadow: 0 4px 20px rgba(255,255,255,0.1);
-  transform: translateY(-2px);
-}
-
-.social-link.docs-link {
-  background: rgba(240, 185, 50, 0.08);
-  color: var(--gold);
-  border: 1px solid rgba(240, 185, 50, 0.2);
-}
-
-.social-link.docs-link:hover {
-  background: rgba(240, 185, 50, 0.18);
-  box-shadow: 0 4px 20px var(--gold-glow);
-  transform: translateY(-2px);
-}
-
-.footer-social {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  margin-bottom: 4px;
-}
-
-/* ═══ DOCS PAGE ═══ */
-.docs-container {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 24px;
-  align-items: start;
-}
-
-.docs-toc {
-  position: sticky;
-  top: 90px;
-}
-
-.toc-link {
-  display: block;
-  padding: 7px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-dim);
-  text-decoration: none;
-  border-left: 2px solid var(--border-subtle);
-  transition: all 0.2s;
-}
-
-.toc-link:hover {
-  color: var(--gold);
-  border-left-color: var(--gold);
-  background: var(--gold-subtle);
-}
-
-.docs-body {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.doc-section {
-  background: var(--card-bg);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-lg);
-  padding: 28px;
-  scroll-margin-top: 90px;
-}
-
-.doc-section h3 {
-  font-weight: 800;
-  font-size: 18px;
-  margin-bottom: 14px;
-  color: var(--gold);
-}
-
-.doc-section p {
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--text);
-  margin-bottom: 12px;
-}
-
-.doc-section p:last-child { margin-bottom: 0; }
-
-.doc-highlight {
-  background: var(--gold-subtle);
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: 14px 18px;
-  font-size: 13px;
-  line-height: 1.6;
-  margin: 14px 0;
-  color: var(--text);
-}
-
-.doc-warning {
-  background: rgba(239, 68, 68, 0.06);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: var(--r-sm);
-  padding: 14px 18px;
-  font-size: 13px;
-  line-height: 1.6;
-  margin: 14px 0;
-  color: #FCA5A5;
-}
-
-.doc-code {
-  background: var(--navy-deep);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-sm);
-  padding: 14px 18px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  line-height: 1.8;
-  margin: 14px 0;
-  color: var(--green);
-}
-
-.doc-list {
-  margin: 12px 0;
-}
-
-.doc-list-item {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  padding: 6px 0;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.doc-bullet {
-  color: var(--gold);
-  font-weight: 900;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-.doc-bullet.green { color: var(--green); }
-.doc-bullet.red { color: var(--red); }
-
-.doc-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 14px 0;
-  font-size: 13px;
-}
-
-.doc-table thead th {
-  text-align: left;
-  padding: 10px 14px;
-  background: var(--navy-deep);
-  color: var(--gold);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 11px;
-  border-bottom: 2px solid var(--border);
-}
-
-.doc-table tbody td {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border-subtle);
-  color: var(--text);
-}
-
-.doc-table tbody td.green { color: var(--green); font-weight: 700; }
-.doc-table tbody td.gold { color: var(--gold); font-weight: 700; }
-.doc-table tbody td.red { color: var(--red); font-weight: 700; }
-
-.doc-table code {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  background: var(--navy-deep);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.doc-section code {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  background: var(--navy-deep);
-  padding: 2px 8px;
-  border-radius: 4px;
-  color: var(--cyan);
-}
-
-.doc-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin: 14px 0;
-}
-
-.doc-step {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-}
-
-.doc-step-num {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #000;
-  font-weight: 900;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-}
-
-.doc-step strong {
-  display: block;
-  font-size: 15px;
-  margin-bottom: 4px;
-  color: var(--text);
-}
-
-.doc-step p {
-  font-size: 13px;
-  color: var(--text-dim);
-  margin-bottom: 0;
-  line-height: 1.5;
-}
-
-.doc-faq-item {
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.doc-faq-item:last-child { border: none; margin-bottom: 0; padding-bottom: 0; }
-
-.doc-faq-q {
-  font-weight: 800;
-  font-size: 14px;
-  color: var(--gold);
-  margin-bottom: 6px;
-}
-
-.doc-faq-a {
-  font-size: 13px;
-  color: var(--text-dim);
-  line-height: 1.6;
-}
-
-@media (max-width: 900px) {
-  .docs-container { grid-template-columns: 1fr; }
-  .docs-toc { position: static; }
-  .splash-social { flex-direction: column; align-items: center; }
-}
+@media(max-width:600px){.bg{grid-template-columns:1fr}.cnt{padding:14px 12px 36px}.ref-stats{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="bg-effects"></div>
+<div class="bgfx"></div>
 
-<!-- ═══ SKYLINE BANNER ═══ -->
-<div class="skyline-banner">
-  <div class="skyline-inner">
-    <div class="brand">
-      <div class="brand-logo">
-        <div class="brand-icon">🏠</div>
-        <div class="brand-title">LANDLORD</div>
-      </div>
-      <div class="brand-tagline">Build · Grow · Earn</div>
-      <div class="brand-sub">Build your property empire. Earn passive income. Grow forever.</div>
+<!-- ═══ HEADER ═══ -->
+<div class="hdr"><div class="hdr-in">
+<div class="brand">
+  <div class="brand-row"><div class="brand-ico">🏠</div><div class="brand-t">LANDLORD</div></div>
+  <div class="brand-tag">Build · Grow · Earn</div>
+  <div class="brand-sub">Deposit USDT → Earn Gold → Buy Properties → Earn USDT Yield</div>
+</div>
+<div class="top-stats" id="topStats">
+  <div class="ts"><div class="ts-lab">USDT Wallet</div><div class="ts-val" id="wUsdt">0.00</div><button class="ts-btn" onclick="showS('deposit')">DEPOSIT</button></div>
+  <div class="ts"><div class="ts-lab">Gold Balance</div><div class="ts-val" id="gBal">0.00000</div></div>
+  <div class="ts"><div class="ts-lab">Daily Earnings</div><div class="ts-val g" id="dEarn">0.00000</div><div class="ts-ext">USDT / day</div></div>
+  <div class="ts"><div class="ts-lab">USDT Earned</div><div class="ts-val g" id="uEarned">0.00000</div><button class="ts-btn" onclick="showS('deposit')" style="background:linear-gradient(135deg,var(--pur),#7C3AED);color:#fff">CONVERT</button></div>
+  <div class="ts"><div class="ts-lab">Free Claim</div><div class="ts-val sm" id="clkTop">--:--:--</div><div class="ts-ext">Every 4 Hours</div></div>
+</div>
+<div class="wa">
+  <div class="wa-row">
+    <a href="https://t.me/YOUR_TELEGRAM" target="_blank" class="hs tg"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
+    <a href="https://x.com/YOUR_TWITTER" target="_blank" class="hs x"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <div class="chain">🔶 BNB Chain</div>
+  </div>
+  <button class="wbtn" id="wBtn" onclick="doConnect()">Connect Wallet</button>
+</div>
+</div></div>
+
+<!-- ═══ LAYOUT ═══ -->
+<div class="layout">
+<nav class="side" id="sideNav" style="display:none">
+  <div class="ni" onclick="goHome()" data-s="home" id="navHome" style="display:none"><span class="ni-i">🏠</span>Home</div>
+  <div class="ni on" onclick="showS('buildings')" data-s="buildings"><span class="ni-i">🏢</span>Properties</div>
+  <div class="ni" onclick="showS('deposit')" data-s="deposit"><span class="ni-i">💰</span>Deposit / Withdraw</div>
+  <div class="ni" onclick="showS('boosts')" data-s="boosts"><span class="ni-i">🚀</span>Boosts</div>
+  <div class="ni" onclick="showS('referral')" data-s="referral"><span class="ni-i">👥</span>Referrals</div>
+  <div class="ni" onclick="showS('stats')" data-s="stats"><span class="ni-i">📊</span>Stats</div>
+  <div class="ni" onclick="showS('docs')" data-s="docs"><span class="ni-i">📄</span>Docs</div>
+  <div class="ssp"></div>
+  <div class="sc free" id="freeCard"><h4>🎁 Free Gold</h4><p>0.1-0.2% of deposits</p><div class="tmr" id="sClk">00:00:00</div><button class="cbtn fr" id="fBtn" onclick="doFree()">CLAIM FREE GOLD</button></div>
+</nav>
+<div class="cnt">
+
+<!-- SPLASH -->
+<div id="splash">
+<div class="sp">
+  <div class="bi">🏘️</div><h2>Landlord USDT</h2>
+  <p>Deposit USDT to earn Gold. Buy properties that generate daily USDT yield. Convert earnings to Gold for a 10% bonus or withdraw anytime.</p>
+  <button class="wbtn" onclick="doConnect()" style="font-size:15px;padding:14px 36px">Connect Wallet to Play</button>
+  <div class="sp-soc">
+    <a href="https://t.me/YOUR_TELEGRAM" target="_blank" class="sl tg"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>Telegram</a>
+    <a href="https://x.com/YOUR_TWITTER" target="_blank" class="sl x"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Follow on X</a>
+    <a href="javascript:void(0)" onclick="openDocs()" class="sl dc"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>Docs</a>
+  </div>
+</div>
+<div style="padding:0 24px 36px;text-align:left;max-width:1400px;margin:12px auto 0">
+  <div class="sh"><h2>🏢 Available Properties</h2><span class="sub">Connect wallet to purchase</span></div>
+  <div class="bg" id="prevBld"></div>
+  <div class="hiw" style="margin-top:24px">
+    <div class="hiw-s"><div class="hiw-i">💵</div><div class="hiw-l">1. Deposit USDT</div><div class="hiw-u">Get Gold 1:1</div></div><div class="hiw-a">→</div>
+    <div class="hiw-s"><div class="hiw-i">🏢</div><div class="hiw-l">2. Buy Properties</div><div class="hiw-u">Gold → Buildings</div></div><div class="hiw-a">→</div>
+    <div class="hiw-s"><div class="hiw-i">💰</div><div class="hiw-l">3. Earn USDT</div><div class="hiw-u">Daily Yield</div></div><div class="hiw-a">→</div>
+    <div class="hiw-s"><div class="hiw-i">🔄</div><div class="hiw-l">4. Convert or Withdraw</div><div class="hiw-u">+10% Gold Bonus</div></div>
+  </div>
+</div>
+</div>
+
+<!-- BUILDINGS -->
+<div id="sec-buildings" class="sec" style="display:none">
+  <div class="sh"><h2>🏢 Property Empire <span class="sub" id="ownCnt">0 Owned</span></h2></div>
+  <div class="bg" id="bldG"></div>
+</div>
+
+<!-- DEPOSIT/CONVERT/WITHDRAW -->
+<div id="sec-deposit" class="sec" style="display:none">
+  <div class="sh"><h2>💰 Deposit · Convert · Withdraw</h2></div>
+  <div class="ar">
+    <div class="ac"><h3>💵 Deposit USDT → Gold</h3><div class="ad">Convert USDT to Gold at 1:1. No deposit fee. Your principal is locked — only earned USDT can be withdrawn.</div>
+      <div class="air"><input type="number" class="ai" id="depAmt" placeholder="USDT Amount" min="0.1" step="0.1"><button class="ab grn" id="depBtn" onclick="doDep()">Deposit</button></div>
+      <div class="af">Zero fees · $1 USDT = 1 Gold</div></div>
+    <div class="ac"><h3>🔄 Convert USDT Yield → Gold</h3><div class="ad">Convert your earned USDT back to Gold. 2.5% fee but you receive a <span class="hl">+10% Gold bonus</span> on top!</div>
+      <div class="air"><button class="ab pur" id="cvtBtn" onclick="doCvt()" style="width:100%">⚡ Convert All USDT to Gold (+10% Bonus)</button></div>
+      <div class="af">2.5% fee · <span class="hl">+10% bonus Gold on converted amount</span></div></div>
+    <div class="ac"><h3>💸 Withdraw USDT</h3><div class="ad">Withdraw earned USDT to your wallet. Only earnings — your deposited principal stays locked.</div>
+      <div class="air"><input type="number" class="ai" id="wdAmt" placeholder="Amount" min="0.01" step="0.01"><button class="ab blu" id="wdBtn" onclick="doWd()">Withdraw</button></div>
+      <div class="af">10% withdrawal fee applies</div></div>
+  </div>
+</div>
+
+<!-- BOOSTS -->
+<div id="sec-boosts" class="sec" style="display:none">
+  <div class="sh"><h2>🚀 Yield Boosts</h2></div>
+  <div class="bsg" id="bstG"></div>
+</div>
+
+<!-- REFERRALS -->
+<div id="sec-referral" class="sec" style="display:none">
+  <div class="sh"><h2>👥 Referral Program</h2></div>
+  <div class="ref-card">
+    <h3>🔗 Your Referral Link</h3>
+    <p style="font-size:12px;color:var(--txd);margin-bottom:10px">Share your link — earn <strong style="color:var(--gold)">10% Gold bonus</strong> on every deposit your referrals make!</p>
+    <div class="ref-link-box">
+      <input type="text" class="ref-link-input" id="refLink" readonly value="Connect wallet to get link">
+      <button class="ref-copy" onclick="copyRef()">Copy Link</button>
     </div>
-
-    <div class="top-stats" id="topStats">
-      <div class="top-stat">
-        <div class="ts-icon">💵</div>
-        <div class="ts-label">USDT Balance</div>
-        <div class="ts-value" id="walletUsdt">0.00</div>
-        <button class="ts-btn" onclick="showSection('deposit')">DEPOSIT</button>
-      </div>
-      <div class="top-stat">
-        <div class="ts-icon">🪙</div>
-        <div class="ts-label">Gold Balance</div>
-        <div class="ts-value" id="goldBal">0.00</div>
-      </div>
-      <div class="top-stat">
-        <div class="ts-icon">📈</div>
-        <div class="ts-label">Daily Income</div>
-        <div class="ts-value green" id="dailyIncome">+0.00</div>
-        <div class="ts-extra" id="yieldPctDisplay">0.00%</div>
-      </div>
-      <div class="top-stat">
-        <div class="ts-icon">⏰</div>
-        <div class="ts-label">Next Free Claim</div>
-        <div class="ts-value" id="nextClaimTimer" style="font-size:16px;">--:--:--</div>
-        <div class="ts-extra">Every 4 Hours</div>
-      </div>
-    </div>
-
-    <div class="wallet-area">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <a href="https://t.me/YOUR_TELEGRAM" target="_blank" class="header-social tg" title="Telegram">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        </a>
-        <a href="https://x.com/YOUR_TWITTER" target="_blank" class="header-social x" title="X (Twitter)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </a>
-        <div class="chain-pill">🔶 BNB Chain</div>
-      </div>
-      <button class="wallet-btn" id="walletBtn" onclick="handleConnect()">Connect Wallet</button>
+    <div class="ref-stats">
+      <div class="ref-stat"><div class="rs-lab">Referrals</div><div class="rs-val" id="refCnt">0</div></div>
+      <div class="ref-stat"><div class="rs-lab">Gold Earned</div><div class="rs-val" id="refGold">0.00000</div></div>
+      <div class="ref-stat"><div class="rs-lab">Your Referrer</div><div class="rs-val" id="refBy" style="font-size:11px;word-break:break-all">None</div></div>
     </div>
   </div>
 </div>
 
-<!-- ═══ MAIN LAYOUT ═══ -->
-<div class="main-layout">
-
-  <!-- SIDEBAR -->
-  <nav class="sidebar" id="sidebar" style="display:none;">
-    <div class="nav-item" onclick="goHome()" data-section="home" id="navHome" style="display:none;">
-      <span class="nav-icon">🏠</span> Home
+<!-- STATS -->
+<div id="sec-stats" class="sec" style="display:none">
+  <div class="sh"><h2>📊 Stats</h2></div>
+  <div class="pg">
+    <div class="pn"><h3>🏠 Owned Properties</h3><div id="ownL"><div class="pr"><span class="l">No properties yet</span></div></div></div>
+    <div class="pn"><h3>📈 Yield Breakdown</h3><div id="yldL"><div class="pr"><span class="l">Buy properties to see yield</span></div></div></div>
+    <div class="pn"><h3>🌐 Protocol</h3>
+      <div class="pr"><span class="l">Total Deposited</span><span class="v gd" id="pDep">$0</span></div>
+      <div class="pr"><span class="l">Total Players</span><span class="v" id="pPlay">0</span></div>
+      <div class="pr"><span class="l">TVL (Contract)</span><span class="v gd" id="pBal">$0</span></div>
+      <div class="pr"><span class="l">Your Principal</span><span class="v rd" id="pPrin">$0 (Locked)</span></div>
+      <div class="pr"><span class="l">Free Gold Claimed</span><span class="v gr" id="pFree">0</span></div>
     </div>
-    <div class="nav-item active" onclick="showSection('buildings')" data-section="buildings">
-      <span class="nav-icon">🏢</span> Properties
+    <div class="pn"><h3>💸 Fees</h3>
+      <div class="pr"><span class="l">Deposit</span><span class="v gr">0%</span></div>
+      <div class="pr"><span class="l">Convert to Gold</span><span class="v gd">2.5% fee / +10% bonus</span></div>
+      <div class="pr"><span class="l">Withdraw USDT</span><span class="v gd">10%</span></div>
+      <div class="pr"><span class="l">Building Buy</span><span class="v gd">10% → Treasury</span></div>
+      <div class="pr"><span class="l">Daily Tax</span><span class="v gr">None</span></div>
+      <div class="pr"><span class="l">Referral Bonus</span><span class="v gr">10% Gold</span></div>
+      <div class="pr"><span class="l">Free Claim</span><span class="v gr">0.1-0.2% / 4hr</span></div>
     </div>
-    <div class="nav-item" onclick="showSection('deposit')" data-section="deposit">
-      <span class="nav-icon">💰</span> Deposit / Withdraw
-    </div>
-    <div class="nav-item" onclick="showSection('boosts')" data-section="boosts">
-      <span class="nav-icon">🚀</span> Boosts
-    </div>
-    <div class="nav-item" onclick="showSection('stats')" data-section="stats">
-      <span class="nav-icon">📊</span> Stats
-    </div>
-    <div class="nav-item" onclick="showSection('docs')" data-section="docs">
-      <span class="nav-icon">📄</span> Docs
-    </div>
-
-    <div class="sidebar-spacer"></div>
-
-    <!-- Free Claim Widget -->
-    <div class="sidebar-card" id="freeClaimCard">
-      <h4>🎁 Free Gold Claim</h4>
-      <p>0.1-0.2% of your deposits</p>
-      <div class="timer-display" id="sideClaimTimer">00:00:00</div>
-      <button class="claim-btn free" id="freeClaimBtn" onclick="handleFreeClaim()">CLAIM FREE GOLD</button>
-    </div>
-
-    <div class="sidebar-card boost-card" id="activeBoostCard" style="display:none;">
-      <h4>⚡ Active Boost</h4>
-      <p id="activeBoostName">—</p>
-      <div class="timer-display" id="activeBoostTimer">00:00:00</div>
-    </div>
-  </nav>
-
-  <!-- CONTENT -->
-  <div class="content">
-
-    <!-- NOT CONNECTED -->
-    <div id="splashScreen">
-      <div class="splash">
-        <div class="big-icon">🏘️</div>
-        <h2>Landlord USDT</h2>
-        <p>Deposit USDT to earn Gold. Buy properties that generate daily yield. Compound your earnings for bonus Gold or withdraw anytime.</p>
-        <button class="wallet-btn" onclick="handleConnect()" style="font-size:16px;padding:16px 40px;">Connect Wallet to Play</button>
-
-        <div class="splash-social">
-          <a href="https://t.me/YOUR_TELEGRAM" target="_blank" class="social-link tg">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-            <span>Telegram</span>
-          </a>
-          <a href="https://x.com/YOUR_TWITTER" target="_blank" class="social-link x">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            <span>Follow on X</span>
-          </a>
-          <a href="javascript:void(0)" onclick="openDocs()" class="social-link docs-link">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6zm2-6h8v2H8v-2zm0-4h8v2H8v-2zm0 8h5v2H8v-2z"/></svg>
-            <span>Documentation</span>
-          </a>
-        </div>
-
-        <div class="hiw-row" style="margin-top:40px;">
-          <div class="hiw-step">
-            <div class="hiw-icon">💵</div>
-            <div class="hiw-label">1. Deposit USDT</div>
-            <div class="hiw-sub">Get Gold 1:1</div>
-          </div>
-          <div class="hiw-arrow">→</div>
-          <div class="hiw-step">
-            <div class="hiw-icon">🏢</div>
-            <div class="hiw-label">2. Buy Properties</div>
-            <div class="hiw-sub">Generate Income</div>
-          </div>
-          <div class="hiw-arrow">→</div>
-          <div class="hiw-step">
-            <div class="hiw-icon">🎁</div>
-            <div class="hiw-label">3. Claim Free Gold</div>
-            <div class="hiw-sub">Every 4 Hours</div>
-          </div>
-          <div class="hiw-arrow">→</div>
-          <div class="hiw-step">
-            <div class="hiw-icon">🔄</div>
-            <div class="hiw-label">4. Compound & Grow</div>
-            <div class="hiw-sub">+10% Gold Bonus</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- PREVIEW BUILDINGS (visible without wallet) -->
-      <div style="margin-top:12px;padding:0 28px 40px;text-align:left;max-width:1400px;margin-left:auto;margin-right:auto;">
-        <div class="sec-head">
-          <h2>🏢 Available Properties</h2>
-          <span class="sec-sub">Connect wallet to purchase</span>
-        </div>
-        <div class="buildings-grid" id="previewBuildingsGrid"></div>
-
-        <div class="sec-head" style="margin-top:28px;">
-          <h2>🚀 Yield Boosts</h2>
-          <span class="sec-sub">Buy boosts with USDT to increase income</span>
-        </div>
-        <div class="boosts-grid" id="previewBoostsGrid"></div>
-
-        <div class="bottom-grid" style="margin-top:28px;">
-          <div class="panel">
-            <h3>💸 Fee Structure</h3>
-            <div class="panel-row"><span class="pl">Deposit Fee</span><span class="pv green">0%</span></div>
-            <div class="panel-row"><span class="pl">Compound Fee</span><span class="pv gold">2.5%</span></div>
-            <div class="panel-row"><span class="pl">Compound Bonus</span><span class="pv green">+10% Gold</span></div>
-            <div class="panel-row"><span class="pl">Withdrawal Fee</span><span class="pv gold">10%</span></div>
-            <div class="panel-row"><span class="pl">Daily Gold Tax</span><span class="pv red">1%</span></div>
-            <div class="panel-row"><span class="pl">Free Claim (4hr)</span><span class="pv green">0.1-0.2%</span></div>
-          </div>
-          <div class="panel">
-            <h3>ℹ️ Key Rules</h3>
-            <div class="panel-row"><span class="pl">Deposit → Gold</span><span class="pv">1:1 ratio</span></div>
-            <div class="panel-row"><span class="pl">Principal</span><span class="pv red">Locked forever</span></div>
-            <div class="panel-row"><span class="pl">Withdraw</span><span class="pv green">Earnings only</span></div>
-            <div class="panel-row"><span class="pl">Free Gold</span><span class="pv green">Every 4 hours</span></div>
-            <div class="panel-row"><span class="pl">Boosts</span><span class="pv gold">Up to +30%</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BUILDINGS SECTION -->
-    <div id="sec-buildings" class="section" style="display:none;">
-      <div class="sec-head">
-        <h2>🏢 Property Empire <span class="sec-sub" id="ownedCount">0 Owned</span></h2>
-        <div class="sec-filters">
-          <button class="filter-btn active" onclick="filterBuildings('all',this)">All</button>
-          <button class="filter-btn" onclick="filterBuildings('owned',this)">Owned</button>
-          <button class="filter-btn" onclick="filterBuildings('affordable',this)">Affordable</button>
-        </div>
-      </div>
-      <div class="buildings-grid" id="buildingsGrid"></div>
-    </div>
-
-    <!-- DEPOSIT/WITHDRAW SECTION -->
-    <div id="sec-deposit" class="section" style="display:none;">
-      <div class="sec-head"><h2>💰 Deposit · Compound · Withdraw</h2></div>
-      <div class="actions-row">
-        <div class="act-card">
-          <h3>💵 Deposit USDT</h3>
-          <div class="act-desc">Convert USDT to Gold at 1:1. No deposit fee. Principal is locked forever — only earnings can be withdrawn.</div>
-          <div class="act-input-row">
-            <input type="number" class="act-input" id="depositAmt" placeholder="Amount in USDT" min="1">
-            <button class="act-btn green" id="depositBtn" onclick="handleDeposit()">Deposit</button>
-          </div>
-          <div class="act-fee">Zero fees on deposit · $1 = 1 Gold</div>
-        </div>
-
-        <div class="act-card">
-          <h3>🔄 Compound Earnings</h3>
-          <div class="act-desc">Convert earned USDT back to Gold. 2.5% fee but you get a <span class="hl">+10% Gold bonus</span> on the compounded amount!</div>
-          <div class="act-input-row">
-            <button class="act-btn purple" id="compoundBtn" onclick="handleCompound()" style="width:100%;">⚡ Compound All Earnings</button>
-          </div>
-          <div class="act-fee">2.5% fee → owner · <span class="hl">+10% bonus Gold received</span></div>
-        </div>
-
-        <div class="act-card">
-          <h3>💸 Withdraw USDT</h3>
-          <div class="act-desc">Withdraw your earned USDT to your wallet. Only earnings can be withdrawn — principal stays locked.</div>
-          <div class="act-input-row">
-            <input type="number" class="act-input" id="withdrawAmt" placeholder="Amount" min="0.01" step="0.01">
-            <button class="act-btn blue" id="withdrawBtn" onclick="handleWithdraw()">Withdraw</button>
-          </div>
-          <div class="act-fee">10% withdrawal fee applies</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BOOSTS SECTION -->
-    <div id="sec-boosts" class="section" style="display:none;">
-      <div class="sec-head"><h2>🚀 Yield Boosts</h2></div>
-      <div class="boosts-grid" id="boostsGrid"></div>
-    </div>
-
-    <!-- STATS SECTION -->
-    <div id="sec-stats" class="section" style="display:none;">
-      <div class="sec-head"><h2>📊 Your Empire Stats</h2></div>
-      <div class="bottom-grid">
-        <div class="panel">
-          <h3>🏠 Owned Properties</h3>
-          <div id="ownedList">
-            <div class="panel-row"><span class="pl">No properties yet</span></div>
-          </div>
-        </div>
-        <div class="panel">
-          <h3>📈 Yield Breakdown</h3>
-          <div id="yieldList">
-            <div class="panel-row"><span class="pl">Buy properties to see yield</span></div>
-          </div>
-        </div>
-        <div class="panel">
-          <h3>🌐 Protocol Stats</h3>
-          <div class="panel-row"><span class="pl">Total Deposited</span><span class="pv gold" id="pTotalDep">$0</span></div>
-          <div class="panel-row"><span class="pl">Total Players</span><span class="pv" id="pTotalPlay">0</span></div>
-          <div class="panel-row"><span class="pl">Contract Balance</span><span class="pv gold" id="pContractBal">$0</span></div>
-          <div class="panel-row"><span class="pl">Your Principal (Locked)</span><span class="pv red" id="pPrincipal">$0</span></div>
-          <div class="panel-row"><span class="pl">Total Free Gold Claimed</span><span class="pv green" id="pFreeClaimed">0</span></div>
-        </div>
-        <div class="panel">
-          <h3>💸 Fee Structure</h3>
-          <div class="panel-row"><span class="pl">Deposit Fee</span><span class="pv green">0%</span></div>
-          <div class="panel-row"><span class="pl">Compound Fee</span><span class="pv gold">2.5%</span></div>
-          <div class="panel-row"><span class="pl">Compound Bonus</span><span class="pv green">+10% Gold</span></div>
-          <div class="panel-row"><span class="pl">Withdrawal Fee</span><span class="pv gold">10%</span></div>
-          <div class="panel-row"><span class="pl">Daily Gold Tax</span><span class="pv red">1%</span></div>
-          <div class="panel-row"><span class="pl">Free Claim</span><span class="pv green">0.1-0.2%</span></div>
-        </div>
-      </div>
-
-      <div class="hiw-row">
-        <div class="hiw-step">
-          <div class="hiw-icon">💵</div>
-          <div class="hiw-label">1. Deposit</div>
-          <div class="hiw-sub">USDT → Gold</div>
-        </div>
-        <div class="hiw-arrow">→</div>
-        <div class="hiw-step">
-          <div class="hiw-icon">🏢</div>
-          <div class="hiw-label">2. Buy</div>
-          <div class="hiw-sub">Properties</div>
-        </div>
-        <div class="hiw-arrow">→</div>
-        <div class="hiw-step">
-          <div class="hiw-icon">🎁</div>
-          <div class="hiw-label">3. Claim</div>
-          <div class="hiw-sub">Free Gold / 4hr</div>
-        </div>
-        <div class="hiw-arrow">→</div>
-        <div class="hiw-step">
-          <div class="hiw-icon">🔄</div>
-          <div class="hiw-label">4. Compound</div>
-          <div class="hiw-sub">+10% Bonus</div>
-        </div>
-      </div>
-    </div>
-
-    </div>
-
-    <!-- DOCS SECTION -->
-    <div id="sec-docs" class="section" style="display:none;">
-      <div class="sec-head"><h2>📄 Documentation</h2></div>
-
-      <div class="docs-container">
-        <!-- Table of Contents -->
-        <div class="docs-toc">
-          <div class="panel">
-            <h3>📑 Contents</h3>
-            <a class="toc-link" href="#doc-overview" onclick="scrollDoc(event,'doc-overview')">Overview</a>
-            <a class="toc-link" href="#doc-getting-started" onclick="scrollDoc(event,'doc-getting-started')">Getting Started</a>
-            <a class="toc-link" href="#doc-gold" onclick="scrollDoc(event,'doc-gold')">Gold System</a>
-            <a class="toc-link" href="#doc-properties" onclick="scrollDoc(event,'doc-properties')">Properties</a>
-            <a class="toc-link" href="#doc-yield" onclick="scrollDoc(event,'doc-yield')">Yield & Income</a>
-            <a class="toc-link" href="#doc-free-claim" onclick="scrollDoc(event,'doc-free-claim')">Free Gold Claim</a>
-            <a class="toc-link" href="#doc-compound" onclick="scrollDoc(event,'doc-compound')">Compounding</a>
-            <a class="toc-link" href="#doc-withdraw" onclick="scrollDoc(event,'doc-withdraw')">Withdrawals</a>
-            <a class="toc-link" href="#doc-boosts" onclick="scrollDoc(event,'doc-boosts')">Boosts</a>
-            <a class="toc-link" href="#doc-tax" onclick="scrollDoc(event,'doc-tax')">Daily Tax</a>
-            <a class="toc-link" href="#doc-fees" onclick="scrollDoc(event,'doc-fees')">Fee Summary</a>
-            <a class="toc-link" href="#doc-security" onclick="scrollDoc(event,'doc-security')">Security</a>
-            <a class="toc-link" href="#doc-faq" onclick="scrollDoc(event,'doc-faq')">FAQ</a>
-          </div>
-        </div>
-
-        <!-- Docs Content -->
-        <div class="docs-body">
-
-          <div class="doc-section" id="doc-overview">
-            <h3>🏠 Overview</h3>
-            <p>Landlord USDT is a play-to-earn DeFi yield game built on BNB Chain. Players deposit USDT to receive Gold, purchase virtual properties that generate daily USDT yield, and grow their empire through compounding and strategic boost purchases.</p>
-            <p>The game runs entirely on a smart contract — all deposits, yields, purchases, and withdrawals are executed on-chain with full transparency.</p>
-            <div class="doc-highlight">
-              <strong>Core Loop:</strong> Deposit USDT → Get Gold → Buy Properties → Earn Daily Yield → Compound or Withdraw
-            </div>
-          </div>
-
-          <div class="doc-section" id="doc-getting-started">
-            <h3>🚀 Getting Started</h3>
-            <div class="doc-steps">
-              <div class="doc-step">
-                <div class="doc-step-num">1</div>
-                <div>
-                  <strong>Connect Your Wallet</strong>
-                  <p>Use MetaMask or any Web3-compatible wallet. The app will automatically prompt you to switch to BNB Chain if needed.</p>
-                </div>
-              </div>
-              <div class="doc-step">
-                <div class="doc-step-num">2</div>
-                <div>
-                  <strong>Deposit USDT</strong>
-                  <p>Enter the amount of USDT you want to deposit. You'll need to approve the USDT spend first (one-time). You receive Gold at a 1:1 ratio with zero deposit fees.</p>
-                </div>
-              </div>
-              <div class="doc-step">
-                <div class="doc-step-num">3</div>
-                <div>
-                  <strong>Buy Properties</strong>
-                  <p>Use your Gold to purchase properties. Each property generates a different daily yield rate. You can own multiple copies of each property.</p>
-                </div>
-              </div>
-              <div class="doc-step">
-                <div class="doc-step-num">4</div>
-                <div>
-                  <strong>Earn & Grow</strong>
-                  <p>Your properties generate USDT yield every second. Claim free Gold every 4 hours. Compound your earnings for a +10% Gold bonus, or withdraw your earned USDT.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="doc-section" id="doc-gold">
-            <h3>🪙 Gold System</h3>
-            <p>Gold is the in-game currency used to purchase properties. It is obtained by:</p>
-            <div class="doc-list">
-              <div class="doc-list-item"><span class="doc-bullet">•</span> <strong>Depositing USDT</strong> — 1 USDT = 1 Gold (no fee)</div>
-              <div class="doc-list-item"><span class="doc-bullet">•</span> <strong>Compounding earnings</strong> — Convert earned USDT back to Gold with a +10% bonus (2.5% fee)</div>
-              <div class="doc-list-item"><span class="doc-bullet">•</span> <strong>Free claims</strong> — Claim 0.1-0.2% of your total deposits as free Gold every 4 hours</div>
-            </div>
-            <div class="doc-warning">
-              ⚠️ Gold is subject to a 1% daily tax that is applied continuously. Invest your Gold into properties quickly to minimize tax loss.
-            </div>
-          </div>
-
-          <div class="doc-section" id="doc-properties">
-            <h3>🏢 Properties</h3>
-            <p>There are 6 properties available, ranging from affordable starter properties to high-value investments:</p>
-            <table class="doc-table">
-              <thead>
-                <tr><th>Property</th><th>Cost</th><th>Daily Yield</th><th>Annual Yield</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>🍋 Lemonade Stand</td><td>$1</td><td>0.01%</td><td>3.65%</td></tr>
-                <tr><td>🚚 Food Truck</td><td>$5</td><td>0.03%</td><td>10.95%</td></tr>
-                <tr><td>☕ Coffee Shop</td><td>$25</td><td>0.07%</td><td>25.55%</td></tr>
-                <tr><td>🍽️ Restaurant</td><td>$50</td><td>0.12%</td><td>43.80%</td></tr>
-                <tr><td>🏨 Hotel</td><td>$100</td><td>0.18%</td><td>65.70%</td></tr>
-                <tr><td>🏙️ Skyscraper</td><td>$200</td><td>0.25%</td><td>91.25%</td></tr>
-              </tbody>
-            </table>
-            <p>Yield is calculated as: <code>Property Cost × Daily Yield Rate × Quantity</code>. The yield is earned in USDT and accrues every second.</p>
-          </div>
-
-          <div class="doc-section" id="doc-yield">
-            <h3>📈 Yield & Income</h3>
-            <p>Your properties generate USDT yield continuously based on time elapsed. The yield formula is:</p>
-            <div class="doc-code">
-              Daily USDT = Σ (Building Cost × Daily Rate × Quantity)<br>
-              If boosts active: Daily USDT × (1 + Boost %)
-            </div>
-            <p>Example: Owning 5× Coffee Shops ($25, 0.07%/day) earns you:</p>
-            <div class="doc-code">
-              25 × 0.0007 × 5 = 0.0875 USDT/day
-            </div>
-            <p>Yield accumulates as "Earned USDT" which can be compounded or withdrawn at any time.</p>
-          </div>
-
-          <div class="doc-section" id="doc-free-claim">
-            <h3>🎁 Free Gold Claim</h3>
-            <p>Every 4 hours, you can claim free Gold worth 0.1% to 0.2% of your total deposited principal. The exact percentage varies each claim using on-chain randomness.</p>
-            <div class="doc-highlight">
-              <strong>Example:</strong> If you deposited $100 total, each free claim gives you 0.10 to 0.20 Gold. That's up to 1.2 Gold per day for free!
-            </div>
-            <p>The timer resets after each claim. You must have at least one deposit to be eligible for free claims.</p>
-          </div>
-
-          <div class="doc-section" id="doc-compound">
-            <h3>🔄 Compounding</h3>
-            <p>Compounding converts your earned USDT back into Gold so you can buy more properties. Here's how it works:</p>
-            <div class="doc-list">
-              <div class="doc-list-item"><span class="doc-bullet green">+</span> All earned USDT is converted to Gold</div>
-              <div class="doc-list-item"><span class="doc-bullet red">−</span> 2.5% compound fee is deducted (sent to protocol)</div>
-              <div class="doc-list-item"><span class="doc-bullet green">+</span> You receive a 10% bonus on the compounded amount</div>
-            </div>
-            <div class="doc-code">
-              Gold Received = (Earnings − 2.5% fee) × 1.10<br>
-              Example: $10 earned → $9.75 after fee → 10.725 Gold received
-            </div>
-          </div>
-
-          <div class="doc-section" id="doc-withdraw">
-            <h3>💸 Withdrawals</h3>
-            <p>You can withdraw your earned USDT at any time. Important rules:</p>
-            <div class="doc-warning">
-              🔒 Your deposited principal (initial USDT) is permanently locked and cannot be withdrawn. Only earned yield (USDT from property income) can be withdrawn.
-            </div>
-            <p>A 10% withdrawal fee applies to every withdrawal. The fee is sent to the protocol owner's wallet.</p>
-            <div class="doc-code">
-              You receive = Withdrawal Amount × 90%<br>
-              Example: Withdraw $10 → You get $9, $1 fee
-            </div>
-          </div>
-
-          <div class="doc-section" id="doc-boosts">
-            <h3>🚀 Boosts</h3>
-            <p>Boosts temporarily increase your total yield output. They are purchased with USDT (sent directly to the protocol owner).</p>
-            <table class="doc-table">
-              <thead>
-                <tr><th>Boost</th><th>Cost</th><th>Effect</th><th>Duration</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>☕ Caffeine Rush</td><td>$1</td><td>+2% yield</td><td>1 hour</td></tr>
-                <tr><td>🍻 Happy Hour</td><td>$3</td><td>+5% yield</td><td>3 hours</td></tr>
-                <tr><td>📣 Marketing Blitz</td><td>$8</td><td>+10% yield</td><td>6 hours</td></tr>
-                <tr><td>🎉 Grand Opening</td><td>$15</td><td>+20% yield</td><td>12 hours</td></tr>
-                <tr><td>🔥 Gold Fever</td><td>$25</td><td>+30% yield</td><td>24 hours</td></tr>
-              </tbody>
-            </table>
-            <p>Multiple boosts can be active simultaneously and their effects stack additively.</p>
-          </div>
-
-          <div class="doc-section" id="doc-tax">
-            <h3>💀 Daily Tax</h3>
-            <p>A 1% daily tax is applied to your Gold balance continuously. This tax is prorated per second — meaning the tax accumulates smoothly over time, not in big daily chunks.</p>
-            <div class="doc-highlight">
-              <strong>Strategy tip:</strong> Convert your Gold into properties as quickly as possible. Properties are not subject to the Gold tax — only unspent Gold sitting in your balance is taxed.
-            </div>
-          </div>
-
-          <div class="doc-section" id="doc-fees">
-            <h3>💰 Complete Fee Summary</h3>
-            <table class="doc-table">
-              <thead>
-                <tr><th>Action</th><th>Fee</th><th>Destination</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>Deposit USDT</td><td class="green">0% (Free)</td><td>—</td></tr>
-                <tr><td>Buy Properties</td><td class="green">0% (Free)</td><td>Gold is spent</td></tr>
-                <tr><td>Compound</td><td class="gold">2.5%</td><td>Protocol owner wallet</td></tr>
-                <tr><td>Withdraw</td><td class="gold">10%</td><td>Protocol owner wallet</td></tr>
-                <tr><td>Buy Boost</td><td class="gold">100% (purchase)</td><td>Protocol owner wallet</td></tr>
-                <tr><td>Daily Gold Tax</td><td class="red">1% / day</td><td>Burned (removed)</td></tr>
-                <tr><td>Free Claim</td><td class="green">0% (Free)</td><td>—</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="doc-section" id="doc-security">
-            <h3>🔐 Security & Transparency</h3>
-            <div class="doc-list">
-              <div class="doc-list-item"><span class="doc-bullet">•</span> All game logic runs on a verified BNB Chain smart contract</div>
-              <div class="doc-list-item"><span class="doc-bullet">•</span> No off-chain databases — everything is on-chain and auditable</div>
-              <div class="doc-list-item"><span class="doc-bullet">•</span> USDT deposits are held in the smart contract, not a personal wallet</div>
-              <div class="doc-list-item"><span class="doc-bullet">•</span> The contract owner can adjust building yields and add new buildings/boosts</div>
-              <div class="doc-list-item"><span class="doc-bullet">•</span> An emergency withdraw function exists for the owner as a safety mechanism</div>
-            </div>
-            <div class="doc-warning">
-              ⚠️ This is an experimental DeFi game. Smart contracts carry inherent risks. Never deposit more than you can afford to lose. Always do your own research.
-            </div>
-          </div>
-
-          <div class="doc-section" id="doc-faq">
-            <h3>❓ FAQ</h3>
-            <div class="doc-faq-item">
-              <div class="doc-faq-q">Q: Can I withdraw my initial deposit?</div>
-              <div class="doc-faq-a">No. All deposited USDT (principal) is permanently locked. Only earned USDT from property yield can be withdrawn.</div>
-            </div>
-            <div class="doc-faq-item">
-              <div class="doc-faq-q">Q: How often is yield paid?</div>
-              <div class="doc-faq-a">Yield accrues every second in real-time. You can collect, compound, or withdraw it at any time.</div>
-            </div>
-            <div class="doc-faq-item">
-              <div class="doc-faq-q">Q: Can I sell my properties?</div>
-              <div class="doc-faq-a">Currently, properties cannot be sold. Once purchased, they permanently generate yield for your account.</div>
-            </div>
-            <div class="doc-faq-item">
-              <div class="doc-faq-q">Q: What happens if I don't claim my free Gold?</div>
-              <div class="doc-faq-a">Nothing — free claims don't expire. The 4-hour cooldown simply prevents claiming more than 6 times per day. Unclaimed rewards are not lost.</div>
-            </div>
-            <div class="doc-faq-item">
-              <div class="doc-faq-q">Q: Can I stack multiple boosts?</div>
-              <div class="doc-faq-a">Yes! Multiple boosts stack additively. For example, Caffeine Rush (+2%) and Happy Hour (+5%) together give +7% yield.</div>
-            </div>
-            <div class="doc-faq-item">
-              <div class="doc-faq-q">Q: Which chain does this run on?</div>
-              <div class="doc-faq-a">Landlord USDT runs on BNB Smart Chain (BSC). You need BNB for gas fees and USDT (BEP-20) to play.</div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
 
-<!-- FOOTER -->
-<div class="footer">
-  <div class="footer-social">
-    <a href="https://t.me/YOUR_TELEGRAM" target="_blank" class="social-link tg" title="Telegram">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-      <span>Telegram</span>
-    </a>
-    <a href="https://x.com/YOUR_TWITTER" target="_blank" class="social-link x" title="X (Twitter)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      <span>Follow on X</span>
-    </a>
-  </div>
-  <div style="margin-top:12px;">
-    Landlord USDT — DeFi Yield Game on BNB Chain · Smart Contract Powered<br>
-    This game is for entertainment purposes only. Always do your own research. Play responsibly.
+<!-- DOCS -->
+<div id="sec-docs" class="sec" style="display:none">
+  <div class="sh"><h2>📄 Documentation</h2></div>
+  <div class="docs-c">
+    <div class="docs-toc"><div class="pn"><h3>📑 Contents</h3>
+      <a class="tl" href="#" onclick="sD(event,'d-ov')">Overview</a><a class="tl" href="#" onclick="sD(event,'d-gs')">Getting Started</a>
+      <a class="tl" href="#" onclick="sD(event,'d-bld')">Properties</a><a class="tl" href="#" onclick="sD(event,'d-yld')">Yield</a>
+      <a class="tl" href="#" onclick="sD(event,'d-cvt')">Convert / Withdraw</a><a class="tl" href="#" onclick="sD(event,'d-ref')">Referrals</a>
+      <a class="tl" href="#" onclick="sD(event,'d-bst')">Boosts</a><a class="tl" href="#" onclick="sD(event,'d-fee')">Fees</a>
+    </div></div>
+    <div class="docs-b">
+      <div class="ds" id="d-ov"><h3>Overview</h3><p>Landlord USDT is a play-to-earn DeFi game on BNB Chain. Deposit USDT to get Gold (1:1), buy properties that generate daily USDT yield, then withdraw or convert earnings back to Gold with a 10% bonus.</p></div>
+      <div class="ds" id="d-gs"><h3>Getting Started</h3><p>1. Connect your MetaMask wallet (BNB Chain). 2. Deposit USDT — you receive Gold at 1:1. 3. Buy properties with Gold. 4. Earn USDT yield every second. 5. Withdraw USDT or convert to Gold (+10% bonus).</p></div>
+      <div class="ds" id="d-bld"><h3>Properties</h3><p>10 properties available, priced in Gold from 0.10 to 10.00. Each generates a different daily USDT yield rate. When you buy a building, 90% of the Gold value stays in the TVL contract and 10% goes to the treasury wallet.</p>
+        <table><thead><tr><th>#</th><th>Building</th><th>Cost (Gold)</th><th>Daily Yield</th></tr></thead><tbody>
+        <tr><td>1</td><td>Lemonade Stand</td><td>0.10</td><td>0.01%</td></tr><tr><td>2</td><td>Kebab Shop</td><td>0.25</td><td>0.018%</td></tr>
+        <tr><td>3</td><td>Food Cart</td><td>0.50</td><td>0.028%</td></tr><tr><td>4</td><td>Coffee Shop</td><td>0.80</td><td>0.040%</td></tr>
+        <tr><td>5</td><td>Fast Food Spot</td><td>1.20</td><td>0.055%</td></tr><tr><td>6</td><td>Restaurant</td><td>2.00</td><td>0.075%</td></tr>
+        <tr><td>7</td><td>Boutique Hotel</td><td>3.50</td><td>0.10%</td></tr><tr><td>8</td><td>Shopping Plaza</td><td>5.00</td><td>0.13%</td></tr>
+        <tr><td>9</td><td>Luxury Hotel</td><td>7.50</td><td>0.17%</td></tr><tr><td>10</td><td>Skyscraper</td><td>10.00</td><td>0.22%</td></tr>
+        </tbody></table></div>
+      <div class="ds" id="d-yld"><h3>Yield</h3><p>Properties generate USDT yield every second. Formula: <code>Building Cost × Daily Rate × Quantity</code>. Boosts multiply total yield additively.</p></div>
+      <div class="ds" id="d-cvt"><h3>Convert / Withdraw</h3><p><strong>Convert to Gold:</strong> Turns earned USDT into Gold with a 2.5% fee but +10% Gold bonus. <strong>Withdraw:</strong> Cash out earned USDT with a 10% fee. Your deposited principal is permanently locked.</p></div>
+      <div class="ds" id="d-ref"><h3>Referrals</h3><p>Share your referral link. When someone deposits using your link, you earn 10% of their deposit as bonus Gold. Referrer is locked on first deposit and cannot be changed.</p></div>
+      <div class="ds" id="d-bst"><h3>Boosts</h3><p>Buy temporary yield boosts with USDT. They increase your total yield output for a limited time. Multiple boosts stack.</p></div>
+      <div class="ds" id="d-fee"><h3>Fee Summary</h3><table><thead><tr><th>Action</th><th>Fee</th><th>Destination</th></tr></thead><tbody>
+        <tr><td>Deposit</td><td class="gr">0%</td><td>—</td></tr><tr><td>Buy Building</td><td class="gd">10% split</td><td>Treasury wallet</td></tr>
+        <tr><td>Convert to Gold</td><td class="gd">2.5%</td><td>Owner + 10% bonus Gold</td></tr><tr><td>Withdraw</td><td class="gd">10%</td><td>Owner wallet</td></tr>
+        <tr><td>Boost</td><td class="gd">100%</td><td>Owner wallet</td></tr><tr><td>Referral</td><td class="gr">10% Gold reward</td><td>Referrer</td></tr>
+        <tr><td>Free Claim</td><td class="gr">Free</td><td>—</td></tr></tbody></table></div>
+    </div>
   </div>
 </div>
 
-<div class="toast-box" id="toastBox"></div>
+</div></div>
+
+<div class="ft">
+  <div class="ft-soc">
+    <a href="https://t.me/YOUR_TELEGRAM" target="_blank" class="sl tg" style="padding:6px 14px;font-size:11px"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>Telegram</a>
+    <a href="https://x.com/YOUR_TWITTER" target="_blank" class="sl x" style="padding:6px 14px;font-size:11px"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>X</a>
+  </div>
+  Landlord USDT — DeFi Yield Game on BNB Chain · Smart Contract Powered<br>For entertainment only. DYOR. Play responsibly.
+</div>
+<div class="tb" id="tBox"></div>
 
 <script>
-// ═══════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════
-const CFG = {
-  CONTRACT: '0x84781048B3Ca01B92Ac429fe3C87944915697f90', // REPLACE after deploy
-  USDT: '0x55d398326f99059fF775485246999027B3197955',    // BSC USDT
-  CHAIN_HEX: '0x38',
-  RPC: 'https://bsc-dataseed.binance.org/',
-  CHAIN_NAME: 'BNB Smart Chain',
-  EXPLORER: 'https://bscscan.com',
+const C={
+  ADDR:'0x0000000000000000000000000000000000000000', // ← YOUR CONTRACT ADDRESS
+  USDT:'0x55d398326f99059fF775485246999027B3197955',
+  CHAIN:'0x38',RPC:'https://bsc-dataseed.binance.org/',
+  NAME:'BNB Smart Chain',EXP:'https://bscscan.com',
+  // Set your site URL for referral links:
+  SITE_URL:'https://yoursite.com'
 };
-
-const ERC20_ABI = [
-  'function approve(address,uint256) external returns (bool)',
-  'function allowance(address,address) external view returns (uint256)',
-  'function balanceOf(address) external view returns (uint256)',
+const E20=[
+  'function approve(address,uint256) returns(bool)',
+  'function allowance(address,address) view returns(uint256)',
+  'function balanceOf(address) view returns(uint256)',
 ];
-
-const ABI = [
-  'function deposit(uint256) external',
+const ABI=[
+  'function deposit(uint256,address) external',
   'function buyBuilding(uint256,uint256) external',
-  'function collectYield() external',
-  'function compound() external',
+  'function convertToGold() external',
   'function withdraw(uint256) external',
   'function buyBoost(uint256) external',
   'function freeClaim() external',
-  'function buildings(uint256) view returns (string,uint256,uint256,bool)',
-  'function boosts(uint256) view returns (string,uint256,uint256,uint256,bool)',
-  'function players(address) view returns (uint256,uint256,uint256,uint256,uint256,uint256,uint256,bool)',
-  'function buildingCount() view returns (uint256)',
-  'function boostCount() view returns (uint256)',
-  'function totalDeposited() view returns (uint256)',
-  'function totalPlayers() view returns (uint256)',
-  'function getPlayerBuildings(address) view returns (uint256[],uint256[])',
-  'function getPlayerBoosts(address) view returns (tuple(uint256,uint256)[])',
-  'function getActiveBoostBps(address) view returns (uint256)',
-  'function getPendingYield(address) view returns (uint256)',
-  'function getGoldAfterTax(address) view returns (uint256)',
-  'function getNextFreeClaimTime(address) view returns (uint256)',
-  'function getPlayerFreeClaim(address) view returns (uint256,uint256,uint256)',
+  'function players(address) view returns(uint256,uint256,uint256,uint256,uint256,uint256,bool)',
+  'function totalDeposited() view returns(uint256)',
+  'function totalPlayers() view returns(uint256)',
+  'function getPlayerBuildings(address) view returns(uint256[],uint256[])',
+  'function getPlayerBoosts(address) view returns(tuple(uint256,uint256)[])',
+  'function getActiveBoostBps(address) view returns(uint256)',
+  'function getPendingYield(address) view returns(uint256)',
+  'function getPlayerFreeClaim(address) view returns(uint256,uint256,uint256)',
+  'function getReferralInfo(address) view returns(address,uint256,uint256)',
 ];
 
-// State
-let provider, signer, contract, usdt, addr;
-let isConnected = false;
-let freeClaimCountdown = 0;
-let claimInterval;
+let pv,sg,ct,ut,ad,conn=false,clkCd=0,clkIv;
+const F=bn=>parseFloat(ethers.utils.formatEther(bn)).toFixed(5);
 
-const BUILDINGS = [
-  { id:0, name:'Lemonade Stand', icon:'🍋', cost:1,   yBps:1,  yPct:'0.01%' },
-  { id:1, name:'Food Truck',     icon:'🚚', cost:5,   yBps:3,  yPct:'0.03%' },
-  { id:2, name:'Coffee Shop',    icon:'☕', cost:25,  yBps:7,  yPct:'0.07%' },
-  { id:3, name:'Restaurant',     icon:'🍽️', cost:50,  yBps:12, yPct:'0.12%' },
-  { id:4, name:'Hotel',          icon:'🏨', cost:100, yBps:18, yPct:'0.18%' },
-  { id:5, name:'Skyscraper',     icon:'🏙️', cost:200, yBps:25, yPct:'0.25%' },
+const BLD=[
+  {id:0,nm:'Lemonade Stand',ic:'🍋',cost:0.10,yBps:100,yPct:'0.01%'},
+  {id:1,nm:'Kebab Shop',ic:'🥙',cost:0.25,yBps:72,yPct:'0.018%'},
+  {id:2,nm:'Food Cart',ic:'🛒',cost:0.50,yBps:56,yPct:'0.028%'},
+  {id:3,nm:'Coffee Shop',ic:'☕',cost:0.80,yBps:50,yPct:'0.040%'},
+  {id:4,nm:'Fast Food Spot',ic:'🍔',cost:1.20,yBps:46,yPct:'0.055%'},
+  {id:5,nm:'Restaurant',ic:'🍽️',cost:2.00,yBps:38,yPct:'0.075%'},
+  {id:6,nm:'Boutique Hotel',ic:'🏨',cost:3.50,yBps:29,yPct:'0.10%'},
+  {id:7,nm:'Shopping Plaza',ic:'🏬',cost:5.00,yBps:26,yPct:'0.13%'},
+  {id:8,nm:'Luxury Hotel',ic:'🏰',cost:7.50,yBps:23,yPct:'0.17%'},
+  {id:9,nm:'Skyscraper',ic:'🏙️',cost:10.00,yBps:22,yPct:'0.22%'},
 ];
-
-const BOOSTS = [
-  { id:0, name:'Caffeine Rush',   icon:'☕', cost:1,  pct:'+2%',  dur:'1 Hour' },
-  { id:1, name:'Happy Hour',      icon:'🍻', cost:3,  pct:'+5%',  dur:'3 Hours' },
-  { id:2, name:'Marketing Blitz', icon:'📣', cost:8,  pct:'+10%', dur:'6 Hours' },
-  { id:3, name:'Grand Opening',   icon:'🎉', cost:15, pct:'+20%', dur:'12 Hours' },
-  { id:4, name:'Gold Fever',      icon:'🔥', cost:25, pct:'+30%', dur:'24 Hours' },
+const BST=[
+  {id:0,nm:'Caffeine Rush',ic:'☕',cost:1,pct:'+2%',dur:'1 Hour'},
+  {id:1,nm:'Happy Hour',ic:'🍻',cost:3,pct:'+5%',dur:'3 Hours'},
+  {id:2,nm:'Marketing Blitz',ic:'📣',cost:8,pct:'+10%',dur:'6 Hours'},
+  {id:3,nm:'Grand Opening',ic:'🎉',cost:15,pct:'+20%',dur:'12 Hours'},
+  {id:4,nm:'Gold Fever',ic:'🔥',cost:25,pct:'+30%',dur:'24 Hours'},
 ];
+let ownB={};
 
-let ownedBuildings = {};
-
-// ═══ NAVIGATION ═══
-function showSection(name) {
-  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const sec = document.getElementById('sec-' + name);
-  if (sec) sec.style.display = '';
-  const nav = document.querySelector(`[data-section="${name}"]`);
-  if (nav) nav.classList.add('active');
+// Get referrer from URL param
+function getRefFromUrl(){
+  const u=new URLSearchParams(window.location.search);
+  return u.get('ref')||ethers.constants.AddressZero;
 }
 
-function filterBuildings(type, el) {
-  document.querySelectorAll('.sec-filters .filter-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  const cards = document.querySelectorAll('.bld-card');
-  cards.forEach(c => {
-    const id = parseInt(c.dataset.id);
-    const owned = ownedBuildings[id] || 0;
-    const gold = parseFloat(document.getElementById('goldBal').textContent) || 0;
-    const cost = BUILDINGS[id].cost;
-    if (type === 'all') c.style.display = '';
-    else if (type === 'owned') c.style.display = owned > 0 ? '' : 'none';
-    else if (type === 'affordable') c.style.display = gold >= cost ? '' : 'none';
-  });
+// ═══ NAV ═══
+function showS(n){
+  document.querySelectorAll('.sec').forEach(s=>s.style.display='none');
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));
+  const s=document.getElementById('sec-'+n);if(s)s.style.display='';
+  const v=document.querySelector(`[data-s="${n}"]`);if(v)v.classList.add('on');
 }
+function openDocs(){
+  if(!conn){document.getElementById('splash').style.display='none';document.getElementById('sideNav').style.display='';document.getElementById('navHome').style.display='';document.querySelector('.layout').style.gridTemplateColumns='200px 1fr';}
+  showS('docs');
+}
+function goHome(){
+  if(!conn){document.getElementById('splash').style.display='';document.getElementById('sideNav').style.display='none';document.getElementById('navHome').style.display='none';document.querySelector('.layout').style.gridTemplateColumns='1fr';document.querySelectorAll('.sec').forEach(s=>s.style.display='none');renderPrev();}
+  else showS('buildings');
+}
+function sD(e,id){e.preventDefault();document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});}
+function copyRef(){const i=document.getElementById('refLink');navigator.clipboard.writeText(i.value);toast('Referral link copied!','ok');}
 
 // ═══ WALLET ═══
-async function handleConnect() {
-  if (isConnected) { disconnectWallet(); return; }
-  if (!window.ethereum) { toast('Install MetaMask or a Web3 wallet!', 'error'); return; }
-
-  try {
-    const accts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    addr = accts[0];
-
-    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-    if (chainId !== CFG.CHAIN_HEX) {
-      try {
-        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CFG.CHAIN_HEX }] });
-      } catch (e) {
-        if (e.code === 4902) {
-          await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{
-            chainId: CFG.CHAIN_HEX, chainName: CFG.CHAIN_NAME,
-            nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-            rpcUrls: [CFG.RPC], blockExplorerUrls: [CFG.EXPLORER],
-          }] });
-        } else throw e;
-      }
-    }
-
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
-    contract = new ethers.Contract(CFG.CONTRACT, ABI, signer);
-    usdt = new ethers.Contract(CFG.USDT, ERC20_ABI, signer);
-
-    isConnected = true;
-
-    window.ethereum.on('accountsChanged', a => { if(!a.length) disconnectWallet(); else { addr=a[0]; refreshAll(); }});
-    window.ethereum.on('chainChanged', () => location.reload());
-
-    setupUI();
-    toast('Welcome to Landlord USDT!', 'success');
-    setInterval(refreshAll, 15000);
-  } catch (e) {
-    console.error(e);
-    toast('Connection failed: ' + (e.message||''), 'error');
-  }
+async function doConnect(){
+  if(conn){disc();return;}
+  if(!window.ethereum){toast('Install MetaMask!','er');return;}
+  try{
+    const a=await window.ethereum.request({method:'eth_requestAccounts'});ad=a[0];
+    const ch=await window.ethereum.request({method:'eth_chainId'});
+    if(ch!==C.CHAIN){try{await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:C.CHAIN}]})}catch(e){if(e.code===4902)await window.ethereum.request({method:'wallet_addEthereumChain',params:[{chainId:C.CHAIN,chainName:C.NAME,nativeCurrency:{name:'BNB',symbol:'BNB',decimals:18},rpcUrls:[C.RPC],blockExplorerUrls:[C.EXP]}]});else throw e;}}
+    pv=new ethers.providers.Web3Provider(window.ethereum);sg=pv.getSigner();
+    ct=new ethers.Contract(C.ADDR,ABI,sg);ut=new ethers.Contract(C.USDT,E20,sg);
+    conn=true;
+    window.ethereum.on('accountsChanged',a=>{if(!a.length)disc();else{ad=a[0];refresh();}});
+    window.ethereum.on('chainChanged',()=>location.reload());
+    initUI();toast('Welcome to Landlord USDT!','ok');
+    setInterval(refresh,15000);
+  }catch(e){console.error(e);toast('Failed: '+(e.message||''),'er');}
 }
-
-function disconnectWallet() {
-  isConnected = false;
-  addr = null;
-  document.getElementById('walletBtn').textContent = 'Connect Wallet';
-  document.getElementById('walletBtn').classList.remove('connected');
-  document.getElementById('splashScreen').style.display = '';
-  document.getElementById('sidebar').style.display = 'none';
-  document.querySelector('.main-layout').style.gridTemplateColumns = '1fr';
-  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-  renderPreview();
-}
-
-function setupUI() {
-  const btn = document.getElementById('walletBtn');
-  btn.textContent = addr.slice(0,6) + '...' + addr.slice(-4);
-  btn.classList.add('connected');
-  document.getElementById('splashScreen').style.display = 'none';
-  document.getElementById('sidebar').style.display = '';
-  document.querySelector('.main-layout').style.gridTemplateColumns = '220px 1fr';
-
-  renderBuildings();
-  renderBoosts();
-  showSection('buildings');
-  refreshAll();
-  startClaimTimer();
+function disc(){conn=false;ad=null;document.getElementById('wBtn').textContent='Connect Wallet';document.getElementById('wBtn').classList.remove('on');document.getElementById('splash').style.display='';document.getElementById('sideNav').style.display='none';document.querySelector('.layout').style.gridTemplateColumns='1fr';document.querySelectorAll('.sec').forEach(s=>s.style.display='none');renderPrev();}
+function initUI(){
+  const b=document.getElementById('wBtn');b.textContent=ad.slice(0,6)+'...'+ad.slice(-4);b.classList.add('on');
+  document.getElementById('splash').style.display='none';document.getElementById('sideNav').style.display='';document.querySelector('.layout').style.gridTemplateColumns='200px 1fr';
+  document.getElementById('refLink').value=C.SITE_URL+'?ref='+ad;
+  renderBld();renderBst();showS('buildings');refresh();startClk();
 }
 
 // ═══ RENDER ═══
-function renderBuildings() {
-  document.getElementById('buildingsGrid').innerHTML = BUILDINGS.map((b,i) => `
-    <div class="bld-card" data-id="${b.id}">
-      <div class="bld-num">${i+1}</div>
-      <div class="bld-img">${b.icon}</div>
-      <div class="bld-body">
-        <div class="bld-name-row">
-          <span class="bld-name">${b.name}</span>
-          <span class="bld-price">$${b.cost}</span>
-        </div>
-        <div class="bld-stats">
-          <span>Daily Yield</span>
-          <span class="yield-val">${b.yPct}</span>
-        </div>
-        <div class="bld-owned">Owned: <strong id="own-${b.id}">0</strong></div>
-        <div class="bld-buy-row">
-          <input type="number" class="bld-qty" id="bqty-${b.id}" value="1" min="1">
-          <button class="bld-buy-btn" onclick="handleBuy(${b.id})">Buy</button>
-        </div>
-      </div>
-    </div>
-  `).join('');
+function renderBld(){
+  document.getElementById('bldG').innerHTML=BLD.map((b,i)=>`
+    <div class="bc" data-id="${b.id}"><div class="bc-n">${i+1}</div><div class="bc-img">${b.ic}</div><div class="bc-b">
+      <div class="bc-nr"><span class="bc-nm">${b.nm}</span><span class="bc-pr">🪙 ${b.cost.toFixed(2)}</span></div>
+      <div class="bc-st"><span>Daily Yield</span><span class="yv">${b.yPct}</span></div>
+      <div class="bc-ow">Owned: <strong id="ow-${b.id}">0</strong></div>
+      <div class="bc-br"><input type="number" class="bc-qi" id="bq-${b.id}" value="1" min="1"><button class="bc-bb" onclick="doBuy(${b.id})">Buy</button></div>
+    </div></div>`).join('');
+}
+function renderBst(){
+  document.getElementById('bstG').innerHTML=BST.map(b=>`
+    <div class="bsc" id="bs-${b.id}"><div class="bsc-i">${b.ic}</div><div class="bsc-n">${b.nm}</div>
+      <div class="bsc-tags"><span class="bsc-tag pr">$${b.cost}</span><span class="bsc-tag pc">${b.pct}</span><span class="bsc-tag dr">${b.dur}</span></div>
+      <button class="bsc-b" onclick="doBst(${b.id})">Buy Boost</button><div class="bsc-t" id="bt-${b.id}"></div></div>`).join('');
+}
+function renderPrev(){
+  document.getElementById('prevBld').innerHTML=BLD.map((b,i)=>`
+    <div class="bc"><div class="bc-n">${i+1}</div><div class="bc-img">${b.ic}</div><div class="bc-b">
+      <div class="bc-nr"><span class="bc-nm">${b.nm}</span><span class="bc-pr">🪙 ${b.cost.toFixed(2)}</span></div>
+      <div class="bc-st"><span>Daily Yield</span><span class="yv">${b.yPct}</span></div>
+      <div class="bc-br" style="margin-top:8px"><button class="bc-bb" onclick="doConnect()" style="width:100%;opacity:.85">🔗 Connect to Buy</button></div>
+    </div></div>`).join('');
 }
 
-function renderBoosts() {
-  document.getElementById('boostsGrid').innerHTML = BOOSTS.map(b => `
-    <div class="bst-card" id="bst-${b.id}">
-      <div class="bst-icon">${b.icon}</div>
-      <div class="bst-name">${b.name}</div>
-      <div class="bst-tags">
-        <span class="bst-tag price">$${b.cost}</span>
-        <span class="bst-tag pct">${b.pct}</span>
-        <span class="bst-tag dur">${b.dur}</span>
-      </div>
-      <button class="bst-buy" onclick="handleBoost(${b.id})">Buy Boost</button>
-      <div class="bst-timer" id="bst-t-${b.id}"></div>
-    </div>
-  `).join('');
-}
-
-// ═══ REFRESH DATA ═══
-async function refreshAll() {
-  if (!isConnected) return;
-  try {
-    const fmt = bn => parseFloat(ethers.utils.formatEther(bn)).toFixed(2);
-
-    const [player, goldTax, pendYield, boostBps, bData, pBoosts, totalDep, totalPlay, cBal, uBal, freeInfo] = await Promise.all([
-      contract.players(addr),
-      contract.getGoldAfterTax(addr),
-      contract.getPendingYield(addr),
-      contract.getActiveBoostBps(addr),
-      contract.getPlayerBuildings(addr),
-      contract.getPlayerBoosts(addr),
-      contract.totalDeposited(),
-      contract.totalPlayers(),
-      usdt.balanceOf(CFG.CONTRACT),
-      usdt.balanceOf(addr),
-      contract.getPlayerFreeClaim(addr),
+// ═══ REFRESH ═══
+async function refresh(){
+  if(!conn)return;
+  try{
+    const [pl,py,bD,pB,abps,tD,tP,cB,uB,fI,rI]=await Promise.all([
+      ct.players(ad),ct.getPendingYield(ad),ct.getPlayerBuildings(ad),ct.getPlayerBoosts(ad),
+      ct.getActiveBoostBps(ad),ct.totalDeposited(),ct.totalPlayers(),
+      ut.balanceOf(C.ADDR),ut.balanceOf(ad),ct.getPlayerFreeClaim(ad),ct.getReferralInfo(ad)
     ]);
-
-    document.getElementById('goldBal').textContent = fmt(goldTax);
-    document.getElementById('walletUsdt').textContent = fmt(uBal);
-    document.getElementById('pTotalDep').textContent = '$' + fmt(totalDep);
-    document.getElementById('pTotalPlay').textContent = totalPlay.toString();
-    document.getElementById('pContractBal').textContent = '$' + fmt(cBal);
-    document.getElementById('pPrincipal').textContent = '$' + fmt(player[0]);
-    document.getElementById('pFreeClaimed').textContent = fmt(freeInfo[1]);
-
-    // Earned USDT display - use in top stat
-    const earnedVal = fmt(pendYield);
+    // Player: depositedPrincipal, goldBalance, earnedUSDT, lastYieldTimestamp, lastFreeClaimTimestamp, totalFreeClaimed, exists
+    document.getElementById('gBal').textContent=F(pl[1]);
+    document.getElementById('wUsdt').textContent=F(uB);
+    document.getElementById('uEarned').textContent=F(py);
+    document.getElementById('pDep').textContent='$'+F(tD);
+    document.getElementById('pPlay').textContent=tP.toString();
+    document.getElementById('pBal').textContent='$'+F(cB);
+    document.getElementById('pPrin').textContent='$'+F(pl[0])+' (Locked)';
+    document.getElementById('pFree').textContent=F(fI[1]);
+    // Referral
+    document.getElementById('refCnt').textContent=rI[1].toString();
+    document.getElementById('refGold').textContent=F(rI[2]);
+    document.getElementById('refBy').textContent=rI[0]===ethers.constants.AddressZero?'None':rI[0].slice(0,6)+'...'+rI[0].slice(-4);
 
     // Buildings
-    const [bIds, bQtys] = [bData[0], bData[1]];
-    ownedBuildings = {};
-    let dailyTotal = 0;
-    let ownedRows = '';
-    let yieldRows = '';
-    let ownedTotal = 0;
-
-    for (let i = 0; i < bIds.length; i++) {
-      const id = bIds[i].toNumber();
-      const qty = bQtys[i].toNumber();
-      ownedBuildings[id] = qty;
-      ownedTotal += qty;
-      const b = BUILDINGS[id];
-      const daily = (b.cost * b.yBps * qty) / 10000;
-      dailyTotal += daily;
-      ownedRows += `<div class="panel-row"><span class="pl">${b.icon} ${b.name}</span><span class="pv gold">×${qty}</span></div>`;
-      yieldRows += `<div class="panel-row"><span class="pl">${b.icon} ${b.name} ×${qty}</span><span class="pv green">${daily.toFixed(4)}/day</span></div>`;
+    const [bIds,bQts]=[bD[0],bD[1]];ownB={};let dTot=0,oR='',yR='',oTot=0;
+    for(let i=0;i<bIds.length;i++){
+      const id=bIds[i].toNumber(),qty=bQts[i].toNumber();ownB[id]=qty;oTot+=qty;
+      const b=BLD[id],daily=(b.cost*b.yBps*qty)/10000;dTot+=daily;
+      oR+=`<div class="pr"><span class="l">${b.ic} ${b.nm}</span><span class="v gd">×${qty}</span></div>`;
+      yR+=`<div class="pr"><span class="l">${b.ic} ${b.nm} ×${qty}</span><span class="v gr">${daily.toFixed(5)}/day</span></div>`;
     }
-
-    // Update owned counts
-    BUILDINGS.forEach(b => {
-      const el = document.getElementById('own-' + b.id);
-      if (el) el.textContent = ownedBuildings[b.id] || 0;
-    });
-
-    document.getElementById('ownedCount').textContent = ownedTotal + ' Owned';
-
-    const bMul = boostBps.toNumber();
-    const boostedDaily = dailyTotal * (1 + bMul / 10000);
-    document.getElementById('dailyIncome').textContent = '+' + boostedDaily.toFixed(4);
-
-    const principal = parseFloat(ethers.utils.formatEther(player[0]));
-    document.getElementById('yieldPctDisplay').textContent = principal > 0 
-      ? ((boostedDaily / principal) * 100).toFixed(2) + '%'
-      : '0.00%';
-
-    if (ownedRows) document.getElementById('ownedList').innerHTML = ownedRows;
-    if (yieldRows) {
-      if (bMul > 0) yieldRows += `<div class="panel-row"><span class="pl">🚀 Boost</span><span class="pv green">+${(bMul/100).toFixed(0)}%</span></div>`;
-      yieldRows += `<div class="panel-row" style="border-top:1px solid var(--border);padding-top:8px;"><span class="pl" style="font-weight:700;">Total Daily</span><span class="pv gold">${boostedDaily.toFixed(4)} USDT</span></div>`;
-      document.getElementById('yieldList').innerHTML = yieldRows;
+    BLD.forEach(b=>{const e=document.getElementById('ow-'+b.id);if(e)e.textContent=ownB[b.id]||0;});
+    document.getElementById('ownCnt').textContent=oTot+' Owned';
+    const bM=abps.toNumber(),boosted=dTot*(1+bM/10000);
+    document.getElementById('dEarn').textContent=boosted.toFixed(5);
+    if(oR)document.getElementById('ownL').innerHTML=oR;
+    if(yR){
+      if(bM>0)yR+=`<div class="pr"><span class="l">🚀 Boost</span><span class="v gr">+${(bM/100).toFixed(0)}%</span></div>`;
+      yR+=`<div class="pr" style="border-top:1px solid var(--bdr);padding-top:6px"><span class="l" style="font-weight:700">Total Daily</span><span class="v gd">${boosted.toFixed(5)} USDT</span></div>`;
+      document.getElementById('yldL').innerHTML=yR;
     }
-
     // Boosts
-    const now = Math.floor(Date.now() / 1000);
-    const activeIds = new Set();
-    let topBoostName = '';
-    let topBoostExpiry = 0;
-
-    pBoosts.forEach(pb => {
-      const exp = pb[1].toNumber();
-      const bid = pb[0].toNumber();
-      if (exp > now) {
-        activeIds.add(bid);
-        const rem = exp - now;
-        const h = Math.floor(rem/3600), m = Math.floor((rem%3600)/60);
-        const card = document.getElementById('bst-' + bid);
-        const timer = document.getElementById('bst-t-' + bid);
-        if (card) card.classList.add('active');
-        if (timer) timer.textContent = `⏱ ${h}h ${m}m`;
-        if (exp > topBoostExpiry) { topBoostExpiry = exp; topBoostName = BOOSTS[bid].name; }
-      }
-    });
-
-    BOOSTS.forEach(b => {
-      if (!activeIds.has(b.id)) {
-        const card = document.getElementById('bst-' + b.id);
-        const timer = document.getElementById('bst-t-' + b.id);
-        if (card) card.classList.remove('active');
-        if (timer) timer.textContent = '';
-      }
-    });
-
-    // Sidebar active boost
-    const abCard = document.getElementById('activeBoostCard');
-    if (topBoostName) {
-      abCard.style.display = '';
-      document.getElementById('activeBoostName').textContent = topBoostName;
-      const rem = topBoostExpiry - now;
-      const h = Math.floor(rem/3600), m = Math.floor((rem%3600)/60), s = rem%60;
-      document.getElementById('activeBoostTimer').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    } else {
-      abCard.style.display = 'none';
-    }
-
-    // Free claim timer
-    freeClaimCountdown = freeInfo[0].toNumber();
-
-  } catch (e) { console.error('Refresh error:', e); }
+    const now=Math.floor(Date.now()/1000),aIds=new Set();
+    pB.forEach(pb=>{const exp=pb[1].toNumber(),bid=pb[0].toNumber();if(exp>now){aIds.add(bid);const r=exp-now,h=Math.floor(r/3600),m=Math.floor((r%3600)/60);const c=document.getElementById('bs-'+bid),t=document.getElementById('bt-'+bid);if(c)c.classList.add('on');if(t)t.textContent=`⏱ ${h}h ${m}m`;}});
+    BST.forEach(b=>{if(!aIds.has(b.id)){const c=document.getElementById('bs-'+b.id),t=document.getElementById('bt-'+b.id);if(c)c.classList.remove('on');if(t)t.textContent='';}});
+    clkCd=fI[0].toNumber();
+  }catch(e){console.error('Refresh:',e);}
 }
 
-// ═══ FREE CLAIM TIMER ═══
-function startClaimTimer() {
-  if (claimInterval) clearInterval(claimInterval);
-  claimInterval = setInterval(() => {
-    if (freeClaimCountdown > 0) freeClaimCountdown--;
-    const h = Math.floor(freeClaimCountdown/3600);
-    const m = Math.floor((freeClaimCountdown%3600)/60);
-    const s = freeClaimCountdown%60;
-    const str = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    document.getElementById('sideClaimTimer').textContent = str;
-    document.getElementById('nextClaimTimer').textContent = freeClaimCountdown > 0 ? str : 'READY!';
-    document.getElementById('freeClaimBtn').disabled = freeClaimCountdown > 0;
-    if (freeClaimCountdown <= 0) {
-      document.getElementById('nextClaimTimer').style.color = 'var(--green)';
-    } else {
-      document.getElementById('nextClaimTimer').style.color = '';
-    }
-  }, 1000);
-}
+// ═══ TIMER ═══
+function startClk(){if(clkIv)clearInterval(clkIv);clkIv=setInterval(()=>{if(clkCd>0)clkCd--;const h=Math.floor(clkCd/3600),m=Math.floor((clkCd%3600)/60),s=clkCd%60,str=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;document.getElementById('sClk').textContent=str;document.getElementById('clkTop').textContent=clkCd>0?str:'READY!';document.getElementById('fBtn').disabled=clkCd>0;document.getElementById('clkTop').style.color=clkCd<=0?'var(--grn)':'';},1000);}
 
 // ═══ ACTIONS ═══
-async function ensureApproval(amt) {
-  const allow = await usdt.allowance(addr, CFG.CONTRACT);
-  if (allow.lt(amt)) {
-    toast('Approving USDT...', 'info');
-    const tx = await usdt.approve(CFG.CONTRACT, ethers.constants.MaxUint256);
-    await tx.wait();
-    toast('Approved!', 'success');
-  }
+async function ensureAppr(amt){const a=await ut.allowance(ad,C.ADDR);if(a.lt(amt)){toast('Approving USDT...','in');const tx=await ut.approve(C.ADDR,ethers.constants.MaxUint256);await tx.wait();toast('Approved!','ok');}}
+
+async function doDep(){
+  if(!conn)return;const v=document.getElementById('depAmt').value;
+  if(!v||parseFloat(v)<=0){toast('Enter amount','er');return;}
+  const btn=document.getElementById('depBtn');btn.disabled=true;btn.innerHTML='<span class="spn"></span>';
+  try{
+    const amt=ethers.utils.parseEther(v);await ensureAppr(amt);
+    const ref=getRefFromUrl();
+    toast('Depositing '+v+' USDT...','in');
+    const tx=await ct.deposit(amt,ref);await tx.wait();
+    toast('Deposited! Got '+v+' Gold 🪙','ok');document.getElementById('depAmt').value='';refresh();
+  }catch(e){toast('Failed: '+(e.reason||e.message||''),'er');}
+  btn.disabled=false;btn.textContent='Deposit';
 }
 
-async function handleDeposit() {
-  if (!isConnected) return;
-  const v = document.getElementById('depositAmt').value;
-  if (!v || parseFloat(v) <= 0) { toast('Enter an amount', 'error'); return; }
-  const btn = document.getElementById('depositBtn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-  try {
-    const amt = ethers.utils.parseEther(v);
-    await ensureApproval(amt);
-    toast('Depositing ' + v + ' USDT...', 'info');
-    const tx = await contract.deposit(amt);
-    await tx.wait();
-    toast('Deposited! You got ' + v + ' Gold 🪙', 'success');
-    document.getElementById('depositAmt').value = '';
-    refreshAll();
-  } catch (e) { toast('Failed: ' + (e.reason||e.message||''), 'error'); }
-  btn.disabled = false; btn.textContent = 'Deposit';
+async function doBuy(id){
+  if(!conn)return;const qty=parseInt(document.getElementById('bq-'+id).value)||1;
+  try{toast('Buying '+qty+'× '+BLD[id].nm+'...','in');const tx=await ct.buyBuilding(id,qty);await tx.wait();toast('Purchased! '+BLD[id].ic,'ok');refresh();}
+  catch(e){toast('Failed: '+(e.reason||e.message||''),'er');}
 }
 
-async function handleBuy(id) {
-  if (!isConnected) return;
-  const qty = parseInt(document.getElementById('bqty-' + id).value) || 1;
-  try {
-    toast('Buying ' + qty + '× ' + BUILDINGS[id].name + '...', 'info');
-    const tx = await contract.buyBuilding(id, qty);
-    await tx.wait();
-    toast('Purchased! ' + BUILDINGS[id].icon, 'success');
-    refreshAll();
-  } catch (e) { toast('Failed: ' + (e.reason||e.message||''), 'error'); }
+async function doCvt(){
+  if(!conn)return;const btn=document.getElementById('cvtBtn');btn.disabled=true;btn.innerHTML='<span class="spn"></span> Converting...';
+  try{toast('Converting USDT → Gold (+10% bonus)...','in');const tx=await ct.convertToGold();await tx.wait();toast('Converted! Bonus Gold received 🎉','ok');refresh();}
+  catch(e){toast('Failed: '+(e.reason||e.message||''),'er');}
+  btn.disabled=false;btn.innerHTML='⚡ Convert All USDT to Gold (+10% Bonus)';
 }
 
-async function handleCompound() {
-  if (!isConnected) return;
-  const btn = document.getElementById('compoundBtn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Compounding...';
-  try {
-    toast('Compounding → Gold (+10% bonus)...', 'info');
-    const tx = await contract.compound();
-    await tx.wait();
-    toast('Compounded! Bonus Gold received 🎉', 'success');
-    refreshAll();
-  } catch (e) { toast('Failed: ' + (e.reason||e.message||''), 'error'); }
-  btn.disabled = false; btn.innerHTML = '⚡ Compound All Earnings';
+async function doWd(){
+  if(!conn)return;const v=document.getElementById('wdAmt').value;
+  if(!v||parseFloat(v)<=0){toast('Enter amount','er');return;}
+  const btn=document.getElementById('wdBtn');btn.disabled=true;btn.innerHTML='<span class="spn"></span>';
+  try{const amt=ethers.utils.parseEther(v);toast('Withdrawing (10% fee)...','in');const tx=await ct.withdraw(amt);await tx.wait();toast('Withdrawn! '+(parseFloat(v)*.9).toFixed(5)+' USDT received','ok');document.getElementById('wdAmt').value='';refresh();}
+  catch(e){toast('Failed: '+(e.reason||e.message||''),'er');}
+  btn.disabled=false;btn.textContent='Withdraw';
 }
 
-async function handleWithdraw() {
-  if (!isConnected) return;
-  const v = document.getElementById('withdrawAmt').value;
-  if (!v || parseFloat(v) <= 0) { toast('Enter an amount', 'error'); return; }
-  const btn = document.getElementById('withdrawBtn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-  try {
-    const amt = ethers.utils.parseEther(v);
-    toast('Withdrawing (10% fee)...', 'info');
-    const tx = await contract.withdraw(amt);
-    await tx.wait();
-    toast('Withdrawn! ' + (parseFloat(v)*0.9).toFixed(2) + ' USDT received', 'success');
-    document.getElementById('withdrawAmt').value = '';
-    refreshAll();
-  } catch (e) { toast('Failed: ' + (e.reason||e.message||''), 'error'); }
-  btn.disabled = false; btn.textContent = 'Withdraw';
+async function doBst(id){
+  if(!conn)return;const b=BST[id];
+  try{const cost=ethers.utils.parseEther(b.cost.toString());await ensureAppr(cost);toast('Activating '+b.nm+'...','in');const tx=await ct.buyBoost(id);await tx.wait();toast(b.nm+' active! '+b.pct+' for '+b.dur,'ok');refresh();}
+  catch(e){toast('Failed: '+(e.reason||e.message||''),'er');}
 }
 
-async function handleBoost(id) {
-  if (!isConnected) return;
-  const b = BOOSTS[id];
-  try {
-    const cost = ethers.utils.parseEther(b.cost.toString());
-    await ensureApproval(cost);
-    toast('Activating ' + b.name + '...', 'info');
-    const tx = await contract.buyBoost(id);
-    await tx.wait();
-    toast(b.name + ' active! ' + b.pct + ' for ' + b.dur, 'success');
-    refreshAll();
-  } catch (e) { toast('Failed: ' + (e.reason||e.message||''), 'error'); }
+async function doFree(){
+  if(!conn)return;const btn=document.getElementById('fBtn');btn.disabled=true;btn.innerHTML='<span class="spn"></span>';
+  try{toast('Claiming free Gold...','in');const tx=await ct.freeClaim();await tx.wait();toast('Free Gold claimed! 🎁','ok');clkCd=14400;refresh();}
+  catch(e){toast('Failed: '+(e.reason||e.message||''),'er');}
+  btn.disabled=false;btn.textContent='CLAIM FREE GOLD';
 }
 
-async function handleFreeClaim() {
-  if (!isConnected) return;
-  const btn = document.getElementById('freeClaimBtn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-  try {
-    toast('Claiming free Gold...', 'info');
-    const tx = await contract.freeClaim();
-    await tx.wait();
-    toast('Free Gold claimed! 🎁', 'success');
-    freeClaimCountdown = 14400; // reset to 4hrs
-    refreshAll();
-  } catch (e) { toast('Failed: ' + (e.reason||e.message||''), 'error'); }
-  btn.disabled = false; btn.textContent = 'CLAIM FREE GOLD';
-}
+function toast(m,ty='in'){const b=document.getElementById('tBox'),t=document.createElement('div');t.className='t '+ty;t.textContent=m;b.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(24px)';t.style.transition='all .3s';setTimeout(()=>t.remove(),300);},4000);}
 
-// ═══ TOAST ═══
-function toast(msg, type='info') {
-  const box = document.getElementById('toastBox');
-  const t = document.createElement('div');
-  t.className = 'toast ' + type;
-  t.textContent = msg;
-  box.appendChild(t);
-  setTimeout(() => {
-    t.style.opacity = '0';
-    t.style.transform = 'translateX(30px)';
-    t.style.transition = 'all 0.3s';
-    setTimeout(() => t.remove(), 300);
-  }, 4000);
-}
-
-// ═══ DOCS SCROLL ═══
-function scrollDoc(e, id) {
-  e.preventDefault();
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function openDocs() {
-  if (!isConnected) {
-    document.getElementById('splashScreen').style.display = 'none';
-    document.getElementById('sidebar').style.display = '';
-    document.getElementById('navHome').style.display = '';
-    document.querySelector('.main-layout').style.gridTemplateColumns = '220px 1fr';
-  }
-  showSection('docs');
-}
-
-function goHome() {
-  if (!isConnected) {
-    document.getElementById('splashScreen').style.display = '';
-    document.getElementById('sidebar').style.display = 'none';
-    document.getElementById('navHome').style.display = 'none';
-    document.querySelector('.main-layout').style.gridTemplateColumns = '1fr';
-    document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-    renderPreview();
-  } else {
-    showSection('buildings');
-  }
-}
-
-// ═══ AUTO-CONNECT ═══
-window.addEventListener('load', async () => {
-  // Always render preview grids so visitors can see buildings without connecting
-  renderPreview();
-  
-  if (window.ethereum) {
-    const a = await window.ethereum.request({ method: 'eth_accounts' });
-    if (a.length) handleConnect();
-  }
-});
-
-function renderPreview() {
-  const previewGrid = document.getElementById('previewBuildingsGrid');
-  if (previewGrid) {
-    previewGrid.innerHTML = BUILDINGS.map((b,i) => `
-      <div class="bld-card" data-id="${b.id}">
-        <div class="bld-num">${i+1}</div>
-        <div class="bld-img">${b.icon}</div>
-        <div class="bld-body">
-          <div class="bld-name-row">
-            <span class="bld-name">${b.name}</span>
-            <span class="bld-price">$${b.cost}</span>
-          </div>
-          <div class="bld-stats">
-            <span>Daily Yield</span>
-            <span class="yield-val">${b.yPct}</span>
-          </div>
-          <div class="bld-buy-row" style="margin-top:10px;">
-            <button class="bld-buy-btn" onclick="handleConnect()" style="width:100%;opacity:0.85;">🔗 Connect to Buy</button>
-          </div>
-        </div>
-      </div>
-    `).join('');
-  }
-  
-  const previewBoosts = document.getElementById('previewBoostsGrid');
-  if (previewBoosts) {
-    previewBoosts.innerHTML = BOOSTS.map(b => `
-      <div class="bst-card">
-        <div class="bst-icon">${b.icon}</div>
-        <div class="bst-name">${b.name}</div>
-        <div class="bst-tags">
-          <span class="bst-tag price">$${b.cost}</span>
-          <span class="bst-tag pct">${b.pct}</span>
-          <span class="bst-tag dur">${b.dur}</span>
-        </div>
-        <button class="bst-buy" onclick="handleConnect()">🔗 Connect</button>
-      </div>
-    `).join('');
-  }
-}
+// ═══ INIT ═══
+window.addEventListener('load',async()=>{renderPrev();if(window.ethereum){const a=await window.ethereum.request({method:'eth_accounts'});if(a.length)doConnect();}});
 </script>
 </body>
 </html>
