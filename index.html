@@ -239,7 +239,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Exo 2',sans-serif;min-hei
   <div class="ac"><h3>💸 Withdraw USDT</h3><div class="ad">Withdraw earned USDT to your wallet. Only earnings — deposited principal stays locked.</div><div class="air"><input type="number" class="ai" id="wA" placeholder="Amount" min="0.01" step="0.01"><button class="ab blu" id="wBtn2" onclick="doWd()">Withdraw</button></div><div class="af">10% withdrawal fee applies</div></div>
 </div></div>
 
-<div id="sec-boosts" class="sec" style="display:none"><div class="sh"><h2>🚀 Yield Boosts</h2></div><div style="background:var(--golds);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--gold)">⚠️ Only <strong>1 paid boost</strong> can be active at a time. All boosts last <strong>12 hours</strong>. Free 5% boost stacks on top and is separate.</div><div id="paidBoostStatus" style="display:none;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:var(--rs);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--grn)"></div><div class="bsg" id="bsG"></div></div>
+<div id="sec-boosts" class="sec" style="display:none"><div class="sh"><h2>🚀 Yield Boosts</h2></div><div style="background:var(--golds);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--gold)">⚠️ Only <strong>1 paid boost</strong> can be active at a time. All boosts last <strong>48 hours</strong>. Free 5% boost stacks on top and is separate.</div><div id="paidBoostStatus" style="display:none;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:var(--rs);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--grn)"></div><div class="bsg" id="bsG"></div></div>
 
 <div id="sec-referral" class="sec" style="display:none"><div class="sh"><h2>👥 Referral Program</h2></div><div class="ref-card"><h3>🔗 Your Referral Link</h3><p style="font-size:12px;color:var(--txd);margin-bottom:10px">Share your link — earn <strong style="color:var(--gold)">10% Gold bonus</strong> on every deposit your referrals make!</p><div class="ref-link-box"><input type="text" class="ref-link-input" id="rL" readonly value="Connect wallet to get link"><button class="ref-copy" onclick="navigator.clipboard.writeText(document.getElementById('rL').value);toast('Copied!','ok')">Copy</button></div><div class="ref-stats"><div class="ref-stat"><div class="rs-lab">Referrals</div><div class="rs-val" id="rC">0</div></div><div class="ref-stat"><div class="rs-lab">Gold Earned</div><div class="rs-val" id="rG">0.00000</div></div><div class="ref-stat"><div class="rs-lab">Your Referrer</div><div class="rs-val" id="rB" style="font-size:11px;word-break:break-all">None</div></div></div></div></div>
 
@@ -252,7 +252,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Exo 2',sans-serif;min-hei
 
 <div id="sec-docs" class="sec" style="display:none"><div class="sh"><h2>📄 Documentation</h2></div><div class="docs-c">
 <div class="docs-toc"><div class="pn"><h3>📑</h3>
-  <a class="tl" href="#" onclick="sD(event,'d-ov')">Overview</a><a class="tl" href="#" onclick="sD(event,'d-gs')">Getting Started</a><a class="tl" href="#" onclick="sD(event,'d-bld')">Properties</a><a class="tl" href="#" onclick="sD(event,'d-prog')">Price Scaling</a><a class="tl" href="#" onclick="sD(event,'d-yld')">Yield</a><a class="tl" href="#" onclick="sD(event,'d-fb')">Free Boost</a><a class="tl" href="#" onclick="sD(event,'d-cvt')">Convert / Withdraw</a><a class="tl" href="#" onclick="sD(event,'d-ref')">Referrals</a><a class="tl" href="#" onclick="sD(event,'d-bst')">Boosts</a><a class="tl" href="#" onclick="sD(event,'d-fee')">Fees</a>
+  <a class="tl" href="#" onclick="sD(event,'d-ov')">Overview</a><a class="tl" href="#" onclick="sD(event,'d-gs')">Getting Started</a><a class="tl" href="#" onclick="sD(event,'d-bld')">Properties</a><a class="tl" href="#" onclick="sD(event,'d-prog')">Price Scaling</a><a class="tl" href="#" onclick="sD(event,'d-yld')">Yield</a><a class="tl" href="#" onclick="sD(event,'d-fb')">Free Boost</a><a class="tl" href="#" onclick="sD(event,'d-cvt')">Convert / Withdraw</a><a class="tl" href="#" onclick="sD(event,'d-ref')">Referrals</a><a class="tl" href="#" onclick="sD(event,'d-bst')">Boosts</a><a class="tl" href="#" onclick="sD(event,'d-fee')">Fees</a><a class="tl" href="#" onclick="sD(event,'d-sc')">Smart Contract</a><a class="tl" href="#" onclick="sD(event,'d-faq')">FAQ</a>
 </div></div>
 <div class="docs-b">
   <div class="ds" id="d-ov"><h3>Overview</h3><p>Landlord USDT is a play-to-earn DeFi game on BNB Chain. Deposit USDT to get Gold (1:1), buy properties that earn daily USDT yield, then withdraw or convert earnings to Gold with a 15% bonus.</p></div>
@@ -280,22 +280,39 @@ body{background:var(--bg);color:var(--tx);font-family:'Exo 2',sans-serif;min-hei
   <div class="ds" id="d-fb"><h3>Free 5% Yield Boost</h3><p>Every 4 hours you can activate a free +5% yield boost that lasts 4 hours. You must own at least one building to use this. The boost stacks with paid boosts. On mobile, the boost button appears at the top of the game area.</p></div>
   <div class="ds" id="d-cvt"><h3>Convert / Withdraw</h3><p><strong>Convert to Gold:</strong> Turns earned USDT into Gold. 2.5% fee to the owner, but you receive a <strong>+15% Gold bonus</strong> on the converted amount. <strong>Withdraw:</strong> Cash out earned USDT with 10% fee. Deposited principal is permanently locked.</p></div>
   <div class="ds" id="d-ref"><h3>Referrals</h3><p>Share your referral link. When someone deposits using your link, you earn 10% of their deposit as bonus Gold. Referrer is locked on first deposit.</p></div>
-  <div class="ds" id="d-bst"><h3>Yield Boosts</h3><p>7 paid boosts from +7% to +70%, all lasting 12 hours. <strong>Only 1 paid boost can be active at a time.</strong> The free 5% boost is separate and stacks on top. Higher-tier boosts offer better value per dollar.</p>
+  <div class="ds" id="d-bst"><h3>Yield Boosts</h3><p>7 paid boosts from +7% to +70%, all lasting <strong>48 hours</strong>. <strong>Only 1 paid boost can be active at a time.</strong> The free 5% boost is separate and stacks on top.</p>
     <table><thead><tr><th>Boost</th><th>Cost</th><th>Effect</th><th>Duration</th></tr></thead><tbody>
-    <tr><td>Quick Buzz</td><td>$0.20</td><td>+7%</td><td>12hr</td></tr>
-    <tr><td>Happy Hour</td><td>$0.50</td><td>+14%</td><td>12hr</td></tr>
-    <tr><td>Power Surge</td><td>$1.00</td><td>+24.5%</td><td>12hr</td></tr>
-    <tr><td>Marketing Blitz</td><td>$2.50</td><td>+35%</td><td>12hr</td></tr>
-    <tr><td>Grand Opening</td><td>$5.00</td><td>+45.5%</td><td>12hr</td></tr>
-    <tr><td>Gold Rush</td><td>$10.00</td><td>+52.5%</td><td>12hr</td></tr>
-    <tr><td>Mega Mogul</td><td>$20.00</td><td>+70%</td><td>12hr</td></tr>
+    <tr><td>Quick Buzz</td><td>$0.20</td><td>+7%</td><td>48hr</td></tr>
+    <tr><td>Happy Hour</td><td>$0.50</td><td>+14%</td><td>48hr</td></tr>
+    <tr><td>Power Surge</td><td>$1.00</td><td>+24.5%</td><td>48hr</td></tr>
+    <tr><td>Marketing Blitz</td><td>$2.50</td><td>+35%</td><td>48hr</td></tr>
+    <tr><td>Grand Opening</td><td>$5.00</td><td>+45.5%</td><td>48hr</td></tr>
+    <tr><td>Gold Rush</td><td>$10.00</td><td>+52.5%</td><td>48hr</td></tr>
+    <tr><td>Mega Mogul</td><td>$12.00</td><td>+70%</td><td>48hr</td></tr>
     </tbody></table>
-    <div class="dhl"><strong>Rule:</strong> Only 1 paid boost at a time. You must wait for your current boost to expire before buying another. The free 5% boost (every 4 hours) works independently and stacks with any paid boost.</div></div>
+    <div class="dhl"><strong>Rule:</strong> Only 1 paid boost at a time. Wait for your current boost to expire before buying another. The free 5% boost (every 4 hours) works independently and stacks with any paid boost.</div></div>
   <div class="ds" id="d-fee"><h3>Fee Summary</h3><table><thead><tr><th>Action</th><th>Fee</th><th>Where</th></tr></thead><tbody>
     <tr><td>Deposit</td><td class="gr">0%</td><td>—</td></tr><tr><td>Buy Building</td><td class="gd">10%</td><td>Treasury</td></tr>
     <tr><td>Convert</td><td class="gd">2.5% + 15% bonus</td><td>Owner</td></tr><tr><td>Withdraw</td><td class="gd">10%</td><td>Owner</td></tr>
     <tr><td>Boost</td><td class="gd">100%</td><td>Owner</td></tr><tr><td>Referral</td><td class="gr">10% Gold</td><td>Referrer</td></tr>
     <tr><td>Free Boost</td><td class="gr">Free</td><td>—</td></tr></tbody></table></div>
+  <div class="ds" id="d-sc"><h3>🔍 Smart Contract</h3><p>Landlord USDT runs entirely on a verified BNB Chain smart contract. All deposits, yields, purchases, and withdrawals are executed on-chain with full transparency. There is no emergency withdraw or admin yield override — once deployed, building yields are permanent and funds cannot be drained by the owner.</p>
+    <div style="display:flex;align-items:center;gap:12px;margin:14px 0;padding:14px 18px;background:var(--bg);border:1px solid var(--bdrs);border-radius:var(--rs)">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#21325B"/><path d="M12 5L7 8.5V15.5L12 19L17 15.5V8.5L12 5Z" fill="#F0B90B"/><path d="M12 7L9 9.1V14.9L12 17L15 14.9V9.1L12 7Z" fill="#21325B"/><path d="M12 9L10.5 10V14L12 15L13.5 14V10L12 9Z" fill="#F0B90B"/></svg>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--tx)">View on BscScan</div>
+        <a href="#" id="bscLink" style="font-size:11px;color:var(--blu);word-break:break-all;text-decoration:none" target="_blank">Connect wallet to view contract</a>
+      </div>
+    </div>
+    <div class="dhl"><strong>Safety:</strong> No <code>emergencyWithdraw</code> function exists. No <code>updateBuildingYield</code> function exists. The owner cannot change yields or drain the contract. Only <code>setTreasury</code>, <code>addBuilding</code>, <code>addBoost</code>, and <code>transferOwnership</code> are available to the owner.</div>
+  </div>
+  <div class="ds" id="d-faq"><h3>❓ FAQ</h3>
+    <div style="margin-bottom:14px"><div style="font-weight:800;font-size:13px;color:var(--gold);margin-bottom:4px">Can I withdraw my initial deposit?</div><div style="font-size:12px;color:var(--txd);line-height:1.6">No. All deposited USDT (principal) is permanently locked in the contract. Only earned USDT from property yield can be withdrawn.</div></div>
+    <div style="margin-bottom:14px"><div style="font-weight:800;font-size:13px;color:var(--gold);margin-bottom:4px">Can the developer change building yields or drain the contract?</div><div style="font-size:12px;color:var(--txd);line-height:1.6">No. The smart contract has no <code>emergencyWithdraw</code> or <code>updateBuildingYield</code> function. Once deployed, yields are fixed and funds cannot be removed by anyone except through normal gameplay withdrawals.</div></div>
+    <div style="margin-bottom:14px"><div style="font-weight:800;font-size:13px;color:var(--gold);margin-bottom:4px">Can I stack multiple paid boosts?</div><div style="font-size:12px;color:var(--txd);line-height:1.6">No. Only 1 paid boost can be active at a time. You must wait for it to expire (48 hours) before buying another. However, the free 5% boost (every 4 hours) stacks on top of any paid boost.</div></div>
+    <div style="margin-bottom:14px"><div style="font-weight:800;font-size:13px;color:var(--gold);margin-bottom:4px">Why do building prices increase?</div><div style="font-size:12px;color:var(--txd);line-height:1.6">The first 10 of any building type cost the base price. From the 11th onward, each costs 1% more (compounding). This scaling caps at the 50th building — from #51 onward the price stays flat. This prevents whales from dominating cheaply.</div></div>
+    <div style="margin-bottom:14px"><div style="font-weight:800;font-size:13px;color:var(--gold);margin-bottom:4px">Who is the developer?</div><div style="font-size:12px;color:var(--txd);line-height:1.6">Landlord USDT was developed by an independent team. The smart contract is open-source and verified on BscScan. Follow us on <a href="https://t.me/YOUR_TELEGRAM" target="_blank" style="color:var(--blu);text-decoration:none">Telegram</a> and <a href="https://x.com/YOUR_TWITTER" target="_blank" style="color:var(--blu);text-decoration:none">X</a> for updates.</div></div>
+  </div>
 </div></div></div>
 
 </div></div>
@@ -306,7 +323,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Exo 2',sans-serif;min-hei
 <div class="tb" id="tB"></div>
 
 <script>
-const C={ADDR:'0xC70823da710ec0E53a6351102B50F5AbdBf5C411',USDT:'0x55d398326f99059fF775485246999027B3197955',CHAIN:'0x38',RPC:'https://bsc-dataseed.binance.org/',NAME:'BNB Smart Chain',EXP:'https://bscscan.com',SITE:'https://usdt-dusky1u.vercel.app/'};
+const C={ADDR:'0x0000000000000000000000000000000000000000',USDT:'0x55d398326f99059fF775485246999027B3197955',CHAIN:'0x38',RPC:'https://bsc-dataseed.binance.org/',NAME:'BNB Smart Chain',EXP:'https://bscscan.com',SITE:'https://yoursite.com'};
 const E20=['function approve(address,uint256) returns(bool)','function allowance(address,address) view returns(uint256)','function balanceOf(address) view returns(uint256)'];
 const ABI=[
   'function deposit(uint256,address) external','function buyBuilding(uint256,uint256) external','function convertToGold() external','function withdraw(uint256) external','function buyBoost(uint256) external','function claimFreeBoost() external',
@@ -330,13 +347,13 @@ const BLD=[
   {id:9,nm:'Skyscraper',ic:'🏙️',cost:10.00,yBps:14,yPct:'0.143%'},
 ];
 const BST=[
-  {id:0,nm:'Quick Buzz',ic:'⚡',cost:.20,pct:'+7%',dur:'12hr'},
-  {id:1,nm:'Happy Hour',ic:'🍻',cost:.50,pct:'+14%',dur:'12hr'},
-  {id:2,nm:'Power Surge',ic:'💥',cost:1.00,pct:'+24.5%',dur:'12hr'},
-  {id:3,nm:'Marketing Blitz',ic:'📣',cost:2.50,pct:'+35%',dur:'12hr'},
-  {id:4,nm:'Grand Opening',ic:'🎉',cost:5.00,pct:'+45.5%',dur:'12hr'},
-  {id:5,nm:'Gold Rush',ic:'🏆',cost:10.00,pct:'+52.5%',dur:'12hr'},
-  {id:6,nm:'Mega Mogul',ic:'👑',cost:20.00,pct:'+70%',dur:'12hr'},
+  {id:0,nm:'Quick Buzz',ic:'⚡',cost:.20,pct:'+7%',dur:'48hr'},
+  {id:1,nm:'Happy Hour',ic:'🍻',cost:.50,pct:'+14%',dur:'48hr'},
+  {id:2,nm:'Power Surge',ic:'💥',cost:1.00,pct:'+24.5%',dur:'48hr'},
+  {id:3,nm:'Marketing Blitz',ic:'📣',cost:2.50,pct:'+35%',dur:'48hr'},
+  {id:4,nm:'Grand Opening',ic:'🎉',cost:5.00,pct:'+45.5%',dur:'48hr'},
+  {id:5,nm:'Gold Rush',ic:'🏆',cost:10.00,pct:'+52.5%',dur:'48hr'},
+  {id:6,nm:'Mega Mogul',ic:'👑',cost:12.00,pct:'+70%',dur:'48hr'},
 ];
 let ownB={};
 function getRef(){return new URLSearchParams(location.search).get('ref')||ethers.constants.AddressZero;}
@@ -353,7 +370,9 @@ window.ethereum.on('accountsChanged',a=>{if(!a.length)disc();else{ad=a[0];refres
 initUI();toast('Welcome to Landlord USDT!','ok');setInterval(refresh,15000);
 }catch(e){console.error(e);toast('Failed: '+(e.message||''),'er');}}
 function disc(){conn=false;ad=null;document.getElementById('wBtn').textContent='Connect Wallet';document.getElementById('wBtn').classList.remove('on');document.getElementById('splash').style.display='';document.getElementById('sN').style.display='none';document.querySelector('.layout').classList.remove('ws');document.querySelectorAll('.sec').forEach(s=>s.style.display='none');document.getElementById('mobFree').style.display='none';renderPrev();}
-function initUI(){const b=document.getElementById('wBtn');b.textContent=ad.slice(0,6)+'...'+ad.slice(-4);b.classList.add('on');document.getElementById('splash').style.display='none';document.getElementById('sN').style.display='';document.querySelector('.layout').classList.add('ws');document.getElementById('rL').value=C.SITE+'?ref='+ad;renderBld();renderBst();showS('buildings');refresh();startClk();}
+function initUI(){const b=document.getElementById('wBtn');b.textContent=ad.slice(0,6)+'...'+ad.slice(-4);b.classList.add('on');document.getElementById('splash').style.display='none';document.getElementById('sN').style.display='';document.querySelector('.layout').classList.add('ws');document.getElementById('rL').value=C.SITE+'?ref='+ad;
+const bscEl=document.getElementById('bscLink');if(bscEl){bscEl.href='https://bscscan.com/address/'+C.ADDR;bscEl.textContent=C.ADDR;}
+renderBld();renderBst();showS('buildings');refresh();startClk();}
 function renderBld(){document.getElementById('bG').innerHTML=BLD.map((b,i)=>`<div class="bc" data-id="${b.id}"><div class="bc-n">${i+1}</div><div class="bc-img">${b.ic}</div><div class="bc-b"><div class="bc-nr"><span class="bc-nm">${b.nm}</span><span class="bc-pr">🪙 ${b.cost.toFixed(2)}</span></div><div class="bc-st"><span>Daily Yield</span><span class="yv">${b.yPct}</span></div><div class="bc-ow">Owned: <strong id="ow-${b.id}">0</strong></div><div class="bc-sc" id="sn-${b.id}"></div><div class="bc-cp" id="cp-${b.id}"></div><div class="bc-br"><input type="number" class="bc-qi" id="bq-${b.id}" value="1" min="1" oninput="updCP(${b.id})"><button class="bc-bb" onclick="doBuy(${b.id})">Buy</button></div></div></div>`).join('');BLD.forEach(b=>updCP(b.id));}
 function renderBst(){document.getElementById('bsG').innerHTML=BST.map(b=>`<div class="bsc" id="bs-${b.id}"><div class="bsc-i">${b.ic}</div><div class="bsc-n">${b.nm}</div><div class="bsc-tags"><span class="bsc-tag pr">$${b.cost.toFixed(2)}</span><span class="bsc-tag pc">${b.pct}</span><span class="bsc-tag dr">${b.dur}</span></div><button class="bsc-b" onclick="doBst(${b.id})">Buy</button><div class="bsc-t" id="bt-${b.id}"></div></div>`).join('');}
 function renderPrev(){document.getElementById('prevB').innerHTML=BLD.map((b,i)=>`<div class="bc"><div class="bc-n">${i+1}</div><div class="bc-img">${b.ic}</div><div class="bc-b"><div class="bc-nr"><span class="bc-nm">${b.nm}</span><span class="bc-pr">🪙 ${b.cost.toFixed(2)}</span></div><div class="bc-st"><span>Daily Yield</span><span class="yv">${b.yPct}</span></div><div class="bc-br" style="margin-top:8px"><button class="bc-bb" onclick="doConnect()" style="width:100%;opacity:.85">🔗 Connect to Buy</button></div></div></div>`).join('');}
