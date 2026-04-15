@@ -1,0 +1,1 @@
+BNB chain investment game
